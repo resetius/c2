@@ -2,16 +2,11 @@
 #define C2_GRADIENT_H
 
 #include <assert.h>
+#include <math.h>
+
+#include "c2_channel_cast.h"
 
 using namespace boost::gil;
-
-template < typename Out >
-struct halfdiff_cast_channels {
-    template <typename T> Out operator()(const T& in1, const T& in2) const {
-        return Out((in2-in1)/2);
-    }
-};
-
 
 template <typename SrcView, typename DstView>
 void x_gradient(const SrcView& src, const DstView& dst) {
@@ -49,10 +44,10 @@ void y_luminosity_gradient(const SrcView& src, const DstView& dst) {
     y_gradient(color_converted_view<gray_pixel_t>(src), dst);
 }
 
-template <typename View_t >
-void image_sum(const View_t & v1, const View_t & v2, const View_t & d ) {
-    typedef typename channel_type<View_t>::type dst_channel_t;
-
+template <typename View_t, typename Join_t >
+void image_join(const View_t & v1, const View_t & v2, 
+				const View_t & d,  Join_t f) 
+{
     assert(v1.height() == v2.height() && v1.height() == d.height());
     assert(v1.width()  == v2.width()  && v1.width()  == d.width());
 
@@ -68,8 +63,7 @@ void image_sum(const View_t & v1, const View_t & v2, const View_t & d ) {
         typename View_t::x_iterator it_d  = d.row_begin(y);
 
         for (int x = 0 ; x < w; ++x) {
-            static_transform(it_v1[x], it_v2[x], it_d[x],
-                             halfdiff_cast_channels<dst_channel_t>());
+            static_transform(it_v1[x], it_v2[x], it_d[x], f);
         }
     }
 }
