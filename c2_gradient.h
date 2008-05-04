@@ -34,7 +34,7 @@ void x_gradient(const SrcView& src, const DstView& dst) {
 
 template <typename SrcView, typename DstView>
 void y_gradient(const SrcView& src, const DstView& dst) {
-    x_gradient(src, rotated90cw_view(dst));
+    x_gradient(rotated90cw_view(src), rotated90cw_view(dst));
 }
 
 template <typename SrcView, typename DstView>
