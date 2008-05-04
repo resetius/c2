@@ -74,23 +74,23 @@ void y_luminosity_gradient(const SrcView& src, const DstView& dst) {
     y_gradient(color_converted_view<gray_pixel_t>(src), dst);
 }
 
-template <typename View_t, typename Join_t >
-void image_join(const View_t & v1, const View_t & v2, 
-				const View_t & d,  Join_t f) 
+template <typename SrcView, typename DstView, typename Join_t >
+void image_join(const SrcView & v1, const SrcView & v2, 
+				const DstView & d,  Join_t f) 
 {
     assert(v1.height() == v2.height() && v1.height() == d.height());
     assert(v1.width()  == v2.width()  && v1.width()  == d.width());
 
     int channels = v1.num_channels();
 
-    typename View_t::x_coord_t h = v1.height();
-    typename View_t::y_coord_t w = v1.width();
+    typename SrcView::x_coord_t h = v1.height();
+    typename SrcView::y_coord_t w = v1.width();
 
 #pragma omp parallel for
     for (int y = 0; y < h; ++y) {
-        typename View_t::x_iterator it_v1 = v1.row_begin(y);
-        typename View_t::x_iterator it_v2 = v2.row_begin(y);
-        typename View_t::x_iterator it_d  = d.row_begin(y);
+        typename SrcView::x_iterator it_v1 = v1.row_begin(y);
+        typename SrcView::x_iterator it_v2 = v2.row_begin(y);
+        typename DstView::x_iterator it_d  = d.row_begin(y);
 
         for (int x = 0 ; x < w; ++x) {
             static_transform(it_v1[x], it_v2[x], it_d[x], f);
