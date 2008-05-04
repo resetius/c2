@@ -92,19 +92,116 @@ void soebel(const View & v)
 	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
 	fill_pixels(view(img_out),bits8s(0));
 
+	gray8s_image_t img_x(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_x),bits8s(0));
+
+	gray8s_image_t img_y(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_y),bits8s(0));
+
 	typedef pixel<typename channel_type<View>::type, 
 		gray_layout_t> gray_pixel_t;
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
-		view(img_out), *IntMatrix::Soebel(3, 3));
+		view(img_x), IntMatrix::Soebel_x());
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_y), IntMatrix::Soebel_y());
+	image_join(const_view(img_x), const_view(img_y), view(img_out),
+		make_sqrt_cast_channels (view(img_out)));
 
 	jpeg_write_view("out-soebel.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
 }
 
+template < typename View >
+void previt(const View & v)
+{
+	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_out),bits8s(0));
+
+	gray8s_image_t img_x(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_x),bits8s(0));
+
+	gray8s_image_t img_y(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_y),bits8s(0));
+
+	typedef pixel<typename channel_type<View>::type, 
+		gray_layout_t> gray_pixel_t;
+
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_x), IntMatrix::Previt_x());
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_y), IntMatrix::Previt_y());
+	image_join(const_view(img_x), const_view(img_y), view(img_out),
+		make_sqrt_cast_channels (view(img_out)));
+
+	jpeg_write_view("out-previt.jpg",
+		color_converted_view<gray8_pixel_t>(const_view(img_out)));
+}
+
+template < typename View >
+void roberts(const View & v)
+{
+	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_out),bits8s(0));
+
+	gray8s_image_t img_x(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_x),bits8s(0));
+
+	gray8s_image_t img_y(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_y),bits8s(0));
+
+	typedef pixel<typename channel_type<View>::type, 
+		gray_layout_t> gray_pixel_t;
+
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_x), IntMatrix::Roberts_x());
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_y), IntMatrix::Roberts_y());
+	image_join(const_view(img_x), const_view(img_y), view(img_out),
+		make_sqrt_cast_channels (view(img_out)));
+
+	jpeg_write_view("out-roberts.jpg",
+		color_converted_view<gray8_pixel_t>(const_view(img_out)));
+}
+
+template < typename View >
+void log_3_3(const View & v)
+{
+	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_out),bits8s(0));
+
+	typedef pixel<typename channel_type<View>::type, 
+		gray_layout_t> gray_pixel_t;
+
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_out), IntMatrix::LOG_3_3());
+
+	jpeg_write_view("out-log_3_3.jpg",
+		color_converted_view<gray8_pixel_t>(const_view(img_out)));
+}
+
+template < typename View >
+void gauss_3_3(const View & v)
+{
+	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
+	fill_pixels(view(img_out),bits8s(0));
+
+	typedef pixel<typename channel_type<View>::type, 
+		gray_layout_t> gray_pixel_t;
+
+	apply_matrix(color_converted_view<gray_pixel_t>(v),
+		view(img_out), IntMatrix::Gauss_3_3());
+
+	jpeg_write_view("out-gauss_3_3.jpg",
+		color_converted_view<gray8_pixel_t>(const_view(img_out)));
+}
+
 int main() {
 	rgb8_image_t img;
-	jpeg_read_image("test.jpg",img);
+	jpeg_read_image("test.jpg", img);
+
+	jpeg_write_view("out-lum.jpg",
+		color_converted_view<gray8_pixel_t>(const_view(img)));
 
 	gray8s_image_t img_x(img.dimensions());
 	gray8s_image_t img_y(img.dimensions());
@@ -120,6 +217,10 @@ int main() {
 	sum_grad(img, img_x, img_y);
 
 	soebel(const_view(img));
+	previt(const_view(img));
+	roberts(const_view(img));
+	log_3_3(const_view(img));
+	gauss_3_3(const_view(img));
 
 	jpeg_write_view("out-x_gradient.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_x)));

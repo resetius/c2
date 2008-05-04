@@ -37,43 +37,150 @@ struct IntMatrix {
 
 	int * d;
 
-	IntMatrix() : w(0), h(0), d(0) {}
-	IntMatrix(int w1, int h1): w(w1), h(h1), d(new int[w * h]) {}
-	~IntMatrix() { delete [] d; }
+	double coef;
+	bool owns;
 
-	static IntMatrix * Soebel(int w, int h) {
-		int d[] = {
+	IntMatrix() : w(0), h(0), d(0), coef(1.0), owns(false) {}
+	IntMatrix(int w1, int h1)
+		: w(w1), h(h1), d(new int[w * h]), coef(1.0), owns(true) 
+	{}
+
+	IntMatrix(int * d1, int w1, int h1, double coef1 = 1.0, bool o = true)
+		: w(w1), h(h1), d(o ? new int[w * h] : d1), coef(coef1), owns(o)
+	{
+		if (!owns) { memcpy(d, d1, w * h * sizeof(int)); }
+	}
+
+	~IntMatrix() { if (owns) delete [] d; }
+
+	static IntMatrix & Soebel_x() {
+		static int d[] = {
+			-1, 0, 1,
+			-2, 0, 2,
+			-1, 0, 1,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+
+		return m;
+	}
+
+	static IntMatrix & Soebel_y() {
+		static int d[] = {
 			1, 2, 1,
 			0, 0, 0,
+			-1, -2, -1,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+
+		return m;
+	}
+
+	static IntMatrix & Previt_x() {
+		static int d[] = {
+			-1, 0, 1,
+			-1, 0, 1,
+			-1, 0, 1,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+
+		return m;
+	}
+
+	static IntMatrix & Previt_y() {
+		static int d[] = {
+			1, 1, 1,
+			0, 0, 0,
+			-1, -1, -1,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+
+		return m;
+	}
+
+	static IntMatrix & Roberts_x() {
+		static int d[] = {
+			0, 1,
+			-1, 0,
+		};
+
+		static IntMatrix m(&d[0], 2, 2, 0.5, false);
+
+		return m;
+	}
+
+	static IntMatrix & Roberts_y() {
+		static int d[] = {
+			1, 0,
+			0, -1,
+		};
+
+		static IntMatrix m(&d[0], 2, 2, 0.5, false);
+
+		return m;
+	}
+
+	static IntMatrix & Gauss_3_3() {
+		static int d[] = {
+			1, 2, 1,
+			2, 4, 2,
 			1, 2, 1,
 		};
 
-		IntMatrix * m = new IntMatrix(3, 3);
-		memcpy(m->d, d, 3 * 3 * sizeof(int));
+		static IntMatrix m(&d[0], 3, 3, 0.0625, false);
+
+		return m;
+	}
+
+	static IntMatrix & Gauss_7_7() {
+		static int d[] = {
+			1, 3,  7,  9,  7,  3,  1,
+			3, 12, 26, 33, 26, 12, 3,
+			7, 26, 55, 70, 55, 26, 7,
+			9, 33, 70, 90, 70, 33, 9,
+			7, 26, 55, 70, 55, 26, 7,
+			3, 12, 26, 33, 26, 12, 3,
+			1, 3,  7,  9,  7,  3,  1,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 7.0 / 7.0, false);
+
+		return m;
+	}
+
+	static IntMatrix & LOG_3_3() {
+		static int d[] = {
+			0, -1,  0,
+			-1, 4, -1,
+			0, -1,  0,
+		};
+
+		static IntMatrix m(&d[0], 3, 3, 0.5, false);
 
 		return m;
 	}
 };
 
 namespace c2_impl {
-	template < typename SrcView, typename DstView, typename Matrix >
-	void apply_matrix(const SrcView & s, const DstView & d, 
-		const Matrix & m)
+	template < typename SrcView, typename Matrix >
+	int apply_matrix(const SrcView & s, const Matrix & m)
 	{
-		int channels = s.num_channels();
 		int w = m.w;
 		int h = m.h;
 
+		int col = 0;
 		for (int y = 0; y < h; ++y) {
-			for (int c = 0; c < channels; ++c) {
-				typename SrcView::x_iterator it_s = s.row_begin(y);
-				typename DstView::x_iterator it_d = d.row_begin(y);
+			typename SrcView::x_iterator it_s = s.row_begin(y);
 
-				for (int x = 0; x < w; ++x) {
-					it_d[x][c] += it_s[x][c] * m.d[x * h + y];
-				}
+			for (int x = 0; x < w; ++x) {
+				col += it_s[x] * m.d[x * h + y];
 			}
 		}
+
+		return col;
 	}
 }
 
@@ -91,15 +198,22 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 		return; //cannot apply
 	}
 
-	for (int x = 0; x < w - m.w; ++x) {
-		for (int y = 0; y < h - m.h; ++y) {
-			c2_impl::apply_matrix(
-				subimage_view(s, 
-					typename SrcView::point_t(x, y), 
-					typename SrcView::point_t(m.w, m.h)), 
-				subimage_view(d, 
-					typename DstView::point_t(x, y),
-					typename DstView::point_t(m.w, m.h)), m);
+	int channels = s.num_channels();
+
+#pragma omp parallel for
+	for (int y = 0; y < h - m.h; ++y) {
+		typename DstView::x_iterator it_d = d.row_begin(y);
+
+		for (int x = 0; x < w - m.w; ++x) {
+			for (int c = 0; c < channels; ++c) {
+				int col = c2_impl::apply_matrix(
+					nth_channel_view(subimage_view(s, 
+						typename SrcView::point_t(x, y), 
+						typename SrcView::point_t(m.w, m.h)), c), m);
+
+				col = int((double)col * m.coef);
+				it_d[x][c] = col;
+			}
 		}
 	}
 }
