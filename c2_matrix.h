@@ -178,13 +178,33 @@ struct IntMatrix {
 
 		return m;
 	}
+
+	static IntMatrix & LOG_11_11() {
+		static int d[] = {
+			0,   0,   0,  -1,  -1,  -2,  -1,  -1,   0,  0,  0,
+			0,   0,  -2,  -4,  -8,  -9,  -8,  -4,  -2,  0,  0,
+			0,  -2,  -7, -15, -22, -23, -22, -15,  -7, -2,  0,
+			-1, -4, -15, -24, -14,  -1, -14, -24, -15, -4, -1,
+			-1, -8, -22, -14,  52, 103,  52, -14, -22, -8, -1,
+			-2, -9, -23,  -1, 103, 178, 103,  -1, -23, -9, -2,
+			-1, -8, -22, -14,  52, 103,  52, -14, -22, -8, -1,
+			-1, -4, -15, -24, -14,  -1, -14, -24, -15, -4, -1,
+			0,  -2,  -7, -15, -22, -23, -22, -15,  -7, -2,  0,
+			0,   0,  -2,  -4,  -8,  -9,  -8,  -4,  -2,  0,  0,
+			0,   0,   0,  -1,  -1,  -2,  -1,  -1,   0,  0,  0,
+		};
+
+		static IntMatrix m(&d[0], 11, 11, 0.001, false, true);
+
+		return m;
+	}
 };
 
 #include <iostream>
 
 namespace c2_impl {
 	template < typename SrcView, typename Matrix >
-	int apply_matrix(const SrcView & s, const Matrix & m)
+	long apply_matrix(const SrcView & s, const Matrix & m)
 	{
 		int w1 = s.width();
 		int h1 = s.height();
@@ -192,7 +212,7 @@ namespace c2_impl {
 		int w = m.w;
 		int h = m.h;
 
-		int col = 0;
+		long col = 0;
 
 		typename Matrix::const_iterator jt = m.begin();
 		typename SrcView::iterator it      = s.begin();
@@ -202,12 +222,14 @@ namespace c2_impl {
 			col += *jt++ * *it;
 		}
 
-		return col;
+		return std::abs(col);
 	}
 }
 
 template < typename SrcView, typename DstView, typename Matrix >
-void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m, bool cc = false)
+void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m, 
+				  int fill = 0,
+				  bool cc  = false)
 {
 	assert(s.width()        == d.width());
 	assert(s.height()       == d.height());
@@ -222,20 +244,106 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m, bool c
 
 	int channels = s.num_channels();
 
+	int h_2 = m.h / 2;
+	int w_2 = m.w / 2;
+
+	//только если fill > 0
+	typename DstView::value_type pix;
+	for (int c = 0; c < channels; ++c) {
+		pix[c] = fill;
+	}
+
+	//Заполняем края
+	//верх
+	for (int y = 0; y < h_2; ++y) {
+		typename DstView::x_iterator it_d = d.row_begin(y);
+		typename SrcView::x_iterator it_s = s.row_begin(y);
+
 #pragma omp parallel for
-	for (int y = 0; y < h - m.h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			if (fill < 0) {
+				if (cc) {
+					color_convert(it_s[x], it_d[x]);
+				} else {
+					it_d[x] = it_s[x];
+				}
+			} else {
+				it_d[x] = pix;
+			}
+		}
+	}
+
+	//низ
+	for (int y = h - h_2; y < h; ++y) {
+		typename DstView::x_iterator it_d = d.row_begin(y);
+		typename SrcView::x_iterator it_s = s.row_begin(y);
+
+#pragma omp parallel for
+		for (int x = 0; x < w; ++x) {
+			if (fill < 0) {
+				if (cc) {
+					color_convert(it_s[x], it_d[x]);
+				} else {
+					it_d[x] = it_s[x];
+				}
+			} else {
+				it_d[x] = pix;
+			}
+		}
+	}
+
+	//лево
+	for (int y = 0; y < h; ++y) {
+		typename DstView::x_iterator it_d = d.row_begin(y);
+		typename SrcView::x_iterator it_s = s.row_begin(y);
+
+#pragma omp parallel for
+		for (int x = 0; x < w_2; ++x) {
+			if (fill < 0) {
+				if (cc) {
+					color_convert(it_s[x], it_d[x]);
+				} else {
+					it_d[x] = it_s[x];
+				}
+			} else {
+				it_d[x] = pix;
+			}
+		}
+	}
+
+	//право
+	for (int y = 0; y < h; ++y) {
+		typename DstView::x_iterator it_d = d.row_begin(y);
+		typename SrcView::x_iterator it_s = s.row_begin(y);
+
+#pragma omp parallel for
+		for (int x = w - w_2; x < w; ++x) {
+			if (fill < 0) {
+				if (cc) {
+					color_convert(it_s[x], it_d[x]);
+				} else {
+					it_d[x] = it_s[x];
+				}
+			} else {
+				it_d[x] = pix;
+			}
+		}
+	}
+
+	//применяем матрицу
+#pragma omp parallel for
+	for (int y = h_2; y < h - h_2; ++y) {
 		typename DstView::x_iterator it_d = d.row_begin(y);
 
-		for (int x = 0; x < w - m.w; ++x) {
+		for (int x = w_2; x < w - w_2; ++x) {
 			typename SrcView::value_type pix;
 			for (int c = 0; c < channels; ++c) {
-				int col = c2_impl::apply_matrix(
+				long col = c2_impl::apply_matrix(
 					nth_channel_view(subimage_view(s, 
-						typename SrcView::point_t(x, y), 
+						typename SrcView::point_t(x - w_2, y - h_2), 
 						typename SrcView::point_t(m.w, m.h)), c), m);
 
-				col = int((double)col * m.coef);
-				pix[c] = col;
+				pix[c] = int((double)col * m.coef);
 			}
 
 			if (cc) {
