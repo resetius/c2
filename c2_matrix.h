@@ -40,6 +40,8 @@ struct IntMatrix {
 	double coef;
 	bool owns;
 
+	typedef int * iterator;
+
 	IntMatrix() : w(0), h(0), d(0), coef(1.0), owns(false) {}
 	IntMatrix(int w1, int h1)
 		: w(w1), h(h1), d(new int[w * h]), coef(1.0), owns(true) 
@@ -125,12 +127,14 @@ struct IntMatrix {
 
 	static IntMatrix & Gauss_3_3() {
 		static int d[] = {
-			1, 2, 1,
-			2, 4, 2,
-			1, 2, 1,
+//			1, 2, 1, //1/4
+//			2, 4, 2, //1/8
+//			1, 2, 1, //1/4
+			1, 1, 1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 0.0625, false);
+		//1/16
+		static IntMatrix m(&d[0], 1, 3, 1./3., false);
 
 		return m;
 	}
@@ -146,7 +150,12 @@ struct IntMatrix {
 			1, 3,  7,  9,  7,  3,  1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 1.0 / 7.0 / 7.0, false);
+		int k = 0;
+		for (int i = 0; i < sizeof(d) / sizeof(int); ++i) {
+			k += d[i];
+		}
+
+		static IntMatrix m(&d[0], 7, 7, 1.0 / k, false);
 
 		return m;
 	}
@@ -168,17 +177,29 @@ namespace c2_impl {
 	template < typename SrcView, typename Matrix >
 	int apply_matrix(const SrcView & s, const Matrix & m)
 	{
+		int w1 = s.width();
+		int h1 = s.height();
+
 		int w = m.w;
 		int h = m.h;
 
 		int col = 0;
-		for (int y = 0; y < h; ++y) {
-			typename SrcView::x_iterator it_s = s.row_begin(y);
 
-			for (int x = 0; x < w; ++x) {
-				col += it_s[x] * m.d[x * h + y];
-			}
+		typename Matrix::iterator jt = &m.d[0];
+
+		for (typename SrcView::iterator it = s.begin();
+			it != s.end(); ++it)
+		{
+			col += *jt++ * *it;
 		}
+
+//		for (int y = 0; y < h; ++y) {
+//			typename SrcView::x_iterator it_s = s.row_begin(y);
+
+//			for (int x = 0; x < w; ++x) {
+//				col += it_s[x] * m.d[y * w + x];
+//			}
+//		}
 
 		return col;
 	}
@@ -200,6 +221,12 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 
 	int channels = s.num_channels();
 
+    typedef pixel<typename channel_type < DstView >::type, 
+		gray_layout_t> gray_pixel_t;
+
+//	typename color_converted_view_type < SrcView, gray_pixel_t >::type
+//		converter = color_converted_view < gray_pixel_t > (s);
+
 #pragma omp parallel for
 	for (int y = 0; y < h - m.h; ++y) {
 		typename DstView::x_iterator it_d = d.row_begin(y);
@@ -214,6 +241,57 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 				col = int((double)col * m.coef);
 				it_d[x][c] = col;
 			}
+
+			//color_convert(it_d[x], it_d[x]);
+
+			//it_d[x] = converter(it_d[x]);
 		}
+	}
+}
+
+#include <iostream>
+
+template < typename SrcView, typename DstView >
+void transform_1(const SrcView & s, const DstView & d)
+{
+	assert(s.width()        == d.width());
+	assert(s.height()       == d.height());
+	assert(s.num_channels() == d.num_channels());
+
+	int w = s.width();
+	int h = s.height();
+
+	int channels = s.num_channels();
+	int c2 = d.num_channels();
+
+    typedef pixel<typename channel_type < DstView >::type, 
+		gray_layout_t> gray_pixel_t;
+
+//#pragma omp parallel for
+//	for (int y = 0; y < h; ++y) {
+//		typename DstView::x_iterator it_d = d.row_begin(y);
+//		typename SrcView::x_iterator it_s = s.row_begin(y);
+//
+//		for (int x = 0; x < w - 3; ++x) {
+//			for (int c = 0; c < channels; ++c) {
+//				unsigned int col = it_s[x];// + it_s[x + 1][c] + it_s[x + 2][c];
+//				col = unsigned int ((double)col /1.);
+//				if (col > 255) col = 255;
+//				it_d[x] = gray_pixel_t((unsigned char)col);
+//			}
+//		}
+//	}
+
+	typename DstView::iterator it_d = d.begin();
+	typename SrcView::iterator it_s = s.begin();
+
+    typedef typename channel_type<DstView>::type dst_channel_t;
+
+	while (it_d != d.end()) {
+		color_convert(*it_s, *it_d);
+
+//		std::cout << *it_d << " " << *it_s << "\n";
+
+		++it_d; ++it_s;
 	}
 }
