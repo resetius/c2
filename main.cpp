@@ -103,13 +103,13 @@ void soebel(const View & v)
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_x), IntMatrix::Soebel_x());
-//	jpeg_write_view("out-soebel_x.jpg",
-//                color_converted_view<gray8_pixel_t>(const_view(img_x)));
+	jpeg_write_view("out-soebel_x.jpg",
+                color_converted_view<gray8_pixel_t>(const_view(img_x)));
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_y), IntMatrix::Soebel_y());
-//	jpeg_write_view("out-soebel_y.jpg",
-//                color_converted_view<gray8_pixel_t>(const_view(img_y)));
+	jpeg_write_view("out-soebel_y.jpg",
+                color_converted_view<gray8_pixel_t>(const_view(img_y)));
 
 	image_join(const_view(img_x), const_view(img_y), view(img_out),
 		make_abs_sum_cast_channels (const_view(img_x)));
@@ -199,7 +199,7 @@ void gauss_3_3(const View & v)
 		gray_layout_t> gray_pixel_t;
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
-		view(img_out), IntMatrix::Gauss_3_3());
+		view(img_out), IntMatrix::Gauss_3_3(), true);
 
 //	transform_1(color_converted_view<gray8_pixel_t>(v),
 //		view(img_out));
@@ -221,7 +221,7 @@ void gauss_7_7(const View & v)
 		gray_layout_t> gray_pixel_t;
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
-		view(img_out), IntMatrix::Gauss_7_7());
+		view(img_out), IntMatrix::Gauss_7_7(), true);
 
 	jpeg_write_view("out-gauss_7_7.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));

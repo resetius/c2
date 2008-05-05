@@ -57,7 +57,8 @@ make_halfsum_cast_channels(Out)
 template < typename Out >
 struct sqrt_cast_channels {
     template <typename T> Out operator()(const T& in1, const T& in2) const {
-		return Out(sqrt((double)in2 * (double)in2 + (double)in1 * (double)in1));
+	unsigned int col = (int)round(sqrt(((double)in2 * (double)in2 + (double)in1 * (double)in1) * 0.5));
+	return Out(col);
     }
 };
 

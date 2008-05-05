@@ -54,7 +54,8 @@ void x_gradient(const SrcView& src, const DstView& dst) {
 		typename SrcView::value_type pix;
             static_transform(src_it[x - 1], src_it[x + 1], pix,
                              halfdiff_cast_channels<src_channel_t>());
-	    color_convert(pix, dst_it[x]);
+	    //color_convert(pix, dst_it[x]);
+	    dst_it[x] = pix;
         }
     }
 }
@@ -97,7 +98,8 @@ void image_join(const SrcView & v1, const SrcView & v2,
         for (int x = 0 ; x < w; ++x) {
 		typename SrcView::value_type pix;
             static_transform(it_v1[x], it_v2[x], pix, f);
-	    color_convert(pix, it_d[x]);
+	    //color_convert(pix, it_d[x]);
+	    it_d[x] = pix;
         }
     }
 }

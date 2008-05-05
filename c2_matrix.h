@@ -39,17 +39,18 @@ struct IntMatrix {
 
 	double coef;
 	bool owns;
+	bool normalize;
 
 	typedef int * iterator;
 	typedef const int * const_iterator;
 
-	IntMatrix() : w(0), h(0), d(0), coef(1.0), owns(false) {}
+	IntMatrix() : w(0), h(0), d(0), coef(1.0), owns(false), normalize(false) {}
 	IntMatrix(int w1, int h1)
-		: w(w1), h(h1), d(new int[w * h]), coef(1.0), owns(true) 
+		: w(w1), h(h1), d(new int[w * h]), coef(1.0), owns(true), normalize(false)
 	{}
 
-	IntMatrix(int * d1, int w1, int h1, double coef1 = 1.0, bool o = true)
-		: w(w1), h(h1), d(o ? new int[w * h] : d1), coef(coef1), owns(o)
+	IntMatrix(int * d1, int w1, int h1, double coef1 = 1.0, bool o = true, bool n = false)
+		: w(w1), h(h1), d(o ? new int[w * h] : d1), coef(coef1), owns(o), normalize(n)
 	{
 		if (!owns) { memcpy(d, d1, w * h * sizeof(int)); }
 	}
@@ -69,7 +70,7 @@ struct IntMatrix {
 			-1, 0, 1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false, true);
 
 		return m;
 	}
@@ -81,7 +82,7 @@ struct IntMatrix {
 			-1, -2, -1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false, true);
 
 		return m;
 	}
@@ -93,7 +94,7 @@ struct IntMatrix {
 			-1, 0, 1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false, true);
 
 		return m;
 	}
@@ -105,7 +106,7 @@ struct IntMatrix {
 			-1, -1, -1,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false);
+		static IntMatrix m(&d[0], 3, 3, 1.0 / 6.0, false, true);
 
 		return m;
 	}
@@ -116,7 +117,7 @@ struct IntMatrix {
 			-1, 0,
 		};
 
-		static IntMatrix m(&d[0], 2, 2, 0.5, false);
+		static IntMatrix m(&d[0], 2, 2, 0.5, false, true);
 
 		return m;
 	}
@@ -127,21 +128,20 @@ struct IntMatrix {
 			0, -1,
 		};
 
-		static IntMatrix m(&d[0], 2, 2, 0.5, false);
+		static IntMatrix m(&d[0], 2, 2, 0.5, false, true);
 
 		return m;
 	}
 
 	static IntMatrix & Gauss_3_3() {
 		static int d[] = {
-//			1, 2, 1, //1/4
-//			2, 4, 2, //1/8
-//			1, 2, 1, //1/4
-			1, 1, 1,
+			1, 2, 1,
+			2, 4, 2,
+			1, 2, 1,
 		};
 
 		//1/16
-		static IntMatrix m(&d[0], 1, 3, 1./3., false);
+		static IntMatrix m(&d[0], 3, 3, 1./16., false);
 
 		return m;
 	}
@@ -174,11 +174,13 @@ struct IntMatrix {
 			0, -1,  0,
 		};
 
-		static IntMatrix m(&d[0], 3, 3, 0.5, false);
+		static IntMatrix m(&d[0], 3, 3, 0.5, false, true);
 
 		return m;
 	}
 };
+
+#include <iostream>
 
 namespace c2_impl {
 	template < typename SrcView, typename Matrix >
@@ -193,27 +195,19 @@ namespace c2_impl {
 		int col = 0;
 
 		typename Matrix::const_iterator jt = m.begin();
+		typename SrcView::iterator it      = s.begin();
 
-		for (typename SrcView::iterator it = s.begin();
-			it != s.end(); ++it)
+		for ( ; it != s.end(); ++it)
 		{
 			col += *jt++ * *it;
 		}
-
-//		for (int y = 0; y < h; ++y) {
-//			typename SrcView::x_iterator it_s = s.row_begin(y);
-
-//			for (int x = 0; x < w; ++x) {
-//				col += it_s[x] * m.d[y * w + x];
-//			}
-//		}
 
 		return col;
 	}
 }
 
 template < typename SrcView, typename DstView, typename Matrix >
-void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
+void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m, bool cc = false)
 {
 	assert(s.width()        == d.width());
 	assert(s.height()       == d.height());
@@ -244,7 +238,11 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 				pix[c] = col;
 			}
 
-			color_convert(pix, it_d[x]);
+			if (cc) {
+				color_convert(pix, it_d[x]);
+			} else {
+				it_d[x] = pix;
+			}
 		}
 	}
 }
