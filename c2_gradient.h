@@ -40,7 +40,7 @@ using namespace boost::gil;
 
 template <typename SrcView, typename DstView>
 void x_gradient(const SrcView& src, const DstView& dst) {
-    typedef typename channel_type<DstView>::type dst_channel_t;
+    typedef typename channel_type<SrcView>::type src_channel_t;
 
     typename SrcView::x_coord_t h = src.height();
     typename SrcView::y_coord_t w = src.width();
@@ -51,8 +51,10 @@ void x_gradient(const SrcView& src, const DstView& dst) {
         typename DstView::x_iterator dst_it = dst.row_begin(y);
 
         for (int x = 1; x < w - 1; ++x) {
-            static_transform(src_it[x - 1], src_it[x + 1], dst_it[x],
-                             halfdiff_cast_channels<dst_channel_t>());
+		typename SrcView::value_type pix;
+            static_transform(src_it[x - 1], src_it[x + 1], pix,
+                             halfdiff_cast_channels<src_channel_t>());
+	    color_convert(pix, dst_it[x]);
         }
     }
 }
@@ -93,7 +95,9 @@ void image_join(const SrcView & v1, const SrcView & v2,
         typename DstView::x_iterator it_d  = d.row_begin(y);
 
         for (int x = 0 ; x < w; ++x) {
-            static_transform(it_v1[x], it_v2[x], it_d[x], f);
+		typename SrcView::value_type pix;
+            static_transform(it_v1[x], it_v2[x], pix, f);
+	    color_convert(pix, it_d[x]);
         }
     }
 }

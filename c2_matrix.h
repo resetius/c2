@@ -41,6 +41,7 @@ struct IntMatrix {
 	bool owns;
 
 	typedef int * iterator;
+	typedef const int * const_iterator;
 
 	IntMatrix() : w(0), h(0), d(0), coef(1.0), owns(false) {}
 	IntMatrix(int w1, int h1)
@@ -54,6 +55,12 @@ struct IntMatrix {
 	}
 
 	~IntMatrix() { if (owns) delete [] d; }
+
+	iterator begin() { return &d[0]; }
+	iterator end() { return &d[w * h]; }
+
+	const_iterator begin() const { return &d[0]; }
+        const_iterator end() const { return &d[w * h]; }
 
 	static IntMatrix & Soebel_x() {
 		static int d[] = {
@@ -185,7 +192,7 @@ namespace c2_impl {
 
 		int col = 0;
 
-		typename Matrix::iterator jt = &m.d[0];
+		typename Matrix::const_iterator jt = m.begin();
 
 		for (typename SrcView::iterator it = s.begin();
 			it != s.end(); ++it)
@@ -221,17 +228,12 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 
 	int channels = s.num_channels();
 
-    typedef pixel<typename channel_type < DstView >::type, 
-		gray_layout_t> gray_pixel_t;
-
-//	typename color_converted_view_type < SrcView, gray_pixel_t >::type
-//		converter = color_converted_view < gray_pixel_t > (s);
-
 #pragma omp parallel for
 	for (int y = 0; y < h - m.h; ++y) {
 		typename DstView::x_iterator it_d = d.row_begin(y);
 
 		for (int x = 0; x < w - m.w; ++x) {
+			typename SrcView::value_type pix;
 			for (int c = 0; c < channels; ++c) {
 				int col = c2_impl::apply_matrix(
 					nth_channel_view(subimage_view(s, 
@@ -239,16 +241,15 @@ void apply_matrix(const SrcView & s, const DstView & d, const Matrix & m)
 						typename SrcView::point_t(m.w, m.h)), c), m);
 
 				col = int((double)col * m.coef);
-				it_d[x][c] = col;
+				pix[c] = col;
 			}
 
-			//color_convert(it_d[x], it_d[x]);
-
-			//it_d[x] = converter(it_d[x]);
+			color_convert(pix, it_d[x]);
 		}
 	}
 }
 
+//for test only !!!
 #include <iostream>
 
 template < typename SrcView, typename DstView >
@@ -285,13 +286,22 @@ void transform_1(const SrcView & s, const DstView & d)
 	typename DstView::iterator it_d = d.begin();
 	typename SrcView::iterator it_s = s.begin();
 
+//	typedef pixel < typename channel_type < SrcView >::type, gray_layout_t > pixel_t;
+	typedef typename SrcView::value_type pixel_t;
+
+//	typename pixel_type < DstView >::type p;	
+//	typename DstView::layout_t t;
+
     typedef typename channel_type<DstView>::type dst_channel_t;
 
 	while (it_d != d.end()) {
-		color_convert(*it_s, *it_d);
+		pixel_t p = *it_s;
+//		*it_d = p;
+		color_convert(p, *it_d);
 
 //		std::cout << *it_d << " " << *it_s << "\n";
 
 		++it_d; ++it_s;
 	}
 }
+

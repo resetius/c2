@@ -61,13 +61,13 @@ void abs_sum_grad(const Img & img, const Img2 & img_x, const Img2 & img_y)
 }
 
 template < typename Img, typename Img2 >
-void sqrt_grad(const Img & img, const Img2 & img_x, const Img2 & img_y)
+void sqrt_grad(const Img & img,  const Img2 & img_x, const Img2 & img_y)
 {
 	gray8s_image_t img_out(img.dimensions());
 	fill_pixels(view(img_out),bits8s(0));
 
 	image_join(const_view(img_x), const_view(img_y), view(img_out),
-		make_sqrt_cast_channels (view(img_out)));
+		make_sqrt_cast_channels (const_view(img_x)));
 
 	jpeg_write_view("out-sqrt_gradient.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
@@ -103,10 +103,16 @@ void soebel(const View & v)
 
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_x), IntMatrix::Soebel_x());
+//	jpeg_write_view("out-soebel_x.jpg",
+//                color_converted_view<gray8_pixel_t>(const_view(img_x)));
+
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_y), IntMatrix::Soebel_y());
+//	jpeg_write_view("out-soebel_y.jpg",
+//                color_converted_view<gray8_pixel_t>(const_view(img_y)));
+
 	image_join(const_view(img_x), const_view(img_y), view(img_out),
-		make_sqrt_cast_channels (view(img_out)));
+		make_abs_sum_cast_channels (const_view(img_x)));
 
 	jpeg_write_view("out-soebel.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
@@ -132,7 +138,7 @@ void previt(const View & v)
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_y), IntMatrix::Previt_y());
 	image_join(const_view(img_x), const_view(img_y), view(img_out),
-		make_sqrt_cast_channels (view(img_out)));
+		make_abs_sum_cast_channels (const_view(img_x)));
 
 	jpeg_write_view("out-previt.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
@@ -158,7 +164,7 @@ void roberts(const View & v)
 	apply_matrix(color_converted_view<gray_pixel_t>(v),
 		view(img_y), IntMatrix::Roberts_y());
 	image_join(const_view(img_x), const_view(img_y), view(img_out),
-		make_sqrt_cast_channels (view(img_out)));
+		make_abs_sum_cast_channels (const_view(img_x)));
 
 	jpeg_write_view("out-roberts.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
@@ -186,8 +192,8 @@ void gauss_3_3(const View & v)
 	gray8s_image_t img_out(gray8s_image_t::point_t(v.width(), v.height()));
 	fill_pixels(view(img_out),bits8s(0));
 
-	jpeg_write_view("out-tttt.jpg",
-		color_converted_view<gray8_pixel_t>(v));
+//	jpeg_write_view("out-tttt.jpg",
+//		color_converted_view<gray8_pixel_t>(v));
 
 	typedef pixel<typename channel_type<View>::type, 
 		gray_layout_t> gray_pixel_t;
@@ -233,20 +239,20 @@ int main() {
 	fill_pixels(view(img_x),bits8s(0));
 	fill_pixels(view(img_y),bits8s(0));
 
-	//x_luminosity_gradient(const_view(img), view(img_x));
-	//y_luminosity_gradient(const_view(img), view(img_y));
+	x_luminosity_gradient(const_view(img), view(img_x));
+	y_luminosity_gradient(const_view(img), view(img_y));
 
-	//abs_max_grad(img, img_x, img_y);
-	//abs_sum_grad(img, img_x, img_y);
-	//sqrt_grad(img, img_x, img_y);
-	//sum_grad(img, img_x, img_y);
+	abs_max_grad(img, img_x, img_y);
+	abs_sum_grad(img, img_x, img_y);
+	sqrt_grad(img, img_x, img_y);
+	sum_grad(img, img_x, img_y);
 
-	//soebel(const_view(img));
-	//previt(const_view(img));
-	//roberts(const_view(img));
-	//log_3_3(const_view(img));
+	soebel(const_view(img));
+	previt(const_view(img));
+	roberts(const_view(img));
+	log_3_3(const_view(img));
 	gauss_3_3(const_view(img));
-	//gauss_7_7(const_view(img));
+	gauss_7_7(const_view(img));
 
 	jpeg_write_view("out-x_gradient.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_x)));

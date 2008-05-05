@@ -57,7 +57,7 @@ make_halfsum_cast_channels(Out)
 template < typename Out >
 struct sqrt_cast_channels {
     template <typename T> Out operator()(const T& in1, const T& in2) const {
-		return Out(sqrt(double(in2 * in2 + in1 * in1)));
+		return Out(sqrt((double)in2 * (double)in2 + (double)in1 * (double)in1));
     }
 };
 
@@ -97,3 +97,4 @@ make_abs_sum_cast_channels(Out)
 }
 
 #endif /* C2_CHANNEL_CAST_H */
+
