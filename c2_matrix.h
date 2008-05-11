@@ -1,3 +1,5 @@
+#ifndef C2_MATRIX_H
+#define C2_MATRIX_H
 /*$Id$*/
 
 /* Copyright (c) 2008 Alexey Ozeritsky
@@ -411,3 +413,4 @@ void transform_1(const SrcView & s, const DstView & d)
 	}
 }
 
+#endif // C2_MATRIX_H

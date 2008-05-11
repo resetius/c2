@@ -33,6 +33,8 @@
 
 #include "c2_gradient.h"
 #include "c2_matrix.h"
+#include "c2_gauss.h"
+#include "c2_canny.h"
 
 template < typename Img, typename Img2 >
 void abs_max_grad(const Img & img, const Img2 & img_x, const Img2 & img_y)
@@ -214,8 +216,8 @@ void gauss_3_3(const View & v)
 	typedef pixel<typename channel_type<View>::type, 
 		gray_layout_t> gray_pixel_t;
 
-	apply_matrix(color_converted_view<gray_pixel_t>(v),
-		view(img_out), IntMatrix::Gauss_3_3(), -1, true);
+	Gauss < 3 > filter;
+	filter(color_converted_view<gray_pixel_t>(v), view(img_out));
 
 	//	transform_1(color_converted_view<gray8_pixel_t>(v),
 	//		view(img_out));
@@ -236,8 +238,8 @@ void gauss_7_7(const View & v)
 	typedef pixel<typename channel_type<View>::type, 
 		gray_layout_t> gray_pixel_t;
 
-	apply_matrix(color_converted_view<gray_pixel_t>(v),
-		view(img_out), IntMatrix::Gauss_7_7(), -1, true);
+	Gauss < 7 > filter;
+	filter(color_converted_view<gray_pixel_t>(v), view(img_out));
 
 	jpeg_write_view("out-gauss_7_7.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_out)));
