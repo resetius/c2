@@ -54,8 +54,14 @@ struct Canny {
 		typedef pixel<typename channel_type<SrcView>::type, 
 			gray_layout_t> gray_pixel_t;
 
+		//Фильтр Гаусса.
+		//Чем больше D тем меньше деталей будет в итоге
 		Gauss < D > filter;
 		filter(color_converted_view<gray_pixel_t>(s), view(d));
+
+		//Оператор Робертса -> получаем максимум и направления градиента
+		//Ищем локальные максимумы градиента
+		//Ищем края
 	}
 };
 
