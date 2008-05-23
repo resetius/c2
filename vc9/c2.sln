@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c2", "c2.vcproj", "{BF1719E2-5892-473F-B0CA-9F31B19C85CA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fractal", "fractal.vcproj", "{645A3565-A2DF-495A-B7E5-181E68CAE14A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{BF1719E2-5892-473F-B0CA-9F31B19C85CA}.Debug|Win32.Build.0 = Debug|Win32
 		{BF1719E2-5892-473F-B0CA-9F31B19C85CA}.Release|Win32.ActiveCfg = Release|Win32
 		{BF1719E2-5892-473F-B0CA-9F31B19C85CA}.Release|Win32.Build.0 = Release|Win32
+		{645A3565-A2DF-495A-B7E5-181E68CAE14A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{645A3565-A2DF-495A-B7E5-181E68CAE14A}.Debug|Win32.Build.0 = Debug|Win32
+		{645A3565-A2DF-495A-B7E5-181E68CAE14A}.Release|Win32.ActiveCfg = Release|Win32
+		{645A3565-A2DF-495A-B7E5-181E68CAE14A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
