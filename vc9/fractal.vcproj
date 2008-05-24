@@ -57,6 +57,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="..\bin\$(ProjectName).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -125,6 +126,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="..\bin\$(ProjectName).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
