@@ -59,7 +59,7 @@ void koch(list < line > & lines, int itr, int maxItr)
 
 int main() {
 	list < line > lines;
-	lines.push_back(line(point(0, 0), point(1, 0)));
+	lines.push_back(line(point(-1, -1), point(1, 1)));
 	koch(lines, 0, 1);
 
 	FILE * f = fopen("output.txt", "w");
