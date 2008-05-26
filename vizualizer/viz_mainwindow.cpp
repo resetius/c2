@@ -376,7 +376,7 @@ void VizMainWindow::resize(int width, int height) {
 	glViewport( 0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
+	gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
 
 	/*
 	double k1 = (double)width  / (double)height;

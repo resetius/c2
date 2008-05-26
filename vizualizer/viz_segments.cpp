@@ -44,6 +44,7 @@ Viz_Segments::Viz_Segments(const char * fname)
 	oType_  = Viz_Obj::oGeneral;
 	dMode_  = Viz_Obj::dLines;
 	hidden_ = false;
+	lst     = -1;
 
 	FILE * f = fopen(fname, "r");
 	if (!f) return;
@@ -57,6 +58,8 @@ Viz_Segments::Viz_Segments(const char * fname)
 	}
 
 	fclose(f);
+
+	gen_list();
 }
 
 Viz_Segments::~Viz_Segments()
@@ -68,7 +71,19 @@ void Viz_Segments::draw()
 	if (hidden_)
 		return;
 
-	glPushMatrix();
+	if (lst > 0) {
+		glPushMatrix();
+		glCallList(lst);
+		glPopMatrix();
+		glFlush();
+	}
+}
+
+void Viz_Segments::gen_list() 
+{
+	lst = glGenLists(1);
+
+	glNewList(lst, GL_COMPILE);
 	glBegin(GL_LINES);
 	for (std::list < line >::iterator it = segments_.begin();
 		it != segments_.end(); ++it)
@@ -79,6 +94,6 @@ void Viz_Segments::draw()
 		glVertex3d(it->p2.x, it->p2.y, 0.0);
 	}
 	glEnd();
-	glPopMatrix();
-	glFlush();
+	glEndList();
 }
+

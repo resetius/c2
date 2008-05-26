@@ -53,6 +53,9 @@ class Viz_Segments: public Viz_Obj {
 
 	std::list < line > segments_;
 
+	unsigned int lst;
+	void gen_list();
+
 public:
 	Viz_Segments(const char * fname);
 	~Viz_Segments();
@@ -61,3 +64,4 @@ public:
 };
 
 #endif /* _VIZ_SEGMENTS_H */
+
