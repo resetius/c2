@@ -176,7 +176,7 @@ void VizMainWindow::idle() {
 }
 
 void VizMainWindow::mouseMoveEvent(int x, int y) {
-    v_objs->mouseMoveEvent(x, y);
+	v_objs->mouseMoveEvent(x, y);
 	int mouse_x = x, mouse_y = y;
 
 	switch (last_mouse_button) {
@@ -190,7 +190,7 @@ void VizMainWindow::mouseMoveEvent(int x, int y) {
 			old_mouse_y = mouse_y;
 		}
 		break;
-    case 1:
+	case 1:
         if (last_mouse_state == GLUT_DOWN) {
 			y0 += mouse_y - old_mouse_y;	
 			x0 -= mouse_x - old_mouse_x;
@@ -214,10 +214,11 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 	last_mouse_button = button;
 	last_mouse_state  = state;
 
-    v_objs->mousePressEvent(button, state, x, y);
+	v_objs->mousePressEvent(button, state, x, y);
 	switch (button) {
 	case 0:
-    case 1:
+	case 1:
+#if 0
 		if (state == GLUT_DOWN) {
 			old_mouse_x = x;
 			old_mouse_y = y;
@@ -229,7 +230,7 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 
 			realy = viewport[3] - (GLint)y - 1;
 			cout << "Cursor coordinates (" << x << "," << realy << ")" << endl;
-            cout << "Cursor coordinates (" << x << "," << y << ")" << endl;
+			cout << "Cursor coordinates (" << x << "," << y << ")" << endl;
 			//по оконным координатам x, y, z получаем мировые координаты
 			//аналогичная команда gluProject по мировым координатам получает оконные
 			// .,.,. <- изначальные координаты, матрицы преоброазований -> .,.,. получаемые координаты -
@@ -241,14 +242,15 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 				&wx, &wy, &wz);
 			cout << "World coordinates at z = 1.0 (" << wx << "," << wy << "," << wz << ",)" << endl;
 
-            long t2 = clock();
-            if ((double)(t2 - last_clicked_time) / (double)CLOCKS_PER_SEC < 0.2) {
-                v_objs->trySelect(x, realy);
-                last_clicked_time = 0;
-            } else {
-                last_clicked_time = clock();
-            }
+			long t2 = clock();
+			if ((double)(t2 - last_clicked_time) / (double)CLOCKS_PER_SEC < 0.2) {
+				v_objs->trySelect(x, realy);
+				last_clicked_time = 0;
+			} else {
+				last_clicked_time = clock();
+			}
 		}
+#endif
 		break;
 	case 3:
 		zo -= 0.2;
@@ -363,7 +365,7 @@ void VizMainWindow::optionsMenu(int i) {
 
 void VizMainWindow::reset_view() {
 	xa = 0.0; ya = 0.0; za = 0.0; zo = 3.0;
-    x0 = 0.0; y0 = 0.0; z0 = 0.0;
+	x0 = 0.0; y0 = 0.0; z0 = 0.0;
 	rotate();
 	glutPostRedisplay();
 }
@@ -371,15 +373,23 @@ void VizMainWindow::reset_view() {
 void VizMainWindow::resize(int width, int height) {
 	frame->resize(width, height);
 	
-    glViewport( 0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    //glTranslatef( 0.0, 0.0, -100.0 );
-    /*    коорд камеры,  точка куда смотрим,  верх*/
-    gluLookAt(0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
+	glViewport( 0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
+
+	/*
+	double k1 = (double)width  / (double)height;
+	double k2 = 1;
+	double r  = 1.5;
+	glOrtho(r * -k1, r * k1, r * -k2, r * k2, -5, 5);
+	*/
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//glTranslatef( 0.0, 0.0, -100.0 );
+	/*    коорд камеры,  точка куда смотрим,  верх*/
+	gluLookAt(0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
 }
 
 void VizMainWindow::registerEvents() {
@@ -493,8 +503,8 @@ Rect * VizMainWindow::getBoundingRect() {
 }
 
 void VizMainWindow::rotate() {
-    double w = frame->width();
-    double h = frame->height();
+	double w = frame->width();
+	double h = frame->height();
 	glLoadIdentity();
     //cout << x0 << ":" << y0 << ":" << z0 << endl;
 	gluLookAt(0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
