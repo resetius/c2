@@ -1,7 +1,7 @@
 #ifndef C2_KOCH_H
 #define C2_KOCH_H
 
-#include <list>
+#include <vector>
 
 struct point {
 	double x;
@@ -19,6 +19,6 @@ struct line {
 	line (point p1_, point p2_) : p1(p1_), p2(p2_) {}
 };
 
-void koch(std::list < line > & lines, int itr, int maxItr);
+void koch(std::vector < line > & lines, int maxItr, double r);
 
 #endif /* C2_KOCH_H */

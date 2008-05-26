@@ -2,27 +2,27 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
-#include <list>
+#include <vector>
 
 #include "c2_koch.h"
 
 using namespace std;
 typedef unsigned int uint;
 
-static void print_lines(list < pair < line, int > > & lines, FILE * f)
+static void print_lines(vector < line > & lines, FILE * f)
 {
-	list < pair < line, int > > ::iterator b = lines.begin(), e = lines.end();
-	for (list < pair < line, int > > ::iterator it = b; it != e; ++it)
+	vector < line > ::iterator b = lines.begin(), e = lines.end();
+	for (vector < line > ::iterator it = b; it != e; ++it)
 	{
-		line & l = it->first;
+		line & l = *it;
 		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf}\n", 
 			l.p1.x, l.p1.y,
 			l.p2.x, l.p2.y);
 	}
 }
 
-static void koch(point p1, point p2, list < pair < line, int > > & lst,
-				 int angle)
+static void koch(point p1, point p2, vector < pair < line, int > > & lst,
+                 int angle)
 {
 	point p3, p4, p5;
 	double a, l, s;
@@ -52,14 +52,16 @@ static void koch(point p1, point p2, list < pair < line, int > > & lst,
 	lst.push_back(make_pair(line(p5, p4), (360 + angle - 60) % 360));
 }
 
-void koch(list < pair < line, int > > & lines, int itr, int maxItr)
+static void koch(vector < pair < line, int > > & lines, int itr, int maxItr)
 {
 	if (itr >= maxItr) return;
 
-	list < pair < line, int > > ::iterator b = lines.begin(), e = lines.end();
-	list < pair < line, int > > lines_new;
+	vector < pair < line, int > > ::iterator b = lines.begin(), e = lines.end();
+	vector < pair < line, int > > lines_new;
 
-	for (list < pair < line, int > > ::iterator it = b; it != e; ++it)
+	lines_new.reserve(lines.size() * 4);
+
+	for (vector < pair < line, int > > ::iterator it = b; it != e; ++it)
 	{
 		line & l = it->first;
 		koch(l.p1, l.p2, lines_new, it->second);
@@ -69,12 +71,13 @@ void koch(list < pair < line, int > > & lines, int itr, int maxItr)
 	koch(lines, ++itr, maxItr);
 }
 
-int main() {
-	list < pair < line, int > > lines;
 
-	double r = 1.5;
+void koch(vector < line > & ret, int maxItr, double r)
+{
+	vector < pair < line, int > > lines;
 	point p1 = point(0, r);
 	point p2 = point(r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0));
+
 	lines.push_back(make_pair(line(p1, p2), 59));
 
 	p1    = point(- r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0));
@@ -82,13 +85,38 @@ int main() {
 	lines.push_back(make_pair(line(p1, p2), 150));
 
 	lines.push_back(make_pair(line(
-		point(- r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0)),
-		point(r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0))), 270));
+	                          point(- r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0)),
+	                          point(r * cos(- M_PI / 6.0), r * sin(- M_PI / 6.0))), 270));
 
-	koch(lines, 0, 6);
+	koch(lines, 0, maxItr);
+
+	ret.reserve(lines.size());
+	for (uint i = 0; i < lines.size(); ++i) {
+		ret.push_back(lines[i].first);
+	}
+}
+
+int main(int argc, char * argv[]) {
+	double r   = 1.5;
+	int maxItr = 5;
+
+	if (argc > 1) {
+		maxItr = atoi(argv[1]);
+	}
+
+	if (argc > 2) {
+		double r1;
+		if (sscanf(argv[2], "%lf", &r1) == 1) {
+			r = r1;
+		}
+	}
+
+	vector < line > lines;
+	koch(lines, maxItr, r);
 
 	FILE * f = fopen("output.txt", "w");
 	print_lines(lines, f);
 	fclose(f);
 	return 0;
 }
+
