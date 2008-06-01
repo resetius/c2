@@ -132,6 +132,8 @@ VizMainWindow::~VizMainWindow() {
 VizMainWindow::VizMainWindow(const char *name1, int w, int h)
   : p (new Config("vizualizer.ini")), name(name1), frame(new Rect(w, h))
 {
+	old_mouse_y = -1;
+	old_mouse_x = -1;
 	config();
 }
 
@@ -212,6 +214,9 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 	last_mouse_button = button;
 	last_mouse_state  = state;
 
+	old_mouse_x = x;
+	old_mouse_y = y;
+
 	v_objs->mousePressEvent(button, state, x, y);
 	switch (button) {
 	case 0:
@@ -251,9 +256,19 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 #endif
 		break;
 	case 3:
-		zo -= 0.2;
+		if (flatMode) {
+			zo += 0.01;
+			rotate();
+			break;
+		} else {
+			zo -= 0.2;
+		}
 	case 4:
-		zo += 0.1;
+		if (flatMode) {
+			zo -= 0.01;
+		} else {
+			zo += 0.1;
+		}
 		rotate();
 		break;
 	}
@@ -263,10 +278,21 @@ void VizMainWindow::keyPressEvent1(unsigned char key, int x, int y) {
 	if (console->isHidden()) {
 		v_objs->keyPressEvent1(key, x, y);
 		switch (key) {
+		case '=':
 		case '+':
-			zo -= 0.2;
+			if (flatMode) {
+				zo += 0.01;
+				rotate();
+				break;
+			} else {
+				zo -= 0.2;
+			}
 		case '-':
-			zo += 0.1;
+			if (flatMode) {
+				zo -= 0.01;
+			} else {
+				zo += 0.1;
+			}
 			rotate();
 			break;
 		case 'f':
@@ -291,19 +317,37 @@ void VizMainWindow::keyPressEvent1(unsigned char key, int x, int y) {
 void VizMainWindow::keyPressEvent2(int key, int x, int y) {
 	if (console->isHidden()) {
 		v_objs->keyPressEvent2(key, x, y);	
-		switch(key){
-		case GLUT_KEY_UP:
-			xa += 5;// ya = 0; za = 0;
-			break;
-		case GLUT_KEY_DOWN:
-			xa -= 5;// ya = 0; za = 0;
-			break;
-		case GLUT_KEY_RIGHT:
-			ya += 5;// xa = 0; za = 0;
-			break;
-		case GLUT_KEY_LEFT:
-			ya -= 5;// xa = 0; za = 0;
-			break;
+
+		if (!flatMode) {
+			switch(key){
+			case GLUT_KEY_UP:
+				xa += 5;// ya = 0; za = 0;
+				break;
+			case GLUT_KEY_DOWN:
+				xa -= 5;// ya = 0; za = 0;
+				break;
+			case GLUT_KEY_RIGHT:
+				ya += 5;// xa = 0; za = 0;
+				break;
+			case GLUT_KEY_LEFT:
+				ya -= 5;// xa = 0; za = 0;
+				break;
+			}
+		} else {
+			switch(key){
+			case GLUT_KEY_UP:
+				y0 -= 5;
+				break;
+			case GLUT_KEY_DOWN:
+				y0 += 5;
+				break;
+			case GLUT_KEY_RIGHT:
+				x0 -= 5;
+				break;
+			case GLUT_KEY_LEFT:
+				x0 += 5;
+				break;
+			}
 		}
 		rotate();
 	} else {
@@ -362,8 +406,15 @@ void VizMainWindow::optionsMenu(int i) {
 }
 
 void VizMainWindow::reset_view() {
-	xa = 0.0; ya = 0.0; za = 0.0; zo = 3.0;
+	xa = 0.0; ya = 0.0; za = 0.0;
 	x0 = 0.0; y0 = 0.0; z0 = 0.0;
+
+	if (flatMode) {
+		zo = 1.0;
+	} else {
+		zo = 3.0;
+	}
+
 	rotate();
 	glutPostRedisplay();
 }
@@ -374,20 +425,26 @@ void VizMainWindow::resize(int width, int height) {
 	glViewport( 0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
 
-	/*
-	double k1 = (double)width  / (double)height;
-	double k2 = 1;
-	double r  = 1.5;
-	glOrtho(r * -k1, r * k1, r * -k2, r * k2, -5, 5);
-	*/
+	if (!flatMode) {
+		gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
+	} else {
+		double k1 = (double)width  / (double)height;
+		double k2 = 1;
+		double r  = 1.5;
+		glOrtho(r * -k1, r * k1, r * -k2, r * k2, -5, 5);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//glTranslatef( 0.0, 0.0, -100.0 );
 	/*    коорд камеры,  точка куда смотрим,  верх*/
-	gluLookAt(0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
+
+	if (!flatMode) {
+		gluLookAt(0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
+	} else {
+		glScalef(zo, zo, 1.0);
+		gluLookAt(x0, y0, 3, x0, y0, z0, 0.0, 1.0, 0.0);
+	}
 }
 
 void VizMainWindow::registerEvents() {
@@ -453,8 +510,15 @@ void VizMainWindow::initGL(int argc, char **argv) {
 }
 
 int VizMainWindow::exec(int argc, char **argv) {
-	xa = 0.0; ya = 0.0; za = 0.0; zo = 3.0;
+	xa = 0.0; ya = 0.0; za = 0.0;
     x0 = 0.0; y0 = 0.0; z0 = 0.0;
+
+	if (flatMode) {
+		zo = 1.0;
+	} else {
+		zo = 3.0;
+	}
+
 	isFullscreen = false;
 	v_objs   = new Viz_List();
 	v_events = new Viz_Event_Queue();
@@ -505,9 +569,19 @@ void VizMainWindow::rotate() {
 	double h = frame->height();
 	glLoadIdentity();
     //cout << x0 << ":" << y0 << ":" << z0 << endl;
-	gluLookAt(0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-	glRotatef(xa,1.0,0.0,0.0);
-	glRotatef(ya,0.0,1.0,0.0);
+
+	if (!flatMode) {
+		gluLookAt(0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
+		glRotatef(xa,1.0,0.0,0.0);
+		glRotatef(ya,0.0,1.0,0.0);
+	} else {
+		glScalef(zo, zo, 1.0);
+		gluLookAt(
+			x0 / w, y0 / h, 3, 
+			x0 / w, y0 / h, z0, 
+			0.0, 1.0, 0.0);
+	}
+
 	draw();
 }
 
