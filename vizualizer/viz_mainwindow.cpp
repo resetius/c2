@@ -126,21 +126,19 @@ void global_optionsMenu(int i) {
 /*___________________________________________________________________*/
 VizMainWindow::~VizMainWindow() {
 	delete v_objs;
+	delete p;
 }
 
-VizMainWindow::VizMainWindow() {
-	name   = "Vizualizer 3D v3.0";
-	frame = new Rect(640, 480);
+VizMainWindow::VizMainWindow(const char *name1, int w, int h)
+  : p (new Config("vizualizer.ini")), name(name1), frame(new Rect(w, h))
+{
+	config();
 }
 
-VizMainWindow::VizMainWindow(char *name1) {
-	name   = name1;
-	frame = new Rect(640, 480);
-}
-
-VizMainWindow::VizMainWindow(char *name1, int w, int h) {
-	name   = name1;
-	frame = new Rect(w, h);
+void VizMainWindow::config()
+{
+	flatMode = (bool)p->getValue("flatMode", "visual", 0);
+	p->sync();
 }
 
 /**

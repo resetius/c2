@@ -36,8 +36,8 @@
 #include <vector>
 #include "viz_obj.h"
 #include "viz_console.h"
-#include "asp_singleton.h"
 #include "asp_excs.h"
+#include "tool_factory.h"
 
 class Viz_Event {
 protected:

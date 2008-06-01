@@ -1,8 +1,8 @@
-#ifndef _ASP_SINGLETON_H
-#define _ASP_SINGLETON_H
-/*$Id$*/
+#ifndef _REVIDX_FACTORY_H
+#define _REVIDX_FACTORY_H
+/*$Id: tool_factory.h 1560 2007-12-12 13:20:24Z aozeritsky $*/
 
-/* Copyright (c) 2006 Alexey Ozeritsky
+/* Copyright (c) 2007 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -13,10 +13,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *      This product includes software developed by Alexey Ozeritsky.
- * 4. The name of the author may not be used to endorse or promote products
+ * 3. The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
@@ -31,45 +28,29 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Логгер и фабрика объектов
- */
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <algorithm>
+#include <exception>
+#include <sstream>
 #include <vector>
 #include <map>
-#include <sstream>
 
-template <
-	class IdentifierType,
-	class ProductType
->
-class DefaultFactoryError
-{
+template < typename IdentifierType, typename ProductType >
+class DefaultFactoryError {
 public:
-	class Exception: public std::exception
-	{
+	class Exception: public std::exception {
 	public:
-		Exception(const IdentifierType & id)
-			: unknownId_(id)
-		{
+		Exception(const IdentifierType & id) : unknownId_(id) {
 		}
 
-		~Exception() throw()
-		{
+		~Exception() throw() {
 		}
 
-		virtual const char * what() const throw()
-		{
+		virtual const char * what() const throw() {
 			std::ostringstream ostr;
 			ostr << "Unknown type : " << unknownId_;
 			return ostr.str().c_str();
 		}
 
-		const IdentifierType GetId()
-		{
+		const IdentifierType GetId() {
 			return unknownId_;
 		}
 
@@ -78,14 +59,13 @@ public:
 	};
 
 protected:
-	static ProductType * OnUnknownType(const IdentifierType & id)
-	{
+	static ProductType * OnUnknownType(const IdentifierType & id) {
 		throw Exception(id);
 	}
 };
 
 template <
-	class AbstractProduct,
+	typename AbstractProduct,
 	typename IdentifierType,
 	typename ProductCreator,
 	template <typename, class> class FactoryErrorPolicy = DefaultFactoryError
@@ -93,21 +73,17 @@ template <
 class Factory: public FactoryErrorPolicy < IdentifierType, AbstractProduct >
 {
 public:
-	bool Register(const IdentifierType & id, ProductCreator creator)
-	{
+	bool Register(const IdentifierType & id, ProductCreator creator) {
 		return assiciations_.insert(typename AssocMap::value_type(id, creator)).second;
 	}
 
-	bool Unregister(const IdentifierType & id)
-	{
+	bool Unregister(const IdentifierType & id) {
 		return assiciations_.erase(id) == 1;
 	}
 
-	AbstractProduct * CreateObject(const IdentifierType & id)
-	{
+	AbstractProduct * CreateObject(const IdentifierType & id) {
 		typename AssocMap::const_iterator i = assiciations_.find(id);
-		if (i != assiciations_.end())
-		{
+		if (i != assiciations_.end()) {
 			return (i->second)();
 		}
 		return FactoryErrorPolicy < IdentifierType, AbstractProduct >::OnUnknownType(id);
@@ -117,4 +93,61 @@ protected:
 	typedef std::map<IdentifierType, ProductCreator> AssocMap;
 	AssocMap assiciations_;
 };
-#endif //_ASP_SINGLETON_H
+
+template <
+	typename AbstractProduct,
+	typename ProductCreator,
+	template <typename, class> class FactoryErrorPolicy
+>
+class Factory < AbstractProduct, unsigned char, ProductCreator, FactoryErrorPolicy >
+	: public FactoryErrorPolicy < unsigned char, AbstractProduct >
+{
+public:
+	Factory() {
+		assiciations_.resize(255);
+	}
+	
+	bool Register(unsigned char id, ProductCreator creator) {
+		assiciations_[id] = creator;
+		return true;
+	}
+
+	bool Unregister(unsigned char id) {
+		assiciations_[id] = 0;
+		return true;
+	}
+
+	AbstractProduct * CreateObject(unsigned char id) {
+		ProductCreator & creator = assiciations_[id];
+		if (creator != 0) {
+			return (creator)();
+		}
+		return FactoryErrorPolicy < unsigned char, AbstractProduct >::OnUnknownType(id);
+	}
+
+protected:
+	typedef std::vector< ProductCreator > AssocMap;
+	AssocMap assiciations_;
+};
+
+template < typename T >
+class Singleton {
+public:
+	static T & Instance() {
+		static T t;
+		return t;
+	}
+
+	template < typename Prm1 >
+	static T & Instance(Prm1 & prm1) {
+		static T t(prm1);
+		return t;
+	}
+
+private:
+	~Singleton() {};
+	Singleton() {};
+};
+
+#endif //_REVIDX_FACTORY_H
+

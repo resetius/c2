@@ -46,7 +46,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories=".;../vizualizer;../win32/include/"
+				AdditionalIncludeDirectories=".;../vizualizer;../win32/include/;../win32/include/glib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib glut32.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="winmm.lib glut32.lib opengl32.lib glu32.lib libglib.lib"
 				OutputFile="..\bin\3DViz3r.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../win32/lib"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;;../vizualizer;../win32/include/"
+				AdditionalIncludeDirectories=".;;../vizualizer;../win32/include/;../win32/include/glib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib glut32d.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="winmm.lib glut32d.lib opengl32.lib glu32.lib libglib_d.lib"
 				OutputFile="..\bin\3DViz3d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../win32/lib"
@@ -193,11 +193,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\vizualizer\asp_properties.cpp"
+				RelativePath="..\vizualizer\asp_readdir.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\vizualizer\asp_readdir.cpp"
+				RelativePath="..\vizualizer\tool_config.cpp"
 				>
 			</File>
 			<File
@@ -255,15 +255,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\vizualizer\asp_properties.h"
-				>
-			</File>
-			<File
 				RelativePath="..\vizualizer\asp_readdir.h"
 				>
 			</File>
 			<File
 				RelativePath="..\vizualizer\asp_singleton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vizualizer\tool_config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vizualizer\tool_factory.h"
 				>
 			</File>
 			<File

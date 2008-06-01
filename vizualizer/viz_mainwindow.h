@@ -33,21 +33,21 @@
 
 #include <string>
 #include "asp_excs.h"
-#include "asp_properties.h"
 #include "viz_obj.h"
 #include "viz_event.h"
 #include "viz_console.h"
+#include "tool_config.h"
 
 class VizMainWindow;
 
 class VizMainWindow: public Viz_Obj {
-	Properties *p;
+	Config *p;
 	std::string name;
 	Rect * frame; //разрешение width*height
 	Viz_List        * v_objs;
 	Viz_Console     * console;
 	Viz_Event_Queue * v_events;
-	
+
 	double xa, ya, za; //углы обзора
 	double x0, y0, z0; //точка в которую смотрим
 	double zo;         //зум
@@ -60,11 +60,19 @@ class VizMainWindow: public Viz_Obj {
 
     long last_clicked_time;
 
+	bool isFullscreen;
+	int fileMenuDescriptor;
+	int actionsMenuDescriptor;
+	int optionsMenuDescriptor;
+
+	//@{config
+	bool flatMode;
+	//@}
+
 public:
 	~VizMainWindow();
-	VizMainWindow();
-	VizMainWindow(char *name);
-	VizMainWindow(char *name, int w, int h);
+	VizMainWindow(const char *name = "Vizualizer 3D v3.0", 
+		int w = 640, int h = 480);
 
 	int exec(int argc, char **argv);
 	void draw();
@@ -91,8 +99,9 @@ public:
 	Viz_List * objects();
 	
 	Rect * getBoundingRect();//вернуть разрешение окна
+
 private:
-	bool isFullscreen;
+	void config();
 	void createMenues();
 	void registerEvents();
 	void initGL(int argc, char **argv);
@@ -101,10 +110,6 @@ private:
 	void reset_view();
 	void fullscreen();
 	void windowed();
-	
-	int fileMenuDescriptor;
-	int actionsMenuDescriptor;
-	int optionsMenuDescriptor;
 };
 
 #endif //_VIZ_MAINWINDOW_H
