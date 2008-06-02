@@ -30,17 +30,20 @@ struct Parser
 
 	bool check() {
 		if (axiom.empty()) {
+			std::cerr << "fail on axiom \n";
 			error = true;
 			goto fail;
 		}
 
 		if (theta == 0.0) {
+			std::cerr << "fail on theta \n";
 			error = true;
 			goto fail;
 		}
 		
 		for (std::set < char >::iterator it = v.begin(); it != v.end(); ++it) {
 			if (r.find(*it) == r.end()) {
+				std::cerr << "fail on " << *it << "\n";
 				error = true;
 				goto fail;
 			}
