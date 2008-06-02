@@ -16,6 +16,7 @@ MACRO(ADD_BISON_FILES _sources )
          OUTPUT ${_out}
          COMMAND ${BISON_EXECUTABLE}
          ARGS
+	 -d
          -o${_out}
          ${_in}
          DEPENDS ${_in}

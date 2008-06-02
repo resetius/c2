@@ -1,5 +1,5 @@
 %{
-#include "c2_lsystem.tab.h"
+#include "c2_lsystem_parser.hpp"
 %}
 %option 8bit 
 %option outfile="c2_lsystem_scanner.c" header-file="c2_lsystem_scanner.h"
