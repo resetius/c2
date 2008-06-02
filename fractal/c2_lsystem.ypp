@@ -1,0 +1,77 @@
+%{
+#include <stdio.h>
+#include <map>
+#include <string>
+#include <iostream>
+#include "c2_lsystem_scanner.h"
+
+struct Parser {
+	double alpha;
+	double theta;
+	std::string axiom;
+	std::map < char, std::string > r;
+	typedef std::map < char, std::string >::iterator iterator;
+
+	Parser() : alpha(0.0), theta(0.0) {}
+};
+
+extern int yyerror(Parser * ptr, const char *s);
+
+%}
+%union {
+	double num;
+	char* str;
+}
+%parse-param { Parser * ptr }
+%token <str> VAR
+%token <num> NUM
+%type  <str> id 
+%token AXIOM
+%token THETA
+%token ALPHA
+%%
+list: {}
+    | list ';' { printf("list\n"); }
+    | list expr ';' { printf("list expr\n"); }
+    ;
+
+id:   VAR    { $$ = $1; }
+    | VAR id 
+	{
+		$$ = (char*)malloc(strlen($1) + strlen($2) + 1); 
+		strcpy($$, $1);  
+		strcat($$, $2); 
+		free($1);
+		free($2);
+	}
+    ;
+
+expr: AXIOM '=' id  { printf("axiom:: %s\n", $3); ptr->axiom = $3; free($3); }
+    | THETA '=' NUM { printf("theta:: %lf\n", $3); ptr->theta = $3; }
+    | ALPHA '=' NUM { printf("alpha:: %lf\n", $3); ptr->alpha = $3; }
+    | VAR   '=' id  { printf("var:: %s\n", $3);   ptr->r[$1[0]] = $3; free($3); }
+    ;
+
+%%
+int yyerror(Parser * ptr, const char * s)
+{
+	return 0;
+}
+
+int main()
+{
+	Parser p;
+	printf("yyparse\n");
+	while (yyparse(&p));
+	printf("done\n");
+
+	std::cerr << "alpha : " << p.alpha << "\n";
+	std::cerr << "theta : " << p.theta << "\n";
+	std::cerr << "axiom : " << p.axiom << "\n";
+	
+	for (Parser::iterator it = p.r.begin(); it != p.r.end(); ++it) {
+		std::cerr << it->first << " : " << it->second << "\n";
+	}
+	return 0;
+}
+
