@@ -61,7 +61,7 @@ list < line > turtle(Parser & p, const string & W)
 		} else if (W[j] == ']') {
 			c = st.top();
 			st.pop();
-		} else {
+		} else if (W[j] == 'F') {
 			line l;
 			l.x0 = c.x0; l.y0 = c.y0;
 			c.x0 += cos(c.a); c.y0 += sin(c.a);

@@ -22,12 +22,26 @@ extern int yyerror(Parser * ptr, const char *s);
 %token THETA
 %token ALPHA
 %%
-list: {}
-    | list ';' { ; }
-    | list expr ';' { ; }
+
+grp:
+    | '{' list '}'
+    | '\n' grp
+	| grp '\n'
+    | id grp { /*named group*/ }
     ;
 
-id:   VAR    
+commentbody: {}
+    ;
+comment: ';' commentbody '\n'
+    ;
+
+list: '\n'
+    | comment
+    | list '\n'
+    | list expr '\n'
+    ;
+
+id:   VAR
     {
         $$ = $1;
     }
