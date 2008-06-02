@@ -3,7 +3,10 @@
 #include <map>
 #include <string>
 #include <iostream>
+
+extern "C" {
 #include "c2_lsystem_scanner.h"
+}
 
 struct Parser {
 	double alpha;
@@ -58,6 +61,7 @@ int yyerror(Parser * ptr, const char * s)
 	return 0;
 }
 
+#if 0
 int main()
 {
 	Parser p;
@@ -74,4 +78,5 @@ int main()
 	}
 	return 0;
 }
+#endif
 
