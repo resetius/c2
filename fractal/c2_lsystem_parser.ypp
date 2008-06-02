@@ -8,15 +8,7 @@ extern "C" {
 #include "c2_lsystem_scanner.h"
 }
 
-struct Parser {
-	double alpha;
-	double theta;
-	std::string axiom;
-	std::map < char, std::string > r;
-	typedef std::map < char, std::string >::iterator iterator;
-
-	Parser() : alpha(0.0), theta(0.0) {}
-};
+#include "c2_lsystem.h"
 
 extern int yyerror(Parser * ptr, const char *s);
 
