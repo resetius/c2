@@ -17,14 +17,15 @@ string lsystem_iter(string & src, Group & gr)
 	while ((result = turtlelex()) != 0)
 	{
 		switch (result) {
-		case '@':
-		case '!':
+		case '@': /*line len*/
+		case '!': /*inverse +/-*/
 		case '+':
 		case '-':
 			r += (char)result;
 			break;
+		case COLOR:
 		case NUMBER:
-			r += st.str;
+			r += st.str; free(st.str);
 			break;
 		default:
 			r += gr.r[(char)result];
