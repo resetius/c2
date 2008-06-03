@@ -8,7 +8,7 @@ struct State {
 	char * str;
 };
 
-struct State st = {0, 0, 0} ;
+extern struct State st;
 
 #define NUMBER 256
 #define COLOR 257

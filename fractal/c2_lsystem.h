@@ -70,13 +70,13 @@ inline bool Group::check() {
 		goto fail;
 	}
 		
-	for (std::set < char >::iterator it = v.begin(); it != v.end(); ++it) {
+	/*for (std::set < char >::iterator it = v.begin(); it != v.end(); ++it) {
 		if (r.find(*it) == r.end()) {
 			std::cerr << "fail on " << *it << "\n";
 			error = true;
 			goto fail;
 		}
-	}
+		}*/
 
 fail:
 	return !error;
@@ -95,5 +95,15 @@ inline void Group::print() {
 
 int yyparse(Parser * );
 
-#endif //LSYSTEM_H
+std::string lsystem(Group & gr, int level);
 
+struct line {
+	double x0;
+	double y0;
+	double x1;
+	double y1;
+};
+
+std::list < line > turtle(Group & p, const std::string & W);
+
+#endif //LSYSTEM_H

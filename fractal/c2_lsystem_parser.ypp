@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-
+#include <math.h>
 extern "C" {
 #include "c2_lsystem_scanner.h"
 }
@@ -18,8 +18,9 @@ extern int yyerror(Parser * ptr, const char *s);
 %token <str> VAR
 %token <num> NUM
 %token <str> TURTLE
-%token <str> GRPIDT;
+%token <str> GRPIDT
 %type  <num> number
+%type  <str> turtle
 %token AXIOM
 %token THETA
 %token ALPHA
@@ -46,11 +47,15 @@ number: NUM { $$ = $1; }
     | '(' number ')'    { $$ = $2; }
     ;
 
-expr: AXIOM '=' TURTLE { ptr->last.setAxiom($3); free($3); }
-    | THETA '=' number { ptr->last.theta = $3; }
-    | ANGLE '=' number { ptr->last.theta = 360.0 / $3; }
-    | ALPHA '=' number { ptr->last.alpha = $3; }
-    | VAR   '=' TURTLE { ptr->last.r[$1[0]] = $3; free($3); }
+turtle: { $$ = strdup(""); }
+    | TURTLE { $$ = $1; }
+    ;
+
+expr: AXIOM  TURTLE { ptr->last.setAxiom($2); free($2); }
+    | THETA  number { ptr->last.theta = $2; }
+    | ANGLE  number { ptr->last.theta = M_PI * (360.0 / $2) / 180.0; }
+    | ALPHA  number { ptr->last.alpha = $2; }
+    | VAR   '=' turtle { ptr->last.r[$1[0]] = $3; free($3); }
     ;
 
 %%
@@ -58,6 +63,7 @@ int yyerror(Parser * ptr, const char * s)
 {
 	std::cerr << "parse error " << s << "\n";
 	ptr->error = true;
+	throw "error";
 	return 0;
 }
 
