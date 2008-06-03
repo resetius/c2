@@ -42,12 +42,16 @@ void normalize(list < line > & ln) {
 }
 
 void print_lines(Group & g, list < line > & ln) {
-	string fname = "output.txt";
-	if (!g.name.empty()) fname = g.name + ".txt";
+//	string fname = "output.txt";
+	string fname = "output.mgl";
+	
+	if (!g.name.empty()) fname = g.name + ".mgl"; //".txt";
 	FILE * f = fopen(fname.c_str(), "w");
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
-		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf}\n",
+//		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf}\n",
+//				it->x0, it->y0, it->x1, it->y1);
+		fprintf(f, "line %.16lf %.16lf %.16lf %.16lf\n",
 				it->x0, it->y0, it->x1, it->y1);
 	}
 	fclose(f);
