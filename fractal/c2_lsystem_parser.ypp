@@ -17,7 +17,8 @@ extern int yyerror(Parser * ptr, const char *s);
 %parse-param { Parser * ptr }
 %token <str> VAR
 %token <num> NUM
-%type  <str> id 
+%token <str> TURTLE
+%token <str> GRPIDT;
 %type  <num> number
 %token AXIOM
 %token THETA
@@ -31,42 +32,12 @@ grp:
     | '{' list '}'
     | '\n' grp
 	| grp '\n'
-    | id grp { /*named group*/ }
+    | GRPIDT grp { /*named group*/ }
     ;
 
 list: '\n'
     | list '\n'
     | list expr '\n'
-    ;
-
-id:   VAR
-    {
-        $$ = $1;
-    }
-    | '[' id ']'
-    {
-        $$ = (char*)malloc(strlen($2) + 3);
-        strcpy($$, "[");
-        strcat($$, $2);
-        strcat($$, "]");
-        free($2); 
-    }
-    | VAR id 
-	{
-		$$ = (char*)malloc(strlen($1) + strlen($2) + 1); 
-		strcpy($$, $1);  
-		strcat($$, $2); 
-		free($1);
-		free($2);
-	}
-    | id id
-	{
-		$$ = (char*)malloc(strlen($1) + strlen($2) + 1);
-		strcpy($$, $1);  
-		strcat($$, $2); 
-		free($1);
-		free($2);
-	}
     ;
 
 number: NUM { $$ = $1; }
@@ -77,10 +48,10 @@ number: NUM { $$ = $1; }
 	| '(' number ')'    { $$ = $2; }
 	;
 
-expr: AXIOM '=' id     { ptr->setAxiom($3); free($3); }
+expr: AXIOM '=' TURTLE { ptr->setAxiom($3); free($3); }
     | THETA '=' number { ptr->theta = $3; }
     | ALPHA '=' number { ptr->alpha = $3; }
-    | VAR   '=' id     { ptr->r[$1[0]] = $3; free($3); }
+    | VAR   '=' TURTLE { ptr->r[$1[0]] = $3; free($3); }
     ;
 
 %%
