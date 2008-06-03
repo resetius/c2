@@ -10,7 +10,7 @@ THETA theta
 PI pi
 NUM [0-9]+\.?[0-9]+
 VAR [a-zA-Z\+\-]
-OP [=\|;\[\]\{\}/*\+\-]
+OP [=\|;\[\]\{\}/*\+\-\(\)]
 %%
 {NUM}   { sscanf(yytext, "%lf", &yylval.num); return NUM; }
 {VAR}   { yylval.str = strdup(yytext); return VAR; }
