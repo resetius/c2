@@ -10,7 +10,7 @@ extern "C" {
 
 using namespace std;
 
-string lsystem(Parser & p, int level) {
+string lsystem(Group & p, int level) {
 	string W = p.axiom;
 	for (int i = 0; i < level; ++i) {
 		string nW;
@@ -44,7 +44,7 @@ struct line {
 	double y1;
 };
 
-list < line > turtle(Parser & p, const string & W)
+list < line > turtle(Group & p, const string & W)
 {
 	stack < Context > st;
 	list < line > ret;
@@ -104,8 +104,10 @@ void normalize(list < line > & ln) {
 	}
 }
 
-void print_lines(list < line > & ln) {
-	FILE * f = fopen("output.txt", "w");
+void print_lines(Group & g, list < line > & ln) {
+	string fname = "output.txt";
+	if (!g.name.empty()) fname = g.name + ".txt";
+	FILE * f = fopen(fname.c_str(), "w");
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
 		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf}\n",
@@ -132,14 +134,15 @@ int main(int argc, char * argv[])
 	if (f) yyrestart(f);
 	
 	while (yyparse(&p));
-	p.check();
 	p.print();
 
-	if (!p.error) {
-		string W = lsystem(p, level);
-		list < line > lines = turtle(p, W);
+	for (list < Group > ::iterator it = p.grp.begin(); it != p.grp.end(); ++it)
+	{
+		if (!it->check()) continue;
+		string W = lsystem(*it, level);
+		list < line > lines = turtle(*it, W);
 		normalize(lines);
-		print_lines(lines);
+		print_lines(*it, lines);
 	}
 
 	if (f) fclose(f);
