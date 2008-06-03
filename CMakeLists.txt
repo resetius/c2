@@ -18,5 +18,5 @@ target_link_libraries(c2 jpeg )
 set_target_properties(c2 PROPERTIES  LINK_FLAGS "-fopenmp")
 
 add_subdirectory(fractal)
-#add_subdirectory(vizualizer)
+add_subdirectory(vizualizer)
 

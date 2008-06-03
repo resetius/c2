@@ -12,6 +12,7 @@ int comment_caller;
 %s comment
 AXIOM axiom
 ALPHA alpha
+ANGLE angle
 THETA theta
 PI pi
 NUM [0-9]+\.?[0-9]+
@@ -31,6 +32,7 @@ OP  [=/\*\+\-\(\)]
 <grp>{AXIOM} { printf("axiom\n"); BEGIN(gen); return AXIOM; }
 <grp>{ALPHA} { printf("alpha\n"); return ALPHA; }
 <grp>{THETA} { printf("alpha\n"); return THETA; }
+<grp>{ANGLE} { return ANGLE; }
 <grp>{VAR}   { printf("var=%s\n", yytext); yylval.str = strdup(yytext); BEGIN(gen); return VAR; }
 <grp>{PI}    { yylval.num = M_PI; return NUM; }
 <grp>{OP}    { printf("op=%s\n", yytext); return yytext[0]; }

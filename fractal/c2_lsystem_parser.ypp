@@ -23,6 +23,7 @@ extern int yyerror(Parser * ptr, const char *s);
 %token AXIOM
 %token THETA
 %token ALPHA
+%token ANGLE
 %right '='
 %left '+' '-'
 %left '*' '/'
@@ -47,6 +48,7 @@ number: NUM { $$ = $1; }
 
 expr: AXIOM '=' TURTLE { ptr->last.setAxiom($3); free($3); }
     | THETA '=' number { ptr->last.theta = $3; }
+    | ANGLE '=' number { ptr->last.theta = 360.0 / $3; }
     | ALPHA '=' number { ptr->last.alpha = $3; }
     | VAR   '=' TURTLE { ptr->last.r[$1[0]] = $3; free($3); }
     ;
