@@ -76,10 +76,16 @@ int main(int argc, char * argv[])
 	for (list < Group > ::iterator it = p.grp.begin(); it != p.grp.end(); ++it)
 	{
 		if (!it->check()) continue;
-		string W = lsystem(*it, level);
-		list < line > lines = turtle(*it, W);
-		normalize(lines);
-		print_lines(*it, lines);
+
+		try {
+			string W = lsystem(*it, level);
+			list < line > lines = turtle(*it, W);
+			normalize(lines);
+			print_lines(*it, lines);
+		} catch (...) {
+			cerr << "error\n";
+			continue;
+		}
 	}
 
 	if (f) fclose(f);
