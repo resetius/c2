@@ -6,6 +6,7 @@ set(EXECUTABLE_OUTPUT_PATH "../bin")
 set(source "")
 
 add_flex_files(source c2_lsystem_scanner.l)
+add_flex_files(source c2_turtle_scanner.l)
 add_bison_files(source c2_lsystem_parser.ypp)
 
 add_library(fractal ${source})

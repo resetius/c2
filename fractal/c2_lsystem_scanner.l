@@ -2,7 +2,7 @@
 #include <math.h>
 #include "c2_lsystem_parser.hpp"
 
-int comment_caller;
+static int comment_caller;
 
 %}
 %option 8bit 
@@ -15,9 +15,9 @@ ALPHA alpha
 ANGLE angle
 THETA theta
 PI pi
-NUM [0-9]+\.?[0-9]+
+NUM [0-9]+\.?[0-9]*
 VAR [a-zA-Z]
-LS  [a-zA-Z\+\-\[\]]+
+LS  [a-zA-Z\+\-\[\]!0-9]+
 IDT [a-zA-Z\.0-9]+
 OP  [=/\*\+\-\(\)]
 %%
