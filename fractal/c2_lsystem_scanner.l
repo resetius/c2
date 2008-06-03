@@ -1,4 +1,5 @@
 %{
+#include <math.h>
 #include "c2_lsystem_parser.hpp"
 %}
 %option 8bit 
@@ -6,12 +7,14 @@
 AXIOM axiom
 ALPHA alpha
 THETA theta
+PI pi
 NUM [0-9]+\.?[0-9]+
 VAR [a-zA-Z\+\-]
-OP [=\|;\[\]\{\}]
+OP [=\|;\[\]\{\}/*\+\-]
 %%
 {NUM}   { sscanf(yytext, "%lf", &yylval.num); return NUM; }
 {VAR}   { yylval.str = strdup(yytext); return VAR; }
+{PI}    { yylval.num = M_PI; return NUM; }
 {AXIOM} { return AXIOM; }
 {ALPHA} { return ALPHA; }
 {THETA} { return THETA; }

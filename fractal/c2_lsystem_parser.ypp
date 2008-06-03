@@ -18,9 +18,13 @@ extern int yyerror(Parser * ptr, const char *s);
 %token <str> VAR
 %token <num> NUM
 %type  <str> id 
+%type  <num> number
 %token AXIOM
 %token THETA
 %token ALPHA
+%right '='
+%left '+' '-'
+%left '*' '/'
 %%
 
 grp:
@@ -30,13 +34,7 @@ grp:
     | id grp { /*named group*/ }
     ;
 
-commentbody: {}
-    ;
-comment: ';' commentbody '\n'
-    ;
-
 list: '\n'
-    | comment
     | list '\n'
     | list expr '\n'
     ;
@@ -71,10 +69,18 @@ id:   VAR
 	}
     ;
 
-expr: AXIOM '=' id  { ptr->setAxiom($3); free($3); }
-    | THETA '=' NUM { ptr->theta = $3; }
-    | ALPHA '=' NUM { ptr->alpha = $3; }
-    | VAR   '=' id  { ptr->r[$1[0]] = $3; free($3); }
+number: NUM { $$ = $1; }
+	| number '/' number { $$ = $1 / $3; }
+	| number '*' number { $$ = $1 * $3; }
+	| number '+' number { $$ = $1 + $3; }
+	| number '-' number { $$ = $1 - $3; }
+	| '(' number ')'    { $$ = $2; }
+	;
+
+expr: AXIOM '=' id     { ptr->setAxiom($3); free($3); }
+    | THETA '=' number { ptr->theta = $3; }
+    | ALPHA '=' number { ptr->alpha = $3; }
+    | VAR   '=' id     { ptr->r[$1[0]] = $3; free($3); }
     ;
 
 %%
