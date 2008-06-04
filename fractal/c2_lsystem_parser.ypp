@@ -34,6 +34,7 @@ extern int yyerror(Parser * ptr, const char *s);
 %%
 
 grp: GRPIDT '{' list '}' { ptr->push($1); /* named group   */ }
+    | MGL MGLSTR { ptr->addMgl($2); }
     | grp grp
     ;
 

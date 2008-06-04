@@ -64,7 +64,7 @@ string print_lines(Group & g, list < line > & ln,
 	FILE * f = fopen(fname.c_str(), "w");
 
 	fprintf(f, "axis %lf %lf %lf %lf\n", min_x, min_y, max_x, max_y);
-	for (set < string> :: iterator it = g.mgl.begin(); it != g.mgl.end(); ++it)
+	for (list < string> :: iterator it = g.mgl.begin(); it != g.mgl.end(); ++it)
 	{
 		fprintf(f, "%s\n", it->c_str());
 	}

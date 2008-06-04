@@ -35,20 +35,21 @@ OP  [=/\*\+\-\(\)]
 COMMENT ;.*\n?
 WHITESPACE [ \t]
 %%
-<INITIAL>{COMMENT}   {}
 
-<gen,grp>";" {
-                comment_caller = YY_START;
-                BEGIN(comment);
-             }
+";" {
+       comment_caller = YY_START;
+       BEGIN(comment);
+    }
 
 <comment>[ \t]+"mgl"[\ t]+ {
                 BEGIN(mgl);
                 return MGL;
              }
 <comment>[ \t]+"order"[\ t]+ {
-                BEGIN(order);
-                return ORDER;
+                if (comment_caller != INITIAL) {
+                    BEGIN(order);
+                    return ORDER;
+                }
              }
 <mgl>.* {
              printf("mgl: %s\n", yytext);
@@ -64,7 +65,12 @@ WHITESPACE [ \t]
                   return NUM;
               }
 
-<comment,mgl>"\n" { BEGIN(comment_caller); return '\n'; }
+<comment,mgl>"\n" { 
+             BEGIN(comment_caller); 
+             if (comment_caller != INITIAL) {
+                  return '\n'; 
+             }
+         }
 
 <INITIAL>{IDT}  { printf("grp idt =  %s\n", yytext); yylval.str = strdup(yytext); return GRPIDT; }
 <grp>{NUM}   { sscanf(yytext, "%lf", &yylval.num);

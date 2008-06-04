@@ -14,7 +14,7 @@ struct Group
 	std::string axiom;
 	std::map < char, std::string > r;
 	std::set < char > v;
-	std::set < std::string > mgl; //строки для вывода в mgl
+	std::list < std::string > mgl; //строки для вывода в mgl
 	std::string name;
 	int order;  //предпочитаемый порядок отрисовки
 
@@ -26,7 +26,7 @@ struct Group
 	void print();
 	void setAxiom(const std::string & a);
 	void setOrder(double o) { order = (int)o; }
-	void addMgl(const std::string & str) { mgl.insert(str); }
+	void addMgl(const std::string & str) { mgl.push_back(str); }
 };
 
 struct Parser
@@ -34,16 +34,22 @@ struct Parser
 	bool error;
 	std::list < Group > grp;
 	typedef std::list < Group >::iterator iterator;
-
 	Group last;
+	std::list < std::string > mgl; //строки для вывода в mgl
 
 	Parser (): error(false) {}
 
 	void push(const std::string & name = "") { 
 		last.name = name;
+		std::list < std::string > m = mgl;
+		m.insert(m.end(), last.mgl.begin(), last.mgl.end());
+		m.swap(last.mgl);
+
 		grp.push_back(last);
 		last = Group();
 	}
+
+	void addMgl(const std::string & str) { mgl.push_back(str); }
 
 	void print();
 };
