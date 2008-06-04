@@ -59,7 +59,7 @@ string lsystem(Group & gr, int level) {
 
 	for (uint i = 0; i < level; ++i) {
 		W = lsystem_iter(W, gr);
-		//cerr << i << ":" << W << "\n";
+//		cerr << i << ":" << W << "\n";
 	}
 
 	return W;
@@ -127,7 +127,7 @@ list < line > turtle(Group & p, const string & src)
 			/*TODO:*/
 			break;
 		case NUMBER:
-			//printf("mult r %lf\n", st.m);
+//			printf("mult r %lf\n", st.m);
 			c.r *= st.m; free(st.str);
 			break;
 		case INCNUMBER:
