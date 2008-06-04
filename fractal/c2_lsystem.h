@@ -114,6 +114,7 @@ struct line {
 	double y0;
 	double x1;
 	double y1;
+	int c;
 };
 
 std::list < line > turtle(Group & p, const std::string & W);

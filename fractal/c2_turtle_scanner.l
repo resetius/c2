@@ -17,13 +17,20 @@ VAR [a-zA-Z]
 "-"       { /*dec angle*/ return '-'; }
 "["|"]"   { /*branch */   return yytext[0]; }
 "C"{INT}  { /*color*/
-                 sscanf(&yytext[1],"%d", &st.i); 
-                 st.str = strdup(yytext);
-                 return COLOR; 
+              sscanf(&yytext[1],"%d", &st.i); 
+              st.str = strdup(yytext);
+              return COLOR; 
           }
 "<"{INT}  { /*next color*/
+              sscanf(&yytext[1],"%d", &st.i);
+              st.str = strdup(yytext);
+              return INCCOLOR;
           }
 ">"{INT}  { /*prev color */
+              sscanf(&yytext[1],"%d", &st.i);
+              st.i   = -st.i;
+              st.str = strdup(yytext);
+              return INCCOLOR;
           }
 "|"       { /*inc 180 deg*/
                  st.i   = 180;
@@ -61,6 +68,12 @@ VAR [a-zA-Z]
                  BEGIN(INITIAL);
                  return NUMBER;
            }
+"@QI"{NUM} { /*inverse*/ sscanf(&yytext[3],"%lf", &st.m); 
+                 st.m   = 1.0 / sqrt(st.m);
+                 st.str = strdup(yytext);  
+                 BEGIN(INITIAL);
+                 return NUMBER;
+           }
 {VAR} { /*replace*/ return yytext[0]; }
 .|"\n"    {}
 %%
@@ -93,4 +106,3 @@ VAR [a-zA-Z]
       [     Push.  Stores current angle and position on a stack
       ]     Pop.  Return to location of last push
 */
-

@@ -41,14 +41,23 @@ class Viz_Segments: public Viz_Obj {
 
 		point () : x(0), y(0) {}
 		point (double x1, double y1) : x(x1), y(y1) {}
+
+		bool operator==(const point & p) {
+			return x == p.x && y == p.y;
+		}
+
+		bool operator!=(const point & p) {
+			return !(*this == p);
+		}
 	};
 
 	struct line {
 		point p1;
 		point p2;
+		int c;
 
-		line() {};
-		line (point p1_, point p2_) : p1(p1_), p2(p2_) {}
+		line(): c(0) {};
+		line (point p1_, point p2_) : p1(p1_), p2(p2_), c(0) {}
 	};
 
 	std::list < line > segments_;

@@ -71,9 +71,10 @@ struct Context {
 	double y0;
 	double r;
 	double sgn;
+	int col;
 
 	Context(double alpha, double x, double y)
-		: a(alpha), x0(x), y0(y), r(1.0), sgn(1.0) {}
+		: a(alpha), x0(x), y0(y), r(1.0), sgn(1.0), col(0) {}
 };
 
 list < line > turtle(Group & p, const string & src)
@@ -83,6 +84,7 @@ list < line > turtle(Group & p, const string & src)
 	stack < Context > stk;
 	list < line > ret;
 	Context c (p.alpha, 0, 0);
+	int col = 0;
 
 	int result;
 	YY_BUFFER_STATE buf_state;
@@ -117,6 +119,7 @@ list < line > turtle(Group & p, const string & src)
 			l.x0 = c.x0; l.y0 = c.y0;
 			c.x0 += c.r * cos(c.a); c.y0 += c.r * sin(c.a);
 			l.x1 = c.x0; l.y1 = c.y0;
+			l.c  = c.col;
 			ret.push_back(l);
 			break;
 		case '!':
@@ -124,7 +127,11 @@ list < line > turtle(Group & p, const string & src)
 			c.sgn = -c.sgn;
 			break;
 		case COLOR:
-			/*TODO:*/
+			c.col = st.i; free(st.str);
+			break;
+		case INCCOLOR:
+			c.col = (256 + c.col + st.i) % 256;
+			free(st.str);
 			break;
 		case NUMBER:
 //			printf("mult r %lf\n", st.m);
