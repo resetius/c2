@@ -33,8 +33,8 @@ extern int yyerror(Parser * ptr, const char *s);
 %left '*' '/'
 %%
 
-grp:  '{' list '}'        { ptr->push();   /* unnamed group */ }
-    | GRPIDT '{' list '}' { ptr->push($1); /* named group   */ }
+grp: GRPIDT '{' list '}' { ptr->push($1); /* named group   */ }
+    | grp grp
     ;
 
 list: '\n'
@@ -68,7 +68,7 @@ int yyerror(Parser * ptr, const char * s)
 {
 	std::cerr << "parse error " << s << "\n";
 	ptr->error = true;
-	throw "error";
+	throw std::exception();
 	return 0;
 }
 

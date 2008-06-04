@@ -1,5 +1,5 @@
 Weed {
-; mgl setsize 60 60
+; mgl setsize 100 100
 ; mgl axis -1 -1 1 1
 ; order 4
   Angle 50 ; comment

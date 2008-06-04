@@ -29,7 +29,7 @@ THETA theta
 PI pi
 NUM [0-9]+\.?[0-9]*
 VAR [a-zA-Z]
-LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>]+
+LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>\\/]+
 IDT [a-zA-Z\.0-9&]+
 OP  [=/\*\+\-\(\)]
 COMMENT ;.*\n?
@@ -66,7 +66,7 @@ WHITESPACE [ \t]
 
 <comment,mgl>"\n" { BEGIN(comment_caller); return '\n'; }
 
-<INITIAL>{IDT}  { printf("grp idt %s\n", yytext); yylval.str = strdup(yytext); return GRPIDT; }
+<INITIAL>{IDT}  { printf("grp idt =  %s\n", yytext); yylval.str = strdup(yytext); return GRPIDT; }
 <grp>{NUM}   { sscanf(yytext, "%lf", &yylval.num);
                printf("number %lf\n", yylval.num); 
                return NUM; 
@@ -88,7 +88,7 @@ WHITESPACE [ \t]
 <grp>{PI}    { yylval.num = M_PI; return NUM; }
 <grp>{OP}    { printf("op=%s\n", yytext); return yytext[0]; }
 <grp,gen>"=" { printf("op=%s\n", yytext); return yytext[0]; }
-<grp,gen>"\n" { BEGIN(grp); return yytext[0]; }
+<grp,gen>"\n" { BEGIN(grp); return '\n'; }
 .|"\n"       {}
 %%
 /*

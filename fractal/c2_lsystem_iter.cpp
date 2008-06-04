@@ -32,6 +32,8 @@ string lsystem_iter(string & src, Group & gr)
 		case ']':
 			r += (char)result;
 			break;
+		case INCNUMBER:
+		case INCCOLOR:
 		case COLOR:
 		case NUMBER:
 			r += st.str; free(st.str);
@@ -118,6 +120,8 @@ list < line > turtle(Group & p, const string & src)
 		case NUMBER:
 			c.r *= st.m; free(st.str);
 			break;
+		case INCNUMBER:
+			c.a += (double)st.i; free(st.str);
 		default:
 			break;
 		}
@@ -127,3 +131,4 @@ list < line > turtle(Group & p, const string & src)
 
 	return ret;
 }
+

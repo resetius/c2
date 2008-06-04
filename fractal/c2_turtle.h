@@ -10,8 +10,10 @@ struct State {
 
 extern struct State st;
 
-#define NUMBER 256
-#define COLOR 257
+#define NUMBER 256    /*умножить угол на число*/
+#define COLOR 257     /*установить цвет*/
+#define INCNUMBER 258 /*прибавить к углу значение (в градусах)*/
+#define INCCOLOR  259 /*сместить цвет*/
 
 #endif
 

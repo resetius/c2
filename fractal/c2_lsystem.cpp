@@ -9,7 +9,7 @@ extern "C" {
 
 using namespace std;
 
-void normalize(list < line > & ln) {
+void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, double &mxy) {
 	double max_x, min_x;
 	double max_y, min_y;
 	max_x = min_x = ln.begin()->x0;
@@ -31,6 +31,10 @@ void normalize(list < line > & ln) {
 	double xx = 2.0 / (max_x - min_x);
 	double yy = 2.0 / (max_y - min_y);
 
+	double x = ln.begin()->x0, y = ln.begin()->y0;
+	mnx = mxx = (x - min_x) * yy - 1.0;
+	mny = mxy = (y - min_y) * yy - 1.0;
+
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
 		it->x0 = (it->x0 - min_x) * yy - 1.0;
@@ -38,16 +42,28 @@ void normalize(list < line > & ln) {
 
 		it->y0 = (it->y0 - min_y) * yy - 1.0;
 		it->y1 = (it->y1 - min_y) * yy - 1.0;
+
+		if (mxx < it->x0) mxx = it->x0;
+		if (mxx < it->x1) mxx = it->x1;
+		if (mnx > it->x0) mnx = it->x0;
+		if (mnx > it->x1) mnx = it->x1;
+
+		if (mxy < it->y0) mxy = it->y0;
+		if (mxy < it->y1) mxy = it->y1;
+		if (mny > it->y0) mny = it->y0;
+		if (mny > it->y1) mny = it->y1;
 	}
 }
 
-void print_lines(Group & g, list < line > & ln) {
+void print_lines(Group & g, list < line > & ln, 
+		double min_x, double max_x, double min_y, double max_y) {
 //	string fname = "output.txt";
 	string fname = "output.mgl";
 	
 	if (!g.name.empty()) fname = g.name + ".mgl"; //".txt";
 	FILE * f = fopen(fname.c_str(), "w");
 
+	fprintf(f, "axis %lf %lf %lf %lf\n", min_x, min_y, max_x, max_y);
 	for (set < string> :: iterator it = g.mgl.begin(); it != g.mgl.end(); ++it)
 	{
 		fprintf(f, "%s\n", it->c_str());
@@ -90,14 +106,20 @@ int main(int argc, char * argv[])
 		int l = level;
 		if (it->order != 0) l = it->order;
 
-		cerr << "using level " << l << "\n";
+		cerr << "building " << it->name << "\n";
+		cerr << "  using level " << l << "\n";
 
 		try {
+			double min_x, max_x, min_y, max_y;
 			string W = lsystem(*it, l);
+			cerr << "  lsystem done\n";
 			list < line > lines = turtle(*it, W);
-			normalize(lines);
-			print_lines(*it, lines);
-		} catch (...) {
+			cerr << "  turtle done\n";
+			normalize(lines, min_x, max_x, min_y, max_y);
+			cerr << "  normilize done\n";
+			print_lines(*it, lines, min_x, max_x, min_y, max_y);
+			cerr << "  to mgl done\n";
+		} catch (std::exception & e) {
 			cerr << "error\n";
 			continue;
 		}
