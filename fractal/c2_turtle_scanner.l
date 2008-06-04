@@ -55,6 +55,12 @@ VAR [a-zA-Z]
                  BEGIN(INITIAL);
                  return NUMBER;
           }
+"@IQ"{NUM} { /*inverse*/ sscanf(&yytext[2],"%lf", &st.m); 
+                 st.m   = 1.0 / sqrt(st.m);
+                 st.str = strdup(yytext);  
+                 BEGIN(INITIAL);
+                 return NUMBER;
+           }
 {VAR} { /*replace*/ return yytext[0]; }
 .|"\n"    {}
 %%
