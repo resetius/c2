@@ -106,7 +106,7 @@ int main(int argc, char * argv[])
 		if (!it->check()) continue;
 
 		int l = level;
-		if (it->order != 0) l = it->order;
+		if (it->order != 0 && level == 1) l = it->order;
 
 		cerr << "building " << it->name << "\n";
 		cerr << "  using level " << l << "\n";
