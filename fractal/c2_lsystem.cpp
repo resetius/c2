@@ -56,7 +56,8 @@ void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, dou
 }
 
 string print_lines(Group & g, list < line > & ln, 
-		double min_x, double max_x, double min_y, double max_y) {
+		double min_x, double max_x, double min_y, double max_y)
+{
 //	string fname = "output.txt";
 	string fname = "output.mgl";
 	
@@ -85,7 +86,7 @@ int main(int argc, char * argv[])
 {
 	Parser p;
 	FILE * f  = 0;
-	int level = 1;
+	int level = 0;
 
 	if (argc > 1) {
 		f = fopen(argv[1], "r");
@@ -95,7 +96,6 @@ int main(int argc, char * argv[])
 		level = atoi(argv[2]);
 	}
 
-	if (!level) level = 1;
 	if (f) yyrestart(f);
 	
 	while (yyparse(&p));
@@ -106,7 +106,7 @@ int main(int argc, char * argv[])
 		if (!it->check()) continue;
 
 		int l = level;
-		if (it->order != 0 && level == 1) l = it->order;
+		if (it->order != 0 && level == 0) l = it->order;
 
 		cerr << "building " << it->name << "\n";
 		cerr << "  using level " << l << "\n";

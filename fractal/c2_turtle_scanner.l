@@ -50,7 +50,7 @@ VAR [a-zA-Z]
                  return NUMBER; 
           }
 "@I"{NUM} { /*inverse*/ sscanf(&yytext[2],"%lf", &st.m); 
-                 st.m   = 1.0 / sqrt(st.m);
+                 st.m   = 1.0 / st.m;
                  st.str = strdup(yytext);  
                  BEGIN(INITIAL);
                  return NUMBER;

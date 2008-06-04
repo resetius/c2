@@ -59,7 +59,7 @@ string lsystem(Group & gr, int level) {
 
 	for (uint i = 0; i < level; ++i) {
 		W = lsystem_iter(W, gr);
-//		cerr << i << ":" << W << "\n";
+		//cerr << i << ":" << W << "\n";
 	}
 
 	return W;
@@ -79,6 +79,7 @@ struct Context {
 list < line > turtle(Group & p, const string & src)
 {
 	double inc;
+	line l;
 	stack < Context > stk;
 	list < line > ret;
 	Context c (p.alpha, 0, 0);
@@ -95,33 +96,42 @@ list < line > turtle(Group & p, const string & src)
 		case '-': c.a -= c.sgn * p.theta; break;
 			/*пропуск*/
 		case 'G':
+		case 'M':
 			c.x0 += c.r * cos(c.a); c.y0 += c.r * sin(c.a);
 			break;
 			/*branch open*/
 		case '[':
+			//printf("branch [\n");
 			stk.push(c);
 			break;
 			/*branch close*/
 		case ']':
+			//printf("branch ]\n");
 			c = stk.top();
 			stk.pop();
 			break;
 			/*forward*/
 		case 'F':
-			line l;
+		case 'D':
+			//printf("draw\n");
 			l.x0 = c.x0; l.y0 = c.y0;
 			c.x0 += c.r * cos(c.a); c.y0 += c.r * sin(c.a);
 			l.x1 = c.x0; l.y1 = c.y0;
 			ret.push_back(l);
 			break;
-		case '!': c.sgn = -c.sgn; break;
+		case '!':
+			//printf("reverse sign\n");
+			c.sgn = -c.sgn;
+			break;
 		case COLOR:
 			/*TODO:*/
 			break;
 		case NUMBER:
+			//printf("mult r %lf\n", st.m);
 			c.r *= st.m; free(st.str);
 			break;
 		case INCNUMBER:
+			//printf("inc angle by %d\n", st.i);
 			inc = c.sgn * (double)st.i * M_PI / 180.0;
 			c.a += inc; 
 			free(st.str);
