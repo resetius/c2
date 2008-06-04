@@ -33,6 +33,8 @@ struct Parser
 {
 	bool error;
 	std::list < Group > grp;
+	typedef std::list < Group >::iterator iterator;
+
 	Group last;
 
 	Parser (): error(false) {}

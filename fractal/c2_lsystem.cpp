@@ -55,7 +55,7 @@ void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, dou
 	}
 }
 
-void print_lines(Group & g, list < line > & ln, 
+string print_lines(Group & g, list < line > & ln, 
 		double min_x, double max_x, double min_y, double max_y) {
 //	string fname = "output.txt";
 	string fname = "output.mgl";
@@ -77,6 +77,8 @@ void print_lines(Group & g, list < line > & ln,
 				it->x0, it->y0, it->x1, it->y1);
 	}
 	fclose(f);
+
+	return fname;
 }
 
 int main(int argc, char * argv[])

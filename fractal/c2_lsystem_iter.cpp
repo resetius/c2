@@ -78,6 +78,7 @@ struct Context {
 
 list < line > turtle(Group & p, const string & src)
 {
+	double inc;
 	stack < Context > stk;
 	list < line > ret;
 	Context c (p.alpha, 0, 0);
@@ -121,7 +122,10 @@ list < line > turtle(Group & p, const string & src)
 			c.r *= st.m; free(st.str);
 			break;
 		case INCNUMBER:
-			c.a += (double)st.i; free(st.str);
+			inc = (double)st.i * M_PI / 180.0;
+			c.a += inc; 
+			free(st.str);
+			break;
 		default:
 			break;
 		}
