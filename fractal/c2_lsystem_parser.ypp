@@ -25,6 +25,9 @@ extern int yyerror(Parser * ptr, const char *s);
 %token THETA
 %token ALPHA
 %token ANGLE
+%token MGL
+%token <str> MGLSTR
+%token ORDER
 %right '='
 %left '+' '-'
 %left '*' '/'
@@ -56,6 +59,8 @@ expr: AXIOM  TURTLE { ptr->last.setAxiom($2); free($2); }
     | ANGLE  number { ptr->last.theta = M_PI * (360.0 / $2) / 180.0; }
     | ALPHA  number { ptr->last.alpha = $2; }
     | VAR   '=' turtle { ptr->last.r[$1[0]] = $3; free($3); }
+    | MGL    MGLSTR { ptr->last.addMgl($2); }
+    | ORDER  NUM    { ptr->last.setOrder($2); }
     ;
 
 %%

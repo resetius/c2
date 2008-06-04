@@ -14,15 +14,19 @@ struct Group
 	std::string axiom;
 	std::map < char, std::string > r;
 	std::set < char > v;
+	std::set < std::string > mgl; //строки для вывода в mgl
 	std::string name;
+	int order;  //предпочитаемый порядок отрисовки
 
 	typedef std::map < char, std::string >::iterator iterator;
 
-	Group(): error(false), alpha (0.0), theta (0.0) {}
+	Group(): error(false), alpha (0.0), theta (0.0), order(0) {}
 
 	bool check();
 	void print();
 	void setAxiom(const std::string & a);
+	void setOrder(double o) { order = (int)o; }
+	void addMgl(const std::string & str) { mgl.insert(str); }
 };
 
 struct Parser

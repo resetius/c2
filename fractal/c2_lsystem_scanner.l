@@ -20,6 +20,8 @@ static char * strdup_upper(const char * p)
 %s gen
 %s grp
 %s comment
+%s mgl
+%s order
 AXIOM axiom
 ALPHA alpha
 ANGLE angle
@@ -30,19 +32,39 @@ VAR [a-zA-Z]
 LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>]+
 IDT [a-zA-Z\.0-9&]+
 OP  [=/\*\+\-\(\)]
+COMMENT ;.*\n?
+WHITESPACE [ \t]
 %%
-<INITIAL,grp,gen>";"   { comment_caller = YY_START;
-        printf("comment_caller %d\n", comment_caller); 
-        BEGIN(comment); 
-      }
+<INITIAL>{COMMENT}   {}
 
-<comment>"\n" { BEGIN(comment_caller); 
-                printf("comment_caller %d:%d\n", comment_caller, INITIAL); 
-                if (comment_caller != INITIAL) {
-                  printf("end of comment\n");
-                  return '\n';
-                } 
+<gen,grp>";" {
+                comment_caller = YY_START;
+                BEGIN(comment);
+             }
+
+<comment>[ \t]+"mgl"[\ t]+ {
+                BEGIN(mgl);
+                return MGL;
+             }
+<comment>[ \t]+"order"[\ t]+ {
+                BEGIN(order);
+                return ORDER;
+             }
+<mgl>.* {
+             printf("mgl: %s\n", yytext);
+             yylval.str = strdup(yytext);
+             BEGIN(comment);
+             return MGLSTR;
+        }
+
+<order>[0-9]+ {
+                  printf("order: %s\n", yytext);
+                  sscanf(yytext, "%lf", &yylval.num);
+                  BEGIN(comment);
+                  return NUM;
               }
+
+<comment,mgl>"\n" { BEGIN(comment_caller); return '\n'; }
 
 <INITIAL>{IDT}  { printf("grp idt %s\n", yytext); yylval.str = strdup(yytext); return GRPIDT; }
 <grp>{NUM}   { sscanf(yytext, "%lf", &yylval.num);

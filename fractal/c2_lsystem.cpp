@@ -47,6 +47,12 @@ void print_lines(Group & g, list < line > & ln) {
 	
 	if (!g.name.empty()) fname = g.name + ".mgl"; //".txt";
 	FILE * f = fopen(fname.c_str(), "w");
+
+	for (set < string> :: iterator it = g.mgl.begin(); it != g.mgl.end(); ++it)
+	{
+		fprintf(f, "%s\n", it->c_str());
+	}
+
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
 //		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf}\n",
@@ -61,7 +67,7 @@ int main(int argc, char * argv[])
 {
 	Parser p;
 	FILE * f  = 0;
-	int level = 0;
+	int level = 1;
 
 	if (argc > 1) {
 		f = fopen(argv[1], "r");
@@ -81,8 +87,13 @@ int main(int argc, char * argv[])
 	{
 		if (!it->check()) continue;
 
+		int l = level;
+		if (it->order != 0) l = it->order;
+
+		cerr << "using level " << l << "\n";
+
 		try {
-			string W = lsystem(*it, level);
+			string W = lsystem(*it, l);
 			list < line > lines = turtle(*it, W);
 			normalize(lines);
 			print_lines(*it, lines);
