@@ -36,7 +36,8 @@ COMMENT ;.*\n?
 WHITESPACE [ \t]
 %%
 
-";" {
+<INITIAL,gen,grp>";" {
+       printf("begin comment %d\n", YY_START);
        comment_caller = YY_START;
        BEGIN(comment);
     }
@@ -66,6 +67,7 @@ WHITESPACE [ \t]
               }
 
 <comment,mgl>"\n" { 
+             printf("end of comment %d\n", comment_caller);
              BEGIN(comment_caller); 
              if (comment_caller != INITIAL) {
                   return '\n'; 
