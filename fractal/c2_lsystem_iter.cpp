@@ -122,7 +122,7 @@ list < line > turtle(Group & p, const string & src)
 			c.r *= st.m; free(st.str);
 			break;
 		case INCNUMBER:
-			inc = (double)st.i * M_PI / 180.0;
+			inc = c.sgn * (double)st.i * M_PI / 180.0;
 			c.a += inc; 
 			free(st.str);
 			break;
