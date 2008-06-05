@@ -257,7 +257,7 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 		break;
 	case 3:
 		if (flatMode) {
-			zo += 0.01;
+			zo *= 1.1;
 			rotate();
 			break;
 		} else {
@@ -265,7 +265,7 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 		}
 	case 4:
 		if (flatMode) {
-			zo -= 0.01;
+			zo /= 1.1;
 		} else {
 			zo += 0.1;
 		}
@@ -281,7 +281,7 @@ void VizMainWindow::keyPressEvent1(unsigned char key, int x, int y) {
 		case '=':
 		case '+':
 			if (flatMode) {
-				zo += 0.01;
+				zo *= 1.1;
 				rotate();
 				break;
 			} else {
@@ -289,7 +289,7 @@ void VizMainWindow::keyPressEvent1(unsigned char key, int x, int y) {
 			}
 		case '-':
 			if (flatMode) {
-				zo -= 0.01;
+				zo /= 1.1;
 			} else {
 				zo += 0.1;
 			}
@@ -534,7 +534,11 @@ int VizMainWindow::exec(int argc, char **argv) {
 
 void VizMainWindow::init_basic_objects() {
 	v_objs->push_back((console = new Viz_Console(this)));
-	v_objs->push_back((new Viz_Cube(2.0)));
+	
+	if (p->getValue("cube", "visual", 1)) {
+		v_objs->push_back((new Viz_Cube(2.0)));
+	}
+
 //    v_objs->push_back((new Viz_Surface("PROGINI.DAT", Viz_Surface::sPlain)));
 //    v_objs->push_back((new Viz_Surface("PROGINI.DAT", Viz_Surface::sNurbs)));
 }
