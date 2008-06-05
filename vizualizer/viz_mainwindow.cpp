@@ -134,12 +134,16 @@ VizMainWindow::VizMainWindow(const char *name1, int w, int h)
 {
 	old_mouse_y = -1;
 	old_mouse_x = -1;
+
 	config();
 }
 
 void VizMainWindow::config()
 {
 	flatMode = (bool)p->getValue("flatMode", "visual", 0);
+	int w = p->getValue("width",  "visual", 640);
+	int h = p->getValue("height", "visual", 480);
+	resize(w, h);
 	p->sync();
 }
 
