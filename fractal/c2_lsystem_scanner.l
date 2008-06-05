@@ -42,11 +42,11 @@ WHITESPACE [ \t]
        BEGIN(comment);
     }
 
-<comment>[ \t]+"mgl"[\ t]+ {
+<comment>[ \t]*"mgl"[\ t]+ {
                 BEGIN(mgl);
                 return MGL;
              }
-<comment>[ \t]+"order"[\ t]+ {
+<comment>[ \t]*"order"[\ t]+ {
                 if (comment_caller != INITIAL) {
                     BEGIN(order);
                     return ORDER;
