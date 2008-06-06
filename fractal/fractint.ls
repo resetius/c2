@@ -73,6 +73,7 @@ Dragon { ; Adrian Mariano
 Peano1 { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 3
 
   Angle 4
 
@@ -271,6 +272,7 @@ SnowFlake3 { ; Adrian Mariano
 Tree1 { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 7
 
   angle 12
 

@@ -5,6 +5,7 @@ extern "C" {
 #include "c2_lsystem_scanner.h"
 }
 #include "c2_lsystem_parser.hpp"
+#include "c2_2graph.h"
 #include "c2_lsystem.h"
 
 using namespace std;
@@ -87,6 +88,7 @@ int main(int argc, char * argv[])
 	Parser p;
 	FILE * f  = 0;
 	int level = 0;
+	bool mgl;
 
 	if (argc > 1) {
 		f = fopen(argv[1], "r");
@@ -94,6 +96,10 @@ int main(int argc, char * argv[])
 
 	if (argc > 2) {
 		level = atoi(argv[2]);
+	}
+
+	if (argc > 3) {
+		mgl = atoi(argv[3]);
 	}
 
 	if (f) yyrestart(f);
@@ -119,7 +125,8 @@ int main(int argc, char * argv[])
 			cerr << "  turtle done\n";
 			normalize(lines, min_x, max_x, min_y, max_y);
 			cerr << "  normilize done\n";
-			print_lines(*it, lines, min_x, max_x, min_y, max_y);
+			(mgl) ? print_lines2mgl(*it, lines, min_x, max_x, min_y, max_y) :
+				print_lines2txt(*it, lines, min_x, max_x, min_y, max_y);
 			cerr << "  to mgl done\n";
 		} catch (std::exception & e) {
 			cerr << "error\n";
