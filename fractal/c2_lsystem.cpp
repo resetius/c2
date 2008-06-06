@@ -108,7 +108,12 @@ int main(int argc, char * argv[])
 	}
 	
 	if (argc > 3) {
-		mgl   = !strcmp(argv[3], "mgl");
+		t   = argv[3];
+		if (!strcmp(t, "mgl")) {
+			type = 1;
+		} else if (!strcmp(t, "png")) {
+			type = 2;
+		}
 	}
 
 	if (argc > 3) {
