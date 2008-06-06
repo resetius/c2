@@ -10,6 +10,7 @@ extern "C" {
 #include "c2_lsystem.h"
 
 extern int yyerror(Parser * ptr, const char *s);
+extern "C" int yyget_lineno  (void);
 
 %}
 %union {
@@ -70,7 +71,7 @@ expr: AXIOM  TURTLE { ptr->last.setAxiom($2); free($2); }
 int yyerror(Parser * ptr, const char * s)
 {
 	std::stringstream str;
-	str << "syntax error near line " << yyget_lineno() << "\n";
+	str << "syntax error near line " << yyget_lineno() << "\n"; 
 	ptr->error = true;
 	throw std::logic_error(str.str());
 	return 0;

@@ -69,6 +69,7 @@ WHITESPACE [ \t]
 <comment,mgl>"\n" { 
 /*             printf("end of comment %d\n", comment_caller);*/
              BEGIN(comment_caller); 
+             ++yylineno;
              if (comment_caller != INITIAL) {
                   return '\n'; 
              }
@@ -103,8 +104,9 @@ WHITESPACE [ \t]
 <grp>{PI}    { yylval.num = M_PI; return NUM; }
 <grp>{OP}    { /* printf("op=%s\n", yytext); */ return yytext[0]; }
 <grp,gen>"=" { /* printf("op=%s\n", yytext); */ return yytext[0]; }
-<grp,gen>"\n" { BEGIN(grp); return '\n'; }
-.|"\n"       {}
+<grp,gen>"\n" { BEGIN(grp); ++yylineno; return '\n'; }
+.       {}
+"\n"    { ++yylineno; }
 %%
 /*
  подсказка:
