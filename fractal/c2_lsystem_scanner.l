@@ -29,8 +29,8 @@ THETA theta
 PI pi
 NUM [0-9]+\.?[0-9]*
 VAR [a-zA-Z]
-LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>\\/]+
-IDT [a-zA-Z\.0-9&]+
+LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>\\/:]+
+IDT [a-zA-Z\.0-9&\*_@!]+
 OP  [=/\*\+\-\(\)]
 COMMENT ;.*\n?
 WHITESPACE [ \t]
@@ -82,8 +82,8 @@ WHITESPACE [ \t]
 <gen>{LS}    { printf("ls=%s\n", yytext); 
                yylval.str = strdup_upper(yytext); 
                BEGIN(grp); return TURTLE; }
-"{"          { printf("grp\n"); BEGIN(grp);     return yytext[0]; }
-"}"          { printf("endof grp\n"); BEGIN(INITIAL); return yytext[0]; }
+<INITIAL,grp,gen>"{" { printf("grp\n"); BEGIN(grp);     return yytext[0]; }
+<grp,gen>"}" { printf("endof grp\n"); BEGIN(INITIAL); return yytext[0]; }
 <grp>{AXIOM} { printf("axiom\n"); BEGIN(gen); return AXIOM; }
 <grp>{ALPHA} { printf("alpha\n"); return ALPHA; }
 <grp>{THETA} { printf("theta\n"); return THETA; }

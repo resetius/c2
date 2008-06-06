@@ -1,3 +1,5 @@
+; mgl setsize 1024 1024
+
 Koch1 { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
@@ -88,6 +90,7 @@ Peano1 { ; Adrian Mariano
 Cesaro { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 7
 
   Angle 34
 
@@ -104,6 +107,7 @@ Cesaro { ; Adrian Mariano
 DoubleCesaro { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 8
 
   Angle 4
 
@@ -130,6 +134,7 @@ F=
 CantorDust { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 3
 
   Angle 6
 
@@ -146,6 +151,7 @@ CantorDust { ; Adrian Mariano
 Snowflake2 { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 4
 
   angle 12
 
@@ -162,6 +168,7 @@ Snowflake2 { ; Adrian Mariano
 SnowflakeColor { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
+; order 4
 
   angle 12
 
@@ -272,7 +279,7 @@ SnowFlake3 { ; Adrian Mariano
 Tree1 { ; Adrian Mariano
 
 ; from The Fractal Geometry of Nature by Mandelbrot
-; order 7
+; order 6
 
   angle 12
 
@@ -637,6 +644,7 @@ Plant09 { ; Adrian Mariano
 
 
 Plant10 { ; Adrian Mariano
+; order 4
 
    axiom f
 
@@ -651,6 +659,7 @@ Plant10 { ; Adrian Mariano
 
 
 Plant11 { ; Adrian Mariano
+; order 4
 
    axiom f
 
@@ -719,12 +728,13 @@ Curve4 { ; Adrian Mariano
 Leaf1 { ; Adrian Mariano, from the Algorithmic Beauty of Plants
 
 	; Compound leaf with alternating branches, Figure 5.12b p.130
+; order 15
 
   angle 8
 
   axiom x
 
-  a=n
+  A=n
 
   n=o
 
@@ -732,7 +742,7 @@ Leaf1 { ; Adrian Mariano, from the Algorithmic Beauty of Plants
 
   p=x
 
-  b=e
+  B=e
 
   e=h
 
@@ -753,6 +763,7 @@ Leaf1 { ; Adrian Mariano, from the Algorithmic Beauty of Plants
 Leaf2 { ; Adrian Mariano, from the Algorithmic Beauty of Plants
 
 	; Compound leaf with alternating branches, Figure 5.12a p.130
+; order 8
 
   angle 8
 
@@ -829,7 +840,7 @@ SquareGasket { ; Adrian Mariano
 
 
 DragonCurve { ; Adrian Mariano
-
+; order 7
   Angle 4
 
   Axiom X

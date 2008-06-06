@@ -58,26 +58,33 @@ void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, dou
 }
 
 string print_lines(Group & g, list < line > & ln, 
-		double min_x, double max_x, double min_y, double max_y)
+		double min_x, double max_x, double min_y, double max_y, bool mgl)
 {
-	string fname = "output.txt";
-//	string fname = "output.mgl";
+	string fname = "output.mgl";
 	
-	if (!g.name.empty()) fname = g.name + /*".mgl"; */".txt";
+	if (!g.name.empty()) fname = g.name;
+       
+	fname = (mgl) ? fname + ".mgl" : fname + ".txt";
+
 	FILE * f = fopen(fname.c_str(), "w");
 
-	/*fprintf(f, "axis %lf %lf %lf %lf\n", min_x, min_y, max_x, max_y);
+	if (mgl) {
+	fprintf(f, "axis %lf %lf %lf %lf\n", min_x, min_y, max_x, max_y);
 	for (list < string> :: iterator it = g.mgl.begin(); it != g.mgl.end(); ++it)
 	{
 		fprintf(f, "%s\n", it->c_str());
-		}*/
+	}
+	}
 
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
+		if (!mgl) {
 		fprintf(f, "{%.16lf, %.16lf}-{%.16lf, %.16lf} %d\n",
 				it->x0, it->y0, it->x1, it->y1, it->c);
-//		fprintf(f, "line %.16lf %.16lf %.16lf %.16lf\n",
-//				it->x0, it->y0, it->x1, it->y1);
+		} else { /*mgl*/
+		fprintf(f, "line %.16lf %.16lf %.16lf %.16lf\n",
+				it->x0, it->y0, it->x1, it->y1);
+		}
 	}
 	fclose(f);
 
@@ -98,6 +105,10 @@ int main(int argc, char * argv[])
 
 	if (argc > 2) {
 		level = atoi(argv[2]);
+	}
+	
+	if (argc > 3) {
+		mgl   = !strcmp(argv[3], "mgl");
 	}
 
 	if (argc > 3) {
