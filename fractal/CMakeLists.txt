@@ -9,6 +9,8 @@ add_flex_files(source c2_lsystem_scanner.l)
 add_flex_files(source c2_turtle_scanner.l)
 add_bison_files(source c2_lsystem_parser.ypp)
 
+include_directories(../)
+
 add_library(fractal ${source})
 add_executable(koch c2_koch.cpp)
 target_link_libraries(koch fractal fl)

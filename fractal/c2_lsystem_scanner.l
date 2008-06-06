@@ -30,7 +30,7 @@ PI pi
 NUM [0-9]+\.?[0-9]*
 VAR [a-zA-Z]
 LS  [a-zA-Z\+\-\[\]!0-9@\.\|\<\>\\/:]+
-IDT [a-zA-Z\.0-9&\*_@!]+
+IDT [a-zA-Z\.0-9&\*_@!\+\-]+
 OP  [=/\*\+\-\(\)]
 COMMENT ;.*\n?
 WHITESPACE [ \t]
