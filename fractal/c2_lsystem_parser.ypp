@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>
 #include <math.h>
+#include <stdexcept>
+#include <sstream>
 extern "C" {
 #include "c2_lsystem_scanner.h"
 }
@@ -67,9 +69,10 @@ expr: AXIOM  TURTLE { ptr->last.setAxiom($2); free($2); }
 %%
 int yyerror(Parser * ptr, const char * s)
 {
-	std::cerr << "parse error " << s << "\n";
+	std::stringstream str;
+	str << "syntax error near line " << yyget_lineno() << "\n";
 	ptr->error = true;
-	throw std::exception();
+	throw std::logic_error(str.str());
 	return 0;
 }
 

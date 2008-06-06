@@ -91,37 +91,39 @@ string print_lines(Group & g, list < line > & ln,
 	return fname;
 }
 
+void usage(const char * n)
+{
+	printf("usage:\n");
+	printf("%s [-f filename] [-t type] [-l order] \n", n);
+	printf("-f -- read lsystem from file (stdin - default)\n");
+	printf("-t -- points save type: \n");
+	printf("\t\t mgl -- MathGL script\n");
+	printf("\t\t png -- PNG\n");
+	printf("\t\t default -- txt (for vizualizer)\n");
+	printf("-l -- default order \n");
+	exit(0);
+}
+
 int main(int argc, char * argv[])
 {
 	Parser p;
 	FILE * f  = 0;
 	int level = 0;
 	int type  = 0; //txt
-	char * t;
 
-	if (argc > 1) {
-		f = fopen(argv[1], "r");
-	}
-
-	if (argc > 2) {
-		level = atoi(argv[2]);
-	}
-	
-	if (argc > 3) {
-		t   = argv[3];
-		if (!strcmp(t, "mgl")) {
-			type = 1;
-		} else if (!strcmp(t, "png")) {
-			type = 2;
-		}
-	}
-
-	if (argc > 3) {
-		t = argv[3];
-		if (!strcmp(t, "mgl")) {
-			type = 1;
-		} else if (!strcmp(t, "png")) {
-			type = 2;
+	for (uint i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "-f") && i < argc - 1) {
+			f = fopen(argv[i + 1], "r");
+		} else if (!strcmp(argv[i], "-l") && i < argc - 1) {
+			level = atoi(argv[i + 1]);
+		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {
+			if (!strcmp(argv[i + 1], "mgl")) {
+				type = 1;
+			} else if (!strcmp(argv[i + 1], "png")) {
+				type = 2;
+			}			
+		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+			usage(argv[0]);
 		}
 	}
 
@@ -138,7 +140,7 @@ int main(int argc, char * argv[])
 		if (it->order != 0 /*&& level == 0*/) l = it->order;
 
 		cerr << "building " << it->name << "\n";
-		cerr << "  using level " << l << "\n";
+		cerr << "  using order " << l << "\n";
 
 		try {
 			double min_x, max_x, min_y, max_y;
@@ -159,10 +161,13 @@ int main(int argc, char * argv[])
 				print_lines2png(*it, lines, min_x, max_x, min_y, max_y);
 				break;
 			}
-			cerr << "  to mgl done\n";
+			cerr << "  saving done\n";
 		} catch (std::exception & e) {
-			cerr << "error\n";
+			cerr << "error: " << e.what() << "\n";
 			continue;
+		} catch (...) {
+			cerr << "error 2\n";
+			exit(1);
 		}
 	}
 
