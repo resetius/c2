@@ -5,6 +5,7 @@ extern "C" {
 #include "c2_lsystem_scanner.h"
 }
 #include "c2_lsystem_parser.hpp"
+#include "c2_2graph.h"
 #include "c2_lsystem.h"
 
 using namespace std;
@@ -30,6 +31,7 @@ void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, dou
 
 	double xx = 2.0 / (max_x - min_x);
 	double yy = 2.0 / (max_y - min_y);
+	double kk = std::min(xx, yy);
 
 	double x = ln.begin()->x0, y = ln.begin()->y0;
 	mnx = mxx = (x - min_x) * yy - 1.0;
@@ -37,11 +39,11 @@ void normalize(list < line > & ln, double & mnx, double & mxx, double & mny, dou
 
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
-		it->x0 = (it->x0 - min_x) * yy - 1.0;
-		it->x1 = (it->x1 - min_x) * yy - 1.0;
+		it->x0 = (it->x0 - min_x) * kk - 1.0;
+		it->x1 = (it->x1 - min_x) * kk - 1.0;
 
-		it->y0 = (it->y0 - min_y) * yy - 1.0;
-		it->y1 = (it->y1 - min_y) * yy - 1.0;
+		it->y0 = (it->y0 - min_y) * kk - 1.0;
+		it->y1 = (it->y1 - min_y) * kk - 1.0;
 
 		if (mxx < it->x0) mxx = it->x0;
 		if (mxx < it->x1) mxx = it->x1;
@@ -94,7 +96,8 @@ int main(int argc, char * argv[])
 	Parser p;
 	FILE * f  = 0;
 	int level = 0;
-	bool mgl  = false;
+	int type  = 0; //txt
+	char * t;
 
 	if (argc > 1) {
 		f = fopen(argv[1], "r");
@@ -106,6 +109,15 @@ int main(int argc, char * argv[])
 	
 	if (argc > 3) {
 		mgl   = !strcmp(argv[3], "mgl");
+	}
+
+	if (argc > 3) {
+		t = argv[3];
+		if (!strcmp(t, "mgl")) {
+			type = 1;
+		} else if (!strcmp(t, "png")) {
+			type = 2;
+		}
 	}
 
 	if (f) yyrestart(f);
@@ -131,7 +143,17 @@ int main(int argc, char * argv[])
 			cerr << "  turtle done\n";
 			normalize(lines, min_x, max_x, min_y, max_y);
 			cerr << "  normilize done\n";
-			print_lines(*it, lines, min_x, max_x, min_y, max_y, mgl);
+			switch (type) {
+			case 0:
+				print_lines2txt(*it, lines, min_x, max_x, min_y, max_y);
+				break;
+			case 1:
+				print_lines2mgl(*it, lines, min_x, max_x, min_y, max_y);
+				break;
+			case 2:
+				print_lines2png(*it, lines, min_x, max_x, min_y, max_y);
+				break;
+			}
 			cerr << "  to mgl done\n";
 		} catch (std::exception & e) {
 			cerr << "error\n";
