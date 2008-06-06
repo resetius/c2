@@ -9,9 +9,9 @@ void init_color_map(int *colors, gdImagePtr & im)
 {
 	for (uint i = 0; i < 256; ++i) {
 		colors[i] = gdImageColorAllocate(im,
-										 colormap_vga1[i][0],
-										 colormap_vga1[i][1],
-										 colormap_vga1[i][2]);
+										 colormap_vga2[i][0],
+										 colormap_vga2[i][1],
+										 colormap_vga2[i][2]);
 	}
 }
 
