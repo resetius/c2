@@ -173,7 +173,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\main.cpp"
+				RelativePath="..\filters\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -183,23 +183,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\c2_canny.h"
+				RelativePath="..\filters\c2_canny.h"
 				>
 			</File>
 			<File
-				RelativePath="..\c2_channel_cast.h"
+				RelativePath="..\filters\c2_channel_cast.h"
 				>
 			</File>
 			<File
-				RelativePath="..\c2_gauss.h"
+				RelativePath="..\filters\c2_gauss.h"
 				>
 			</File>
 			<File
-				RelativePath="..\c2_gradient.h"
+				RelativePath="..\filters\c2_gradient.h"
 				>
 			</File>
 			<File
-				RelativePath="..\c2_matrix.h"
+				RelativePath="..\filters\c2_matrix.h"
 				>
 			</File>
 		</Filter>

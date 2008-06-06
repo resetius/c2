@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <gd.h>
 #include "c2_2graph.h"
-#include "c2_colormap_vga1.h"
+#include "common/c2_colormap_vga1.h"
 
 using namespace std;
 
@@ -42,10 +42,10 @@ string print_lines2png(Group & g, list < line > & ln,
 
 	for (list < line >::iterator it = ln.begin(); it != ln.end(); ++it)
 	{
-		int x0 = 1 + (it->x0 - min_x) * kk; 
-		int y0 = 1 + (it->y0 - min_y) * kk; y0 = h - y0 - 1;
-		int x1 = 1 + (it->x1 - min_x) * kk;
-		int y1 = 1 + (it->y1 - min_y) * kk; y1 = h - y1 - 1;
+		int x0 = (int)(1 + (it->x0 - min_x) * kk); 
+		int y0 = (int)(1 + (it->y0 - min_y) * kk); y0 = h - y0 - 1;
+		int x1 = (int)(1 + (it->x1 - min_x) * kk);
+		int y1 = (int)(1 + (it->y1 - min_y) * kk); y1 = h - y1 - 1;
 		gdImageLine(im, x0, y0, x1, y1, colors[it->c]);
 	}
 
