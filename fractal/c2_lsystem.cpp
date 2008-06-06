@@ -128,8 +128,14 @@ int main(int argc, char * argv[])
 	}
 
 	if (f) yyrestart(f);
+
+	try {
+		while (yyparse(&p));
+	} catch (std::exception & e) {
+		cerr << "error: " << e.what() << "\n";
+		return -1;
+	}
 	
-	while (yyparse(&p));
 	p.print();
 
 	for (list < Group > ::iterator it = p.grp.begin(); it != p.grp.end(); ++it)
