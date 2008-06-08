@@ -18,3 +18,6 @@ target_link_libraries(koch fractal fl)
 add_executable(lsystem c2_lsystem.cpp)
 target_link_libraries(lsystem fractal fl gd)
 
+add_executable(ifs c2_ifs.cpp)
+target_link_libraries(ifs fractal fl gd)
+

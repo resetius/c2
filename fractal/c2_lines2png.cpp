@@ -29,12 +29,12 @@ string print_lines2png(Group & g, list < line > & ln,
 	int w = 1024;
 	int h = 1024;
 	im    = gdImageCreate(w, h);
-	int trans = gdImageColorAllocate(im, 204, 204, 204);
+	int trans = gdImageColorAllocate(im, 0, 0, 0);
 
 	init_color_map(colors, im);
 
 	gdImageFill(im, w - 1, h - 1, trans);
-	gdImageColorTransparent(im, trans);
+//	gdImageColorTransparent(im, trans);
 
 	double xx = (w - 2) / (max_x - min_x);
         double yy = (h - 2) / (max_y - min_y);
