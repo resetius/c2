@@ -21,3 +21,5 @@ target_link_libraries(lsystem fractal fl gd)
 add_executable(ifs c2_ifs.cpp)
 target_link_libraries(ifs fractal fl gd)
 
+add_executable(mandelbrot c2_mandelbrot.cpp)
+target_link_libraries(mandelbrot gd)
