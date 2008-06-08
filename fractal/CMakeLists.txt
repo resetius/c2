@@ -22,4 +22,10 @@ add_executable(ifs c2_ifs.cpp)
 target_link_libraries(ifs fractal fl gd)
 
 add_executable(mandelbrot c2_mandelbrot.cpp)
-target_link_libraries(mandelbrot gd gomp)
+target_link_libraries(mandelbrot gd )
+
+add_executable(julia c2_julia.cpp)
+target_link_libraries(julia gd )
+
+set_target_properties(mandelbrot PROPERTIES  LINK_FLAGS "-fopenmp")
+set_target_properties(julia PROPERTIES  LINK_FLAGS "-fopenmp")
