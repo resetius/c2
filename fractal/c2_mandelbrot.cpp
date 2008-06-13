@@ -6,8 +6,20 @@
 #include <complex>
 #include <iostream>
 
+#include "common/c2_colormap_vga1.h"
+
 using namespace std;
 typedef complex < double > cmpl;
+
+static void init_color_map(int *colors, gdImagePtr & im)
+{
+	for (uint i = 0; i < 256; ++i) {
+		colors[i] = gdImageColorAllocate(im,
+										 colormap_vga2[i][0],
+										 colormap_vga2[i][1],
+										 colormap_vga2[i][2]);
+	}
+}
 
 void mandelbrot(int s, int p)
 {
@@ -15,6 +27,7 @@ void mandelbrot(int s, int p)
 	// [-2, 2]
 	// 4x4
 
+	int iter;
 	double a = -2.0;
 	double b = -2.0;
 	double step = (double)4.0 / (double)p;
@@ -28,6 +41,9 @@ void mandelbrot(int s, int p)
 	double xx = (double)w / 4.0;
 	double yy = (double)h / 4.0;
 
+	int colors[256];
+	init_color_map(colors, im);
+
 #pragma omp parallel for
 	for (int m = 0; m < p; ++m) {
 		double c1 = a + (double)m * step;
@@ -39,17 +55,21 @@ void mandelbrot(int s, int p)
 //			std::cerr << "(c1, c2)\t" << c1 << ", " << c2 << "\n";
 
 			//z^2 + c
-			for (int iter = 0; iter < 100; ++iter) {
+			for (iter = 0; iter < 256; ++iter) {
 				z = z * z + cmpl(c1, c2);
-				if (abs(z) > 4) break;
+				if (abs(z) > 2) break;
 			}
 
-			if (abs(z) < 4) {
+			if (abs(z) < 2) {
 //				cerr << "put pixel " << (int)c1 << " " << (h - (int)c2) << "\n";
 
 				int x = (int)((c1 - a) * xx);
 				int y = (int)((c2 - b) * yy);
 				gdImageSetPixel(im, x, (h - y), black);
+			} else {
+				int x = (int)((c1 - a) * xx);
+				int y = (int)((c2 - b) * yy);
+				gdImageSetPixel(im, x, (h - y), colors[iter % 256]);
 			}
 		}
 	}
