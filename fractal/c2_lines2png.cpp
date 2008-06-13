@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void init_color_map(int *colors, gdImagePtr & im)
+static void init_color_map(int *colors, gdImagePtr & im)
 {
 	for (uint i = 0; i < 256; ++i) {
 		colors[i] = gdImageColorAllocate(im,
