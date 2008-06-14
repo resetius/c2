@@ -36,13 +36,15 @@ void mandelbrot(int s, int p)
 	gdImagePtr im = gdImageCreate(w, h);
 	int black = gdImageColorAllocate(im, 0, 0, 0);
 	int white = gdImageColorAllocate(im, 255, 255, 255);
-	gdImageFill(im, w - 1, h - 1, white);
 
 	double xx = (double)w / 4.0;
 	double yy = (double)h / 4.0;
 
 	int colors[256];
 	init_color_map(colors, im);
+
+	unsigned char * picture = new unsigned char[s * s];
+	memset(picture, white, s * s);
 
 #pragma omp parallel for
 	for (int m = 0; m < p; ++m) {
@@ -52,27 +54,30 @@ void mandelbrot(int s, int p)
 
 			cmpl z(0, 0);
 
-//			std::cerr << "(c1, c2)\t" << c1 << ", " << c2 << "\n";
-
 			//z^2 + c
 			for (iter = 0; iter < 256; ++iter) {
 				z = z * z + cmpl(c1, c2);
 				if (abs(z) > 2) break;
 			}
 
-			if (abs(z) < 2) {
-//				cerr << "put pixel " << (int)c1 << " " << (h - (int)c2) << "\n";
+			int x = (int)((c1 - a) * xx);
+			int y = (int)((c2 - b) * yy);
 
-				int x = (int)((c1 - a) * xx);
-				int y = (int)((c2 - b) * yy);
-				gdImageSetPixel(im, x, (h - y), black);
+			if (abs(z) < 2) {
+				picture[x * s + y] = black;
 			} else {
-				int x = (int)((c1 - a) * xx);
-				int y = (int)((c2 - b) * yy);
-				gdImageSetPixel(im, x, (h - y), colors[iter % 256]);
+				picture[x * s + y] = colors[iter % 256];
 			}
 		}
 	}
+
+	for (int x = 0; x < s; ++x) {
+		for (int y = 0; y < s; ++y) {
+			gdImageSetPixel(im, x, (h - y), (int)picture[x * s + y]);
+		}
+	}
+
+	delete [] picture;
 
 	FILE * f = fopen("mandelbrot.png", "wb");
 	gdImagePng(im, f);

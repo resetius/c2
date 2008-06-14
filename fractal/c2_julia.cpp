@@ -7,11 +7,23 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <map>
 
 #include "common/c2_colormap_vga1.h"
 
 using namespace std;
 typedef complex < double > cmpl;
+
+static void init_color_map(int *colors, gdImagePtr & im)
+{
+	for (uint i = 0; i < 256; ++i) {
+		colors[i] = gdImageColorAllocate(im,
+										 colormap_vga2[i][0],
+										 colormap_vga2[i][1],
+										 colormap_vga2[i][2]);
+	}
+}
+
 
 struct LexicalCmp {
 	template < typename A, typename B >
@@ -160,6 +172,7 @@ void julia(int s, int p, double c1, double c2)
 	// [-2, 2]
 	// 4x4
 
+	int iter;
 	double a = -2.0;
 	double b = -2.0;
 	double step = (double)4.0 / (double)p;
@@ -168,12 +181,17 @@ void julia(int s, int p, double c1, double c2)
 	gdImagePtr im = gdImageCreate(w, h);
 	int black = gdImageColorAllocate(im, 0, 0, 0);
 	int white = gdImageColorAllocate(im, 255, 255, 255);
-	gdImageFill(im, w - 1, h - 1, white);
 
 	double xx = (double)w / 4.0;
 	double yy = (double)h / 4.0;
 
+	int colors[256];
+	init_color_map(colors, im);
+
 	cmpl c(c1, c2);
+
+	unsigned char * picture = new unsigned char[s * s];
+	memset(picture, white, s * s);
 
 #pragma omp parallel for
 	for (int m = 0; m < p; ++m) {
@@ -183,38 +201,35 @@ void julia(int s, int p, double c1, double c2)
 
 			cmpl z(x1, x2);
 
-//			std::cerr << "(c1, c2)\t" << c1 << ", " << c2 << "\n";
-
 			//z^2 + c
-			for (int iter = 0; iter < 100; ++iter) {
+			for (iter = 0; iter < 256; ++iter) {
 				z = z * z + c;
-				if (abs(z) > 4) break;
+				if (abs(z) > 2) break;
 			}
 
-			if (abs(z) < 4) {
-//				cerr << "put pixel " << (int)c1 << " " << (h - (int)c2) << "\n";
-
-				int x = (int)((x1 - a) * xx);
-				int y = (int)((x2 - b) * yy);
-				gdImageSetPixel(im, x, (h - y), black);
+			int x = (int)((x1 - a) * xx);
+			int y = (int)((x2 - b) * yy);
+			
+			if (abs(z) < 2) {
+				picture[x * s + y] = black;
+			} else {
+				picture[x * s + y] = colors[iter % 256];
 			}
 		}
 	}
 
-	FILE * f = fopen("julia.png", "wb");
+	for (int x = 0; x < s; ++x) {
+		for (int y = 0; y < s; ++y) {
+			gdImageSetPixel(im, x, (h - y), (int)picture[x * s + y]);
+		}
+	}
+
+	delete [] picture;
+
+	FILE * f = fopen("julia_filled.png", "wb");
 	gdImagePng(im, f);
 	fclose(f);
 	gdImageDestroy(im);
-}
-
-static void init_color_map(int *colors, gdImagePtr & im)
-{
-	for (uint i = 0; i < 256; ++i) {
-		colors[i] = gdImageColorAllocate(im,
-										 colormap_vga2[i][0],
-										 colormap_vga2[i][1],
-										 colormap_vga2[i][2]);
-	}
 }
 
 static vector < pair < int, int > > circle(int xc, int yc, int r)
@@ -248,7 +263,7 @@ static vector < pair < int, int > > circle(int xc, int yc, int r)
 	return ret;
 }
 
-void julia_colored(int s, int p, double c1, double c2)
+void julia_contour(int s, int p, double c1, double c2)
 {
 	int colors[256];
 	cmpl c(c1, c2);
@@ -282,8 +297,8 @@ void julia_colored(int s, int p, double c1, double c2)
 
 	CmplVec Z (z);
 
-	set < pair < int, int > , LexicalCmp > new_points;
-	typedef set < pair < int, int > , LexicalCmp > ::iterator iter;
+	map < pair < int, int > , cmpl, LexicalCmp > new_points;
+	typedef map < pair < int, int > , cmpl, LexicalCmp > ::iterator iter;
 
 	for (uint k = 1; k < 20; ++k) {
 		int col = colors[k];
@@ -291,16 +306,14 @@ void julia_colored(int s, int p, double c1, double c2)
 		for (uint i = 0; i < Z.size(); ++i) {
 			int x = (int)((Z[i].real() - a) * xx);
 			int y = (int)((Z[i].imag() - b) * yy);
-			new_points.insert(make_pair(x, y));
+			new_points.insert(make_pair(make_pair(x, y), Z[i]));
 			gdImageSetPixel(im, x, (h - y), col);
 		}
 
 		Z.clear();
 		for (iter it = new_points.begin(); it != new_points.end(); ++it)
 		{
-			double x = (double)it->first  / xx + a;
-			double y = (double)it->second / yy + b;		
-			Z.push_back(cmpl(x, y));
+			Z.push_back(it->second);
 		}
 
 		Z = sqrt(Z - c);
@@ -308,7 +321,7 @@ void julia_colored(int s, int p, double c1, double c2)
 //		gdImageFill(im, s/2, s/2, col);
 	}
 
-	FILE * f = fopen("julia_colored.png", "wb");
+	FILE * f = fopen("julia_contour.png", "wb");
 	gdImagePng(im, f);
 	fclose(f);
 	gdImageDestroy(im);	
@@ -319,8 +332,8 @@ void usage(const char * n)
 	printf("usage:\n");
 	printf("%s [-t type] [-s size] [-p pixels] [-c \"c1 + c2 i\"]\n", n);
 	printf("-t -- draw type: \n");
-	printf("\t\t filled -- filled julia\n");
-	printf("\t\t colored -- colored filled julia\n");
+	printf("\t\t filled  -- filled julia\n");
+	printf("\t\t contour -- contours\n");
 	printf("\t\t default -- txt (for vizualizer)\n");
 	printf("-s -- size (size x size pixels) \n");
 	printf("-c -- z ^ 2 + c, where c = c1 + c2 i \n");
@@ -359,7 +372,7 @@ int main(int argc, char * argv[])
 		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {
 			if (!strcmp(argv[i + 1], "filled")) {
 				type = 1;
-			} else if (!strcmp(argv[i + 1], "colored")) {
+			} else if (!strcmp(argv[i + 1], "contour")) {
 				type = 2;
 			}
 		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
@@ -374,7 +387,7 @@ int main(int argc, char * argv[])
 		julia(size, p, c1, c2);
 		break;
 	case 2:
-		julia_colored(size, p, c1, c2);
+		julia_contour(size, p, c1, c2);
 		break;
 	default:
 		julia2(size, p, c1, c2);
