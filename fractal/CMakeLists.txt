@@ -28,7 +28,7 @@ add_executable(julia c2_julia.cpp)
 target_link_libraries(julia gd )
 
 add_executable(fbm_2d c2_fbm.cpp)
-target_link_libraries(fbm_2d gd )
+target_link_libraries(fbm_2d gd fftw3)
 
 set_target_properties(mandelbrot PROPERTIES  LINK_FLAGS "-fopenmp")
 set_target_properties(julia PROPERTIES  LINK_FLAGS "-fopenmp")

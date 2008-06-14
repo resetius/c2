@@ -47,23 +47,18 @@ void bit_reverse_copy(const vector < cmpl > & a, vector < cmpl > & A, uint n1)
 {
 	uint sh = 32 - n1;
 	uint n  = a.size();
-//	cerr << "N=" << n  << "\n";
 
-//	cerr << n1 << "\n";
 	for (uint k = 0; k < n; ++k) {
-//		cerr << "k = " << k << " " << (rev(k) >> sh) << "\n";
 		A[(rev(k) >> sh)] = a[k];
 	}
 }
 
-vector < cmpl > fft(vector < cmpl> & a)
+vector < cmpl > fft(vector < cmpl> & a, int sgn)
 {
 	vector < cmpl > A(a.size());
 
 	uint N = a.size();
 
-//	cerr << "N=" << N  << "\n";
-	
 	uint n = 0;
 	while ((N >>= 1)) {
 		++n;
@@ -72,11 +67,10 @@ vector < cmpl > fft(vector < cmpl> & a)
 
 	bit_reverse_copy(a, A, n);
 
-//	cerr << N << " " << n << "\n";
 	cmpl i(0.0, 1.0);
 	for (uint s = 1; s <= n; ++s) {
 		uint m  = 1 << s; //2 ^ s;
-		cmpl wm = exp(2.0 * M_PI * i / (double)m);
+		cmpl wm = exp(sgn * 2.0 * M_PI * i / (double)m);
 
 		for (uint k = 0; k <= N - 1; k += m) {
 			cmpl w = 1;
@@ -93,6 +87,36 @@ vector < cmpl > fft(vector < cmpl> & a)
 	return A;
 }
 
+#include <fftw3.h>
+
+vector < cmpl > fft_fftw(vector < cmpl> & a, int sgn)
+{
+	fftw_complex * in  = new fftw_complex[a.size()];
+	fftw_complex * out = new fftw_complex[a.size()];
+
+	for (uint i = 0; i < a.size(); ++i) {
+		in[i][0] = a[i].real();
+		in[i][1] = a[i].imag();
+	}
+
+	fftw_plan plan = fftw_plan_dft_1d(a.size(),
+									  &in[0], &out[0],
+									  sgn, 0);
+
+	fftw_execute(plan);
+
+	vector < cmpl > A; A.reserve(a.size());
+	for (uint i = 0; i < a.size(); ++i) {
+		A.push_back(cmpl(out[i][0], out[i][1]));
+	}
+	
+	fftw_destroy_plan(plan);
+	delete [] in;
+	delete [] out;
+
+	return A;
+}
+
 void fbd(int N, double H)
 {
 	vector < cmpl > X1(N);
@@ -105,10 +129,17 @@ void fbd(int N, double H)
 	}
 	X1[N / 2] = normal() * exp(2.0 * M_PI * i * uniform()) / pow((double)(N / 2), H + 0.5);
 	for (uint j = N / 2 + 1; j <= N - 1; ++j) {
-		X1[j] = conj(X[N - j]);
+		X1[j] = conj(X1[N - j]);
 	}
 
-	X = fft(X1);
+	X = fft_fftw(X1, -1);
+
+	for (uint j = 0; j < N; ++j) {
+		cerr << X[j] << " ";
+	}
+	cerr << "\n";
+
+	X = fft(X1, -1);
 
 	for (uint j = 0; j < N; ++j) {
 		cerr << X[j] << " ";
