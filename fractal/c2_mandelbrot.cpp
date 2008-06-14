@@ -21,7 +21,7 @@ static void init_color_map(int *colors, gdImagePtr & im)
 	}
 }
 
-void mandelbrot(int s, int p)
+void mandelbrot(int s)
 {
 	// [-2, 2]
 	// [-2, 2]
@@ -30,7 +30,6 @@ void mandelbrot(int s, int p)
 	int iter;
 	double a = -2.0;
 	double b = -2.0;
-	double step = (double)4.0 / (double)p;
 	int w = s;
 	int h = s;
 	gdImagePtr im = gdImageCreate(w, h);
@@ -47,10 +46,10 @@ void mandelbrot(int s, int p)
 	memset(picture, white, s * s);
 
 #pragma omp parallel for
-	for (int m = 0; m < p; ++m) {
-		double c1 = a + (double)m * step;
-		for (int n = 0; n < p; ++n) {
-			double c2 = (double)b + (double)(n) * step;
+	for (int x = 0; x < s; ++x) {
+		double c1 = x / xx + a;
+		for (int y = 0; y < s; ++y) {
+			double c2 = y / yy + b;
 
 			cmpl z(0, 0);
 
@@ -59,9 +58,6 @@ void mandelbrot(int s, int p)
 				z = z * z + cmpl(c1, c2);
 				if (abs(z) > 2) break;
 			}
-
-			int x = (int)((c1 - a) * xx);
-			int y = (int)((c2 - b) * yy);
 
 			if (abs(z) < 2) {
 				picture[x * s + y] = black;
@@ -88,26 +84,22 @@ void mandelbrot(int s, int p)
 void usage(const char * n)
 {
 	printf("usage:\n");
-	printf("%s [-t type] [-s size] [-p pixels]\n", n);
+	printf("%s [-t type] [-s size]\n", n);
 	printf("-t -- points save type: \n");
 	printf("\t\t png -- PNG\n");
 	printf("\t\t default -- txt (for vizualizer)\n");
 	printf("-s -- size (size x size pixels) \n");
-	printf("-p -- pixels \n");
 	exit(0);
 }
 
 int main(int argc, char * argv[])
 {
 	int size = 512;
-	int p    = 512;
 	int type = 0; //txt
 
 	for (uint i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-s") && i < argc - 1) {
 			size = atoi(argv[i + 1]);
-		} else if (!strcmp(argv[i], "-p") && i < argc - 1) {
-			p = atoi(argv[i + 1]);
 		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {
 			if (!strcmp(argv[i + 1], "png")) {
 				type = 2;
@@ -117,7 +109,7 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	mandelbrot(size, p);
+	mandelbrot(size);
 
 	return 0;
 }

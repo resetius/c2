@@ -121,7 +121,7 @@ CmplVec sqrt(const CmplVec & v)
 }
 
 /*с помощью обратной итерации*/
-void julia2(int s, int p, double c1, double c2)
+void julia2(int s, double c1, double c2)
 {
 	cmpl c(c1, c2);
 	double a = - std::max(2.0, 2 * sqrt(std::abs(c)));
@@ -166,7 +166,7 @@ void julia2(int s, int p, double c1, double c2)
 }
 
 /*filled julia set*/
-void julia(int s, int p, double c1, double c2)
+void julia(int s, double c1, double c2)
 {
 	// [-2, 2]
 	// [-2, 2]
@@ -175,7 +175,6 @@ void julia(int s, int p, double c1, double c2)
 	int iter;
 	double a = -2.0;
 	double b = -2.0;
-	double step = (double)4.0 / (double)p;
 	int w = s;
 	int h = s;
 	gdImagePtr im = gdImageCreate(w, h);
@@ -194,10 +193,10 @@ void julia(int s, int p, double c1, double c2)
 	memset(picture, white, s * s);
 
 #pragma omp parallel for
-	for (int m = 0; m < p; ++m) {
-		double x1 = a + (double)m * step;
-		for (int n = 0; n < p; ++n) {
-			double x2 = (double)b + (double)(n) * step;
+	for (int x = 0; x < s; ++x) {
+		double x1 = x / xx + a;
+		for (int y = 0; y < s; ++y) {
+			double x2 = y / yy + b;
 
 			cmpl z(x1, x2);
 
@@ -206,9 +205,6 @@ void julia(int s, int p, double c1, double c2)
 				z = z * z + c;
 				if (abs(z) > 2) break;
 			}
-
-			int x = (int)((x1 - a) * xx);
-			int y = (int)((x2 - b) * yy);
 			
 			if (abs(z) < 2) {
 				picture[x * s + y] = black;
@@ -263,7 +259,7 @@ static vector < pair < int, int > > circle(int xc, int yc, int r)
 	return ret;
 }
 
-void julia_contour(int s, int p, double c1, double c2)
+void julia_contour(int s, double c1, double c2)
 {
 	int colors[256];
 	cmpl c(c1, c2);
@@ -337,14 +333,12 @@ void usage(const char * n)
 	printf("\t\t default -- txt (for vizualizer)\n");
 	printf("-s -- size (size x size pixels) \n");
 	printf("-c -- z ^ 2 + c, where c = c1 + c2 i \n");
-	printf("-p -- pixels \n");
 	exit(0);
 }
 
 int main(int argc, char * argv[])
 {
 	int size = 512;
-	int p    = 512;
 	int type = 0;
 	//0 - default
 	//1 - filled
@@ -355,8 +349,6 @@ int main(int argc, char * argv[])
 	for (uint i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-s") && i < argc - 1) {
 			size = atoi(argv[i + 1]);
-		} else if (!strcmp(argv[i], "-p") && i < argc - 1) {
-			p = atoi(argv[i + 1]);
 		} else if (!strcmp(argv[i], "-c") && i < argc - 1) {
 			double a1, a2;
 			if (sscanf(argv[i + 1], "%lf + %lf i", &a1, &a2) == 2) {
@@ -384,13 +376,13 @@ int main(int argc, char * argv[])
 
 	switch (type) {
 	case 1:
-		julia(size, p, c1, c2);
+		julia(size, c1, c2);
 		break;
 	case 2:
-		julia_contour(size, p, c1, c2);
+		julia_contour(size, c1, c2);
 		break;
 	default:
-		julia2(size, p, c1, c2);
+		julia2(size, c1, c2);
 		break;
 	}
 
