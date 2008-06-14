@@ -172,7 +172,6 @@ void julia(int s, double c1, double c2)
 	// [-2, 2]
 	// 4x4
 
-	int iter;
 	double a = -2.0;
 	double b = -2.0;
 	int w = s;
@@ -183,6 +182,7 @@ void julia(int s, double c1, double c2)
 
 	double xx = (double)w / 4.0;
 	double yy = (double)h / 4.0;
+	int x;
 
 	int colors[256];
 	init_color_map(colors, im);
@@ -196,6 +196,7 @@ void julia(int s, double c1, double c2)
 	for (int x = 0; x < s; ++x) {
 		double x1 = x / xx + a;
 		for (int y = 0; y < s; ++y) {
+			int iter = 0;
 			double x2 = y / yy + b;
 
 			cmpl z(x1, x2);

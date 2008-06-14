@@ -27,7 +27,6 @@ void mandelbrot(int s)
 	// [-2, 2]
 	// 4x4
 
-	int iter;
 	double a = -2.0;
 	double b = -2.0;
 	int w = s;
@@ -49,6 +48,7 @@ void mandelbrot(int s)
 	for (int x = 0; x < s; ++x) {
 		double c1 = x / xx + a;
 		for (int y = 0; y < s; ++y) {
+			int iter = 0;
 			double c2 = y / yy + b;
 
 			cmpl z(0, 0);
