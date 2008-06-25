@@ -2,7 +2,7 @@
 #define _REVIDX_FACTORY_H
 /*$Id: tool_factory.h 1560 2007-12-12 13:20:24Z aozeritsky $*/
 
-/* Copyright (c) 2007 Alexey Ozeritsky
+/* Copyright (c) 2007, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

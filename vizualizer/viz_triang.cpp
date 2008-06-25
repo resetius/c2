@@ -1,6 +1,6 @@
 /*$Id: viz_triang.cpp 1640 2007-02-23 20:43:20Z manwe $*/
 
-/* Copyright (c) 2007 Alexey Ozeritsky
+/* Copyright (c) 2007 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,6 +1,6 @@
 /*$Id: viz_mainwindow.cpp 407 2005-10-15 10:32:15Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

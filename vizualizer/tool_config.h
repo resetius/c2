@@ -2,7 +2,7 @@
 #define TOOL_CONFIG_H
 /*$Id: tool_config.h 2455 2008-05-22 12:41:25Z aozeritsky $*/
 
-/* Copyright (c) 2007, 2008 Alexey Ozeritsky
+/* Copyright (c) 2007, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,6 +1,6 @@
 /*$Id: viz_event.cpp 1868 2008-05-24 09:31:55Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -2,7 +2,7 @@
 #define _SDS_EXCS
 /*$Id: asp_excs.h 1459 2006-11-16 14:06:25Z manwe $*/
 
-/* Copyright (c) 2004, 2005 Alexey Ozeritsky
+/* Copyright (c) 2004, 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without

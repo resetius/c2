@@ -1,6 +1,8 @@
 #ifndef _ASP_READ_DIR_H
 #define _ASP_READ_DIR_H
-/* Copyright (c) 2005 Alexey Ozeritsky
+/*$Id$*/
+
+/* Copyright (c) 2005 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -2,7 +2,7 @@
 #define _VIZ_CONSOLE_H
 /*$Id: viz_console.h 1063 2006-04-24 09:10:36Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

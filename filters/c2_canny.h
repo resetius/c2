@@ -2,7 +2,7 @@
 #define C2_CANNY_H
 /*$Id$*/
 
-/* Copyright (c) 2008 Alexey Ozeritsky
+/* Copyright (c) 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

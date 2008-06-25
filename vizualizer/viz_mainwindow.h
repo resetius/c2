@@ -2,7 +2,7 @@
 #define _VIZ_MAINWINDOW_H
 /*$Id: viz_mainwindow.h 622 2005-12-02 17:57:57Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

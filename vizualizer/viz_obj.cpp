@@ -1,6 +1,6 @@
 /*$Id: viz_obj.cpp 1619 2007-02-18 14:02:16Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

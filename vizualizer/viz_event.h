@@ -2,7 +2,7 @@
 #define _VIZ_EVENT_H
 /*$Id: viz_event.h 1867 2008-05-23 21:11:01Z manwe $*/
 
-/* Copyright (c) 2005 Alexey Ozeritsky
+/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
