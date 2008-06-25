@@ -2,7 +2,7 @@
 #define C2_2GRAPH_H
 /*$Id$*/
 
-/* Copyright (c) 2008 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2008 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

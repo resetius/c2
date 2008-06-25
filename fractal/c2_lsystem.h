@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2008 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2008 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,9 @@ struct Group
 	std::string axiom;
 	std::map < char, std::string > r;
 	std::set < char > v;
-	std::list < std::string > mgl; //строки для вывода в mgl
+	std::list < std::string > mgl; //СЃС‚СЂРѕРєРё РґР»СЏ РІС‹РІРѕРґР° РІ mgl
 	std::string name;
-	int order;  //предпочитаемый порядок отрисовки
+	int order;  //РїСЂРµРґРїРѕС‡РёС‚Р°РµРјС‹Р№ РїРѕСЂСЏРґРѕРє РѕС‚СЂРёСЃРѕРІРєРё
 
 	typedef std::map < char, std::string >::iterator iterator;
 
@@ -66,7 +66,7 @@ struct Parser
 	std::list < Group > grp;
 	typedef std::list < Group >::iterator iterator;
 	Group last;
-	std::list < std::string > mgl; //строки для вывода в mgl
+	std::list < std::string > mgl; //СЃС‚СЂРѕРєРё РґР»СЏ РІС‹РІРѕРґР° РІ mgl
 
 	Parser (): error(false) {}
 

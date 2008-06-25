@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2008 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2008 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,10 @@ struct State {
 
 extern struct State st;
 
-#define NUMBER 256    /*умножить угол на число*/
-#define COLOR 257     /*установить цвет*/
-#define INCNUMBER 258 /*прибавить к углу значение (в градусах)*/
-#define INCCOLOR  259 /*сместить цвет*/
+#define NUMBER 256    /*СѓРјРЅРѕР¶РёС‚СЊ СѓРіРѕР» РЅР° С‡РёСЃР»Рѕ*/
+#define COLOR 257     /*СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С†РІРµС‚*/
+#define INCNUMBER 258 /*РїСЂРёР±Р°РІРёС‚СЊ Рє СѓРіР»Сѓ Р·РЅР°С‡РµРЅРёРµ (РІ РіСЂР°РґСѓСЃР°С…)*/
+#define INCCOLOR  259 /*СЃРјРµСЃС‚РёС‚СЊ С†РІРµС‚*/
 
 #endif
 
