@@ -84,6 +84,9 @@ public:
 		add_options_entry("verbose", 'v', "Be verbose", NONE, 0);
 		add_options_entry("daemon", 'd', "Daemonize", NONE, 0);
 		add_options_entry("config", 'c', "Config", STRING, "file_name");
+		add_options_entry("version", 'V', "print version", STRING, 0);
+
+		check_args();
 	}
 
 	~PImpl() {
@@ -99,6 +102,24 @@ public:
 		{
 			delete *it;
 		}
+	}
+
+	void check_args()
+	{
+		GError *error = NULL;
+		if (argc_ > 0) {
+			if (!g_option_context_parse (context_, &argc_, 
+				&argv_, &error))
+			{
+				usage();
+			}
+		}
+	}
+
+	void usage()
+	{
+		printf("%s\n", g_option_context_get_help (context_, 1, 0));
+		exit(-1);
 	}
 
 	void add_options_entry(const char * long_name, 
@@ -194,8 +215,6 @@ void Config::init(const string & name, int argc, char ** argv)
 {
 	delete impl_;
 	impl_ = new PImpl(name, argc, argv);
-
-	usage();
 }
 
 void Config::init(const std::string & fname)
@@ -366,20 +385,7 @@ double Config::getDouble(const std::string & key,
 	}
 }
 
-void Config::check()
-{
-	GError *error = NULL;
-	if (impl_->argc_ > 0)
-	if (!g_option_context_parse (impl_->context_, &impl_->argc_, 
-		&impl_->argv_, &error))
-	{
-		throw ConfigError();
-	}
-}
-
 void Config::usage()
 {
-	check();
-	printf("%s\n", g_option_context_get_help (impl_->context_, 1, 0));
-	exit(-1);
+	impl_->usage();
 }

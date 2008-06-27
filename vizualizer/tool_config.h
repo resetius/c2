@@ -84,7 +84,6 @@ public:
 	                      const std::string & group) const;
 //@}
 
-	void check();
 	void usage();
 
 	void init(const std::string & fname);
