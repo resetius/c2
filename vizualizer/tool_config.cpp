@@ -88,8 +88,10 @@ public:
 		check_args();
 		parse_o();
 
-		if (cmd2val_["c"]->v.s) {
-			fname_ = cmd2val_["c"]->v.s;
+		try {
+			fname_ = get_string_cmd("c");
+		} catch (ConfigError &) {
+			;
 		}
 
 		if (fname_.empty()) {
