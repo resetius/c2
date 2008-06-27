@@ -84,6 +84,12 @@ public:
 	                      const std::string & group) const;
 //@}
 
+	void addAlias(const char * long_name, 
+		char  short_name, 
+		CmdValType vt = NONE,
+		const char * doc = 0,
+		const char * arg_desc = 0);
+
 	void usage();
 
 	void init(const std::string & fname);

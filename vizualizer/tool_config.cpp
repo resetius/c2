@@ -541,3 +541,12 @@ void Config::usage()
 {
 	impl_->usage();
 }
+
+void Config::addAlias(const char * long_name, 
+					  char  short_name, 
+					  CmdValType vt,
+					  const char * doc,
+					  const char * arg_desc)
+{
+	impl_->add_options_entry(long_name, short_name, doc, vt, arg_desc);
+}
