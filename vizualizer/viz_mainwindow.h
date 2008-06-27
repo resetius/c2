@@ -72,7 +72,7 @@ class VizMainWindow: public Viz_Obj {
 public:
 	~VizMainWindow();
 	VizMainWindow(const char *name = "Vizualizer 3D v3.0", 
-		int w = 640, int h = 480);
+		int w = 640, int h = 480, int argc = 0, char ** argv = 0);
 
 	int exec(int argc, char **argv);
 	void draw();

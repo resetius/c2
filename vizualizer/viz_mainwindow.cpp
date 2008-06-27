@@ -129,8 +129,8 @@ VizMainWindow::~VizMainWindow() {
 	delete p;
 }
 
-VizMainWindow::VizMainWindow(const char *name1, int w, int h)
-  : p (new Config("vizualizer.ini")), name(name1), frame(new Rect(w, h))
+VizMainWindow::VizMainWindow(const char *name1, int w, int h, int argc, char **argv)
+  : p (new Config("vizualizer.ini", argc, argv)), name(name1), frame(new Rect(w, h))
 {
 	old_mouse_y = -1;
 	old_mouse_x = -1;
@@ -140,11 +140,11 @@ VizMainWindow::VizMainWindow(const char *name1, int w, int h)
 
 void VizMainWindow::config()
 {
-	flatMode = (bool)p->getValue("flatMode", "visual", 0);
-	int w = p->getValue("width",  "visual", 640);
-	int h = p->getValue("height", "visual", 480);
+	flatMode = (bool)p->value("flatMode", "visual", 0);
+	int w = p->value("width",  "visual", 640);
+	int h = p->value("height", "visual", 480);
 	resize(w, h);
-	p->sync();
+	p->rewrite();
 }
 
 /**
@@ -539,7 +539,7 @@ int VizMainWindow::exec(int argc, char **argv) {
 void VizMainWindow::init_basic_objects() {
 	v_objs->push_back((console = new Viz_Console(this)));
 	
-	if (p->getValue("cube", "visual", 1)) {
+	if (p->value("cube", "visual", 1)) {
 		v_objs->push_back((new Viz_Cube(2.0)));
 	}
 

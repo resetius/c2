@@ -29,31 +29,70 @@
  */
 
 #include <string>
+#include <stdexcept>
 
 class Config {
 	class PImpl;
 	PImpl * impl_;
 
 public:
-	Config(const std::string & name);
+	//value type
+	enum CmdValType {
+		NONE   = 0,
+		INT    = 1,
+		STRING = 2,
+		DOUBLE = 3,
+	};
+
+	class ConfigError: public std::logic_error
+	{
+	public:
+		ConfigError(): std::logic_error("configuration error")
+		{
+		}
+
+		virtual ~ConfigError() {}
+	};
+
+	Config(const std::string & fname, int argc = 0, char ** argv = 0);
+
 	Config();
 	~Config();
 
-	int getValue(const std::string & key,
-				 const std::string & group,
-				 int default_value);
+//@{ функции возвращают default_value если ключ в группе не найден
+	int value(const std::string & key,
+	          const std::string & group,
+	          int default_value);
 
-	double getValue(const std::string & key,
-					const std::string & group,
-					double default_value);
+	double value(const std::string & key,
+	             const std::string & group,
+	             double default_value);
 
-	std::string getValue(const std::string & key,
-						 const std::string & group,
-						 const char * default_value);
+	std::string value(const std::string & key,
+	                  const std::string & group,
+	                  const char * default_value);
+//@}
 
-	void setName(const std::string & fname);
-	void reread();
-	void sync();
+//@{ функции кидают исключение если ключ в группе не найден
+	int getInt(const std::string & key,
+	           const std::string & group) const;
+
+	double getDouble(const std::string & key,
+	                 const std::string & group) const;
+
+	std::string getString(const std::string & key,
+	                      const std::string & group) const;
+//@}
+
+	void check();
+	void usage();
+
+	void init(const std::string & fname);
+	void init(int argc, char ** argv);
+	void init(const std::string & fname, int argc, char ** argv);
+
+	void reread();        //!<перечитывает конфиг
+	void rewrite() const; //!<сохраняет на диск (если были изменения в памяти)
 };
 
 #include "tool_factory.h"
