@@ -1,6 +1,6 @@
 /*$Id: tool_config.cpp 2455 2008-05-22 12:41:25Z aozeritsky $*/
 
-/* Copyright (c) 2007, 2008 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2007, 2008 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,17 @@
 
 using namespace std;
 
-union CmdVal {
-	double d;
-	int i;
-	char * s;
-	gboolean b;
+struct CmdVal {
+	union {
+		double d;
+		int i;
+		char * s;
+		gboolean b;
+	} v;
+
+	Config::CmdValType t;
+
+	CmdVal(Config::CmdValType f): t(f) {}
 };
 
 class Config::PImpl {
@@ -54,6 +60,7 @@ public:
 	list < GOptionEntry * > entries_;
 	back_insert_iterator < list < CmdVal > > cmds_iter_;
 	map < string, CmdVal * > cmd2val_;
+	map < string, map < string, string > > opt2val_;
 
 	int argc_;
 	char ** argv_;
@@ -62,8 +69,23 @@ public:
 
 	PImpl(const std::string & name, int argc, char ** argv)
 	      : config_(g_key_file_new()), fname_(name), rewrite_(false), 
-		  cmds_iter_ (cmds_)
+		  cmds_iter_ (cmds_), argc_(argc), argv_(argv)
 	{
+		context_ = g_option_context_new ("");
+
+		add_options_entry("verbose", 'v', "Be verbose", NONE, 0);
+		add_options_entry("daemon", 'd', "Daemonize", NONE, 0);
+		add_options_entry("config", 'c', "Config", STRING, "file_name");
+		add_options_entry("option", 'o', "sets options (format: \"group1:key1=value1,group2:key2=value2,...\")", STRING, "options");
+		add_options_entry("version", 'V', "print version", STRING, 0);
+
+		check_args();
+		parse_o();
+
+		if (cmd2val_["c"]->v.s) {
+			fname_ = cmd2val_["c"]->v.s;
+		}
+
 		if (fname_.empty()) {
 			GError * error = 0;
 			if (!g_key_file_load_from_file(config_, fname_.c_str(),
@@ -75,18 +97,6 @@ public:
 				rewrite_ = true;
 			}
 		}
-
-		argc_ = argc;
-		argv_ = argv;
-
-		context_ = g_option_context_new ("");
-
-		add_options_entry("verbose", 'v', "Be verbose", NONE, 0);
-		add_options_entry("daemon", 'd', "Daemonize", NONE, 0);
-		add_options_entry("config", 'c', "Config", STRING, "file_name");
-		add_options_entry("version", 'V', "print version", STRING, 0);
-
-		check_args();
 	}
 
 	~PImpl() {
@@ -108,11 +118,23 @@ public:
 	{
 		GError *error = NULL;
 		if (argc_ > 0) {
+			//g_option_context_parse РјРµРЅСЏРµС‚ argv!!
+			char ** argv = new char*[argc_];
+			for (int i = 0; i < argc_; ++i) {
+				argv[i] = strdup(argv_[i]);
+			}
+
 			if (!g_option_context_parse (context_, &argc_, 
-				&argv_, &error))
+				&argv, &error))
 			{
 				usage();
 			}
+
+			for (int i = 0; i < argc_; ++i) {
+				free(argv[i]);
+			}
+
+			delete [] argv;
 		}
 	}
 
@@ -143,7 +165,7 @@ public:
 			break;
 		};
 
-		*cmds_iter_ ++ = CmdVal();
+		*cmds_iter_ ++ = CmdVal(vt);
 
 		CmdVal * val = &(*cmds_.rbegin());
 		cmd2val_[long_name]          = val;
@@ -151,17 +173,8 @@ public:
 		string s; s += short_name;
 		cmd2val_[s] = val;
 
-		/*GOptionEntry * ent = new GOptionEntry();
-		ent->long_name   = long_name;
-		ent->short_name  = short_name;
-		ent->flags       = 0;
-		ent->arg         = type;
-		ent->arg_data    = (void*)val;
-		ent->description = doc;
-		ent->arg_description = arg_desc;*/
-
 		GOptionEntry entries[] = { 
-			{ long_name, short_name, 0, type, val, doc, arg_desc },
+			{ long_name, short_name, 0, type, &val->v, doc, arg_desc },
 			{ NULL }
 		};
 
@@ -201,6 +214,107 @@ public:
 	{
 		g_key_file_set_double(config_, group.c_str(), key.c_str(), val);
 		rewrite_ = true;
+	}
+
+	int get_int_cmd(const string & key)
+	{
+		if (cmd2val_.find(key) != cmd2val_.end()) {
+			CmdVal & v = *cmd2val_[key];
+			if (v.t == INT ||  v.t == NONE) {
+				return v.v.i;
+			}
+		}
+		
+		throw ConfigError();
+	}
+
+	double get_double_cmd(const string & key)
+	{
+		if (cmd2val_.find(key) != cmd2val_.end()) {
+			CmdVal & v = *cmd2val_[key];
+			if (v.t == DOUBLE) {
+				return v.v.d;
+			}
+		}
+
+		throw ConfigError();
+	}
+
+	string get_string_cmd(const string & key)
+	{
+		if (cmd2val_.find(key) != cmd2val_.end()) {
+			CmdVal & v = *cmd2val_[key];
+			if (v.t == STRING) {
+				return v.v.s;
+			}
+		}
+
+		throw ConfigError();
+	}
+
+	void parse_o()
+	{
+		try {
+			string o = get_string_cmd("o");
+			const char * delim = ";, ";
+
+			for (char * token = strtok((char*)o.c_str(), delim); 
+				token; token = strtok(0, delim)) 
+			{
+				char grp[256];
+				char key[256];
+				char val[1025];
+				char * tok = token;
+				while (*tok) {
+					if (*tok == ':' || *tok == '=') {
+						*tok = ' ';
+					}
+					++tok;
+				}
+
+				if (sscanf(token, "%255s%255s%1024s", grp, key, val) == 3) {
+					opt2val_[grp][key] = val;
+				}
+			}
+		} catch (ConfigError & ) {
+			;
+		}
+	}
+
+	int get_int_opt2val(const string & key, const string & group) {
+		if (opt2val_.find(group) != opt2val_.end()) {
+			if (opt2val_[group].find(key) != opt2val_[group].end()) {
+				int ret;
+				if (sscanf(opt2val_[group][key].c_str(), "%d", &ret) == 1) {
+					return ret;
+				}
+			}
+		}
+
+		throw ConfigError();
+	}
+
+	double get_double_opt2val(const string & key, const string & group) {
+		if (opt2val_.find(group) != opt2val_.end()) {
+			if (opt2val_[group].find(key) != opt2val_[group].end()) {
+				double ret;
+				if (sscanf(opt2val_[group][key].c_str(), "%lf", &ret) == 1) {
+					return ret;
+				}
+			}
+		}
+
+		throw ConfigError();
+	}
+
+	string get_string_opt2val(const string & key, const string & group) {
+		if (opt2val_.find(group) != opt2val_.end()) {
+			if (opt2val_[group].find(key) != opt2val_[group].end()) {
+				return opt2val_[group][key];
+			}
+		}
+
+		throw ConfigError();
 	}
 };
 
@@ -291,6 +405,16 @@ int Config::getInt(const std::string & key,
 		throw ConfigError();
 	}
 
+	if (group == "cmd") {
+		return impl_->get_int_cmd(key);
+	}
+
+	try {
+		return impl_->get_int_opt2val(key, group);
+	} catch (ConfigError & ) {
+		;
+	}
+
 	int val;
 	GError * error = 0;
 	if ((val =
@@ -331,6 +455,16 @@ string Config::getString(const std::string & key,
 		throw ConfigError();
 	}
 
+	if (group == "cmd") {
+		return impl_->get_string_cmd(key);
+	}
+
+	try {
+		return impl_->get_string_opt2val(key, group);
+	} catch (ConfigError & ) {
+		;
+	}
+
 	char * val;
 	GError * error = 0;
 	if ((val =
@@ -367,6 +501,16 @@ double Config::getDouble(const std::string & key,
 {
 	if (!impl_) {
 		throw ConfigError();
+	}
+
+	if (group == "cmd") {
+		return impl_->get_double_cmd(key);
+	}
+
+	try {
+		return impl_->get_double_opt2val(key, group);
+	} catch (ConfigError & ) {
+		;
 	}
 
 	double val;
