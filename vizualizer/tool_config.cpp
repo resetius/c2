@@ -94,7 +94,7 @@ public:
 			;
 		}
 
-		if (fname_.empty()) {
+		if (!fname_.empty()) {
 			GError * error = 0;
 			if (!g_key_file_load_from_file(config_, fname_.c_str(),
 				G_KEY_FILE_KEEP_COMMENTS, &error))
