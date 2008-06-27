@@ -51,7 +51,7 @@ public:
 		{
 		}
 
-		virtual ~ConfigError() {}
+		virtual ~ConfigError() throw () {}
 	};
 
 	Config(const std::string & fname, int argc = 0, char ** argv = 0);
