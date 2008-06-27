@@ -3,6 +3,10 @@ project(fractal)
 set(LIBRARY_OUTPUT_PATH "../lib")
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 
+if (FFTW3_FOUND)
+	add_definitions("-DHAVE_FFTW")
+endif (FFTW3_FOUND)
+
 set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cpp)
 
 add_flex_files(source c2_lsystem_scanner.l)
@@ -28,7 +32,8 @@ add_executable(julia c2_julia.cpp)
 target_link_libraries(julia gd )
 
 add_executable(fbm_2d c2_fbm.cpp)
-target_link_libraries(fbm_2d gd fftw3)
+target_link_libraries(fbm_2d gd ${FFTW_LIB})
 
 set_target_properties(mandelbrot PROPERTIES  LINK_FLAGS "-fopenmp")
 set_target_properties(julia PROPERTIES  LINK_FLAGS "-fopenmp")
+

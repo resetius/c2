@@ -118,6 +118,7 @@ vector < cmpl > fft(vector < cmpl> & a, int sgn)
 	return A;
 }
 
+#ifdef HAVE_FFTW
 #include <fftw3.h>
 
 vector < cmpl > fft_fftw(vector < cmpl> & a, int sgn)
@@ -147,6 +148,7 @@ vector < cmpl > fft_fftw(vector < cmpl> & a, int sgn)
 
 	return A;
 }
+#endif
 
 void fbd(int N, double H)
 {
@@ -163,7 +165,11 @@ void fbd(int N, double H)
 		X1[j] = conj(X1[N - j]);
 	}
 
+#ifdef HAVE_FFTW
 	X = fft_fftw(X1, -1);
+#else
+	X = fft(X1, -1);
+#endif
 
 	for (uint j = 0; j < N; ++j) {
 		cerr << X[j] << " ";
@@ -200,3 +206,4 @@ int main (int argc, char * argv[])
 	
 	return 0;
 }
+

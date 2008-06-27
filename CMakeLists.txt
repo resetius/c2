@@ -5,6 +5,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(FindJPEG)
 include(Flex)
 include(Bison)
+include(fftw3)
 
 add_definitions(-fopenmp)
 
