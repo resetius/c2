@@ -37,17 +37,23 @@
 
 using namespace std;
 
+static const char * not_init = "not initialized";
+
 struct CmdVal {
 	union {
 		double d;
 		int i;
-		char * s;
+		const char * s;
+		const char * init;
 		gboolean b;
 	} v;
 
 	Config::CmdValType t;
 
-	CmdVal(Config::CmdValType f): t(f) {}
+	CmdVal(Config::CmdValType f): t(f) 
+	{
+		v.init = not_init;
+	}
 };
 
 class Config::PImpl {
@@ -220,11 +226,11 @@ public:
 	{
 		if (cmd2val_.find(key) != cmd2val_.end()) {
 			CmdVal & v = *cmd2val_[key];
-			if (v.t == INT ||  v.t == NONE) {
+			if ((v.t == INT ||  v.t == NONE) && v.v.init != not_init) {
 				return v.v.i;
 			}
 		}
-		
+
 		throw ConfigError();
 	}
 
@@ -232,7 +238,7 @@ public:
 	{
 		if (cmd2val_.find(key) != cmd2val_.end()) {
 			CmdVal & v = *cmd2val_[key];
-			if (v.t == DOUBLE) {
+			if (v.t == DOUBLE && v.v.init != not_init) {
 				return v.v.d;
 			}
 		}
@@ -244,7 +250,7 @@ public:
 	{
 		if (cmd2val_.find(key) != cmd2val_.end()) {
 			CmdVal & v = *cmd2val_[key];
-			if (v.t == STRING) {
+			if (v.t == STRING && v.v.s && v.v.init != not_init) {
 				return v.v.s;
 			}
 		}
