@@ -73,14 +73,19 @@ public:
 
 	GOptionContext *context_;
 
+	bool initialized_;
+
 	PImpl(): config_(g_key_file_new()), rewrite_(false), 
 		  cmds_iter_ (cmds_),
-		  context_ (g_option_context_new (""))
+		  context_ (g_option_context_new ("")),
+		  initialized_(false)
 	{
 	}
 
-	void init(const std::string & name, int argc, char ** argv)
+	void init(const std::string & name, int argc, char ** argv, bool nofile)
 	{
+		if (initialized_) return;
+
 		fname_ = name;
 		argc_  = argc;
 		argv_  = argv;
@@ -94,23 +99,39 @@ public:
 		check_args();
 		parse_o();
 
-		try {
-			fname_ = get_string_cmd("c");
-		} catch (ConfigError &) {
-			;
-		}
+		if (!nofile) {
+			try {
+				fname_ = get_string_cmd("c");
+			} catch (ConfigError &) {
+				;
+			}
 
-		if (!fname_.empty()) {
-			GError * error = 0;
-			if (!g_key_file_load_from_file(config_, fname_.c_str(),
-				G_KEY_FILE_KEEP_COMMENTS, &error))
-			{
-				printf("Cannot load configuration file %s",
-					fname_.c_str());
+			if (fname_ == "") {
+				//try to make config name from argv[0]
+				char * base = g_path_get_basename(argv[0]);
+				int l = strlen(base);
+				if (strlen(base) > 4 && !strcmp(&base[l - 4], ".exe")) {
+					base[l - 4] = 0;
+				}
+				fname_  = base;
+				fname_ += ".ini";
+				free(base);
+			}
 
-				rewrite_ = true;
+			if (!fname_.empty()) {
+				GError * error = 0;
+				if (!g_key_file_load_from_file(config_, fname_.c_str(),
+					G_KEY_FILE_KEEP_COMMENTS, &error))
+				{
+					printf("Cannot load configuration file %s",
+						fname_.c_str());
+
+					rewrite_ = true;
+				}
 			}
 		}
+
+		initialized_ = true;
 	}
 
 	~PImpl() {
@@ -341,17 +362,17 @@ Config::Config(): impl_(new PImpl) {}
 
 void Config::init(const string & name, int argc, char ** argv) 
 {
-	impl_->init(name, argc, argv);
+	impl_->init(name, argc, argv, false);
 }
 
 void Config::init(const std::string & fname)
 {
-	impl_->init(fname, 0, 0);
+	impl_->init(fname, 0, 0, false);
 }
 
 void Config::init(int argc, char ** argv)
 {
-	impl_->init("", argc, argv);
+	impl_->init("", argc, argv, true);
 }
 
 Config::~Config() {
@@ -554,5 +575,4 @@ void Config::addAlias(const char * long_name,
 					  const char * arg_desc)
 {
 	impl_->add_options_entry(long_name, short_name, doc, vt, arg_desc);
-	impl_->check_args();
 }
