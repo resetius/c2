@@ -73,11 +73,17 @@ public:
 
 	GOptionContext *context_;
 
-	PImpl(const std::string & name, int argc, char ** argv)
-	      : config_(g_key_file_new()), fname_(name), rewrite_(false), 
-		  cmds_iter_ (cmds_), argc_(argc), argv_(argv)
+	PImpl(): config_(g_key_file_new()), rewrite_(false), 
+		  cmds_iter_ (cmds_),
+		  context_ (g_option_context_new (""))
 	{
-		context_ = g_option_context_new ("");
+	}
+
+	void init(const std::string & name, int argc, char ** argv)
+	{
+		fname_ = name;
+		argc_  = argc;
+		argv_  = argv;
 
 		add_options_entry("verbose", 'v', "Be verbose", NONE, 0);
 		add_options_entry("daemon", 'd', "Daemonize", NONE, 0);
@@ -326,27 +332,26 @@ public:
 	}
 };
 
-Config::Config(const string & name, int argc, char ** argv): impl_(0) 
+Config::Config(const string & name, int argc, char ** argv): impl_(new PImpl)
 {
 	init(name, argc, argv);
 }
 
-Config::Config(): impl_(0) {}
+Config::Config(): impl_(new PImpl) {}
 
 void Config::init(const string & name, int argc, char ** argv) 
 {
-	delete impl_;
-	impl_ = new PImpl(name, argc, argv);
+	impl_->init(name, argc, argv);
 }
 
 void Config::init(const std::string & fname)
 {
-	init(fname, 0, 0);
+	impl_->init(fname, 0, 0);
 }
 
 void Config::init(int argc, char ** argv)
 {
-	init("", argc, argv);
+	impl_->init("", argc, argv);
 }
 
 Config::~Config() {
