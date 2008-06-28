@@ -549,4 +549,5 @@ void Config::addAlias(const char * long_name,
 					  const char * arg_desc)
 {
 	impl_->add_options_entry(long_name, short_name, doc, vt, arg_desc);
+	impl_->check_args();
 }
