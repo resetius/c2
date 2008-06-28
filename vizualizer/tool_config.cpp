@@ -123,7 +123,7 @@ public:
 				if (!g_key_file_load_from_file(config_, fname_.c_str(),
 					G_KEY_FILE_KEEP_COMMENTS, &error))
 				{
-					printf("Cannot load configuration file %s",
+					printf("Cannot load configuration file %s\n",
 						fname_.c_str());
 
 					rewrite_ = true;
