@@ -150,6 +150,25 @@ vector < cmpl > fft_fftw(vector < cmpl> & a, int sgn)
 }
 #endif
 
+vector < cmpl > fft_lob(vector < cmpl > & X1)
+{
+	vector < cmpl > X(X1.size());
+	cmpl i (0.0, 1.0);
+	int N = X1.size();
+
+	for (int n = 0; n < N; ++n) {
+		X[n] = cmpl(0, 0);
+
+		for (int k = 0; k < N; ++k) {
+			cmpl p1 = i;
+			p1 *= 2.0 * M_PI * k * n / N;
+			X[n] += X1[k] * std::exp(p1);
+		}
+	}
+
+	return X;
+}
+
 void fbd(int N, double H)
 {
 	vector < cmpl > X1(N);
@@ -158,9 +177,9 @@ void fbd(int N, double H)
 
 	X1[0] = normal();
 	for (uint j = 1; j <= N / 2 - 1; ++j) {
-		X1[j] = normal() * exp(2.0 * M_PI * i * uniform()) / pow((double)j, H + 0.5);
+		X1[j] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)j, H + 0.5);
 	}
-	X1[N / 2] = normal() * exp(2.0 * M_PI * i * uniform()) / pow((double)(N / 2), H + 0.5);
+	X1[N / 2] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)(N / 2), H + 0.5);
 	for (uint j = N / 2 + 1; j <= N - 1; ++j) {
 		X1[j] = conj(X1[N - j]);
 	}
@@ -171,17 +190,25 @@ void fbd(int N, double H)
 	X = fft(X1, -1);
 #endif
 
+#if 0
 	for (uint j = 0; j < N; ++j) {
 		cerr << X[j] << " ";
 	}
 	cerr << "\n";
+#endif
 
+	for (uint j = 0; j < N; ++j) {
+		cout << X[j].real() << "\n";
+	}
+
+#if 0
 	X = fft(X1, -1);
 
 	for (uint j = 0; j < N; ++j) {
 		cerr << X[j] << " ";
 	}
 	cerr << "\n";
+#endif
 }
 
 int main (int argc, char * argv[])
@@ -201,7 +228,7 @@ int main (int argc, char * argv[])
 		}
 	}
 
-	printf("N = %d, H = %lf\n", N, H);
+	fprintf(stderr, "N = %d, H = %lf\n", N, H);
 	fbd(N, H);
 	
 	return 0;

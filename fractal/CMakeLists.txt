@@ -3,9 +3,9 @@ project(fractal)
 set(LIBRARY_OUTPUT_PATH "../lib")
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 
-if (FFTW3_FOUND)
-	add_definitions("-DHAVE_FFTW")
-endif (FFTW3_FOUND)
+#if (FFTW3_FOUND)
+#	add_definitions("-DHAVE_FFTW")
+#endif (FFTW3_FOUND)
 
 set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cpp)
 
