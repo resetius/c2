@@ -180,6 +180,7 @@ void fbd(int N, double H)
 		X1[j] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)j, H + 0.5);
 	}
 	X1[N / 2] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)(N / 2), H + 0.5);
+	X1[N / 2].imag() = 0;
 	for (uint j = N / 2 + 1; j <= N - 1; ++j) {
 		X1[j] = conj(X1[N - j]);
 	}
