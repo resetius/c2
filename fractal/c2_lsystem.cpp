@@ -125,12 +125,15 @@ string print_lines(Group & g, list < line > & ln,
 void usage(const char * n)
 {
 	printf("usage:\n");
-	printf("%s [-f filename] [-t type] [-l order] \n", n);
+//	printf("%s [-f filename] [-t type] [-l order] \n", n);
+	printf("%s [-f filename] [-l order] \n", n);
 	printf("-f -- read lsystem from file (stdin - default)\n");
+#if 0
 	printf("-t -- points save type: \n");
 	printf("\t\t mgl -- MathGL script\n");
 	printf("\t\t png -- PNG\n");
 	printf("\t\t default -- txt (for vizualizer)\n");
+#endif
 	printf("-l -- default order \n");
 	exit(0);
 }
@@ -147,12 +150,14 @@ int main(int argc, char * argv[])
 			f = fopen(argv[i + 1], "r");
 		} else if (!strcmp(argv[i], "-l") && i < argc - 1) {
 			level = atoi(argv[i + 1]);
+#if 0
 		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {
 			if (!strcmp(argv[i + 1], "mgl")) {
 				type = 1;
 			} else if (!strcmp(argv[i + 1], "png")) {
 				type = 2;
-			}			
+			}
+#endif
 		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
 			usage(argv[0]);
 		}
@@ -187,6 +192,7 @@ int main(int argc, char * argv[])
 			cerr << "  turtle done\n";
 			normalize(lines, min_x, max_x, min_y, max_y);
 			cerr << "  normilize done\n";
+#if 0
 			switch (type) {
 			case 0:
 				print_lines2txt(*it, lines, min_x, max_x, min_y, max_y);
@@ -195,8 +201,12 @@ int main(int argc, char * argv[])
 				print_lines2mgl(*it, lines, min_x, max_x, min_y, max_y);
 				break;
 			case 2:
+#endif
+			{
 				print_lines2png(*it, lines, min_x, max_x, min_y, max_y);
+#if 0
 				break;
+#endif
 			}
 			cerr << "  saving done\n";
 		} catch (std::exception & e) {
