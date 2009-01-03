@@ -40,9 +40,9 @@ static void init_color_map(int *colors, gdImagePtr & im)
 {
 	for (uint i = 0; i < 256; ++i) {
 		colors[i] = gdImageColorAllocate(im,
-										 colormap_vga2[i][0],
-										 colormap_vga2[i][1],
-										 colormap_vga2[i][2]);
+										 colormap_vga1[i][0],
+										 colormap_vga1[i][1],
+										 colormap_vga1[i][2]);
 	}
 }
 
@@ -65,7 +65,7 @@ string print_lines2png(Group & g, list < line > & ln,
 	init_color_map(colors, im);
 
 	gdImageFill(im, w - 1, h - 1, trans);
-//	gdImageColorTransparent(im, trans);
+	gdImageColorTransparent(im, trans);
 
 	double xx = (w - 2) / (max_x - min_x);
         double yy = (h - 2) / (max_y - min_y);
