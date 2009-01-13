@@ -92,7 +92,7 @@ void Viz_Console::draw() {
 	if (!hidden_) {
 		//glDisable(GL_DEPTH_TEST);       // Disables Depth Testing
 		//glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glMatrixMode(GL_PROJECTION);    // Select The Projection Matrix
 		glPushMatrix();                 // Store The Projection Matr
 		glLoadIdentity();               // Reset The Projection Matr
@@ -103,7 +103,7 @@ void Viz_Console::draw() {
 		glTranslated(0, 0, 0);          // Position The Text (0,0 - Bottom L
 
 		//рисуем консоль
-		glColor4f(0.5, 0.5, 0.5, 0.5);
+		glColor4f(0.5, 0.5, 0.5, 0.9);
 		glRectf(0.0, 1.0 / 2.0 * h, w, h);
 		
 		glTranslated(0, 0, 1);
@@ -113,7 +113,7 @@ void Viz_Console::draw() {
 		glPopMatrix();                // Restore The Old Projection
 		glMatrixMode(GL_MODELVIEW);   // Select The Modelview Matrix
 		glPopMatrix();                // Restore The Old Projectio
-		glEnable(GL_DEPTH_TEST);      // Enables Depth Testing
+		//glEnable(GL_DEPTH_TEST);      // Enables Depth Testing
 		//glDisable(GL_BLEND);
 	}
 }

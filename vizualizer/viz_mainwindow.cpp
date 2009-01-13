@@ -508,7 +508,16 @@ void VizMainWindow::initGL(int argc, char **argv) {
 	glutCreateWindow(name.c_str());	    
 	glClearColor(0.8, 0.8, 0.8, 0.0);
 	//glShadeModel(GL_FLAT);
-    glEnable( GL_DEPTH_TEST );//для обрубания невидимых линий
+    glEnable(GL_DEPTH_TEST);//для обрубания невидимых линий
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_ALPHA_TEST);
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+//    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    glLineWidth (0.5);
 //	glLoadIdentity();
 //	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
