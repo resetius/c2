@@ -516,8 +516,10 @@ void VizMainWindow::initGL(int argc, char **argv) {
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
 //    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-    glLineWidth (0.5);
+    glLineWidth (1);
+
 //	glLoadIdentity();
 //	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }

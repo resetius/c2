@@ -186,24 +186,18 @@ void Viz_Triang::draw()
 		glEnd();
 		break;
 
-    case dLines:
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	case dLines:
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1, 1);
 
-    case dFill:
-        if (dMode_ == dLines) {
-			;
-        } else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glBegin(GL_TRIANGLES);
-
-		//glColor3d(0.0, 0.0, 1.0);
 		for (int i = 0; i < sz; ++i) {
 			Viz_Point & p1 = points_[nodes_[i][0]];
 			Viz_Point & p2 = points_[nodes_[i][1]];
 			Viz_Point & p3 = points_[nodes_[i][2]];
-			
+
 			glColor3d(0.0, 0.0, p1.z);
 			glVertex3d(p1.x, p1.y, p1.z);
 
@@ -213,13 +207,40 @@ void Viz_Triang::draw()
 			glColor3d(0.0, 0.0, p3.z);
 			glVertex3d(p3.x, p3.y, p3.z);
 		}
+		glEnd();
+		glDisable(GL_POLYGON_OFFSET_FILL);
 
+	case dFill:
+		if (dMode_ == dFill) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glColor4d(1.0, 0.0, 0.0, 1.0);
+		}
+
+		glBegin(GL_TRIANGLES);
+		for (int i = 0; i < sz; ++i) {
+			Viz_Point & p1 = points_[nodes_[i][0]];
+			Viz_Point & p2 = points_[nodes_[i][1]];
+			Viz_Point & p3 = points_[nodes_[i][2]];
+
+			if (dMode_ == dFill) glColor3d(0.0, 0.0, p1.z);
+			glVertex3d(p1.x, p1.y, p1.z);
+
+			if (dMode_ == dFill) glColor3d(0.0, 0.0, p2.z);
+			glVertex3d(p2.x, p2.y, p2.z);
+
+			if (dMode_ == dFill) glColor3d(0.0, 0.0, p3.z);
+			glVertex3d(p3.x, p3.y, p3.z);
+		}
 		glEnd();
 		break;
 
-    default:
-        throw BadArgument("unknown drawing mode", __FILE__, __LINE__);
-        break;
+	default:
+		glPopMatrix();
+		glFlush();
+		throw BadArgument("unknown drawing mode", __FILE__, __LINE__);
+		break;
 	}
 
 	glPopMatrix();
