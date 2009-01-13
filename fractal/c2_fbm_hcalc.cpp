@@ -1,4 +1,5 @@
 #include <math.h>
+#include <assert.h>
 #include "c2_fbm_hcalc.h"
 
 using namespace std;
@@ -22,7 +23,7 @@ STD(const vector < double > & X)
 static double
 sum(const vector < double > & a)
 {
-	double s = 0;
+	double s = 0.0;
 	for (size_t i = 0; i < a.size(); ++i) {
 		s += a[i];
 	}
@@ -32,7 +33,7 @@ sum(const vector < double > & a)
 static double
 sum2(const vector < double > & a)
 {
-	double s;
+	double s = 0.0;
 	for (size_t i = 0; i < a.size(); ++i) {
 		s += a[i] * a[i];
 	}
@@ -42,7 +43,7 @@ sum2(const vector < double > & a)
 static double
 scalar(const vector < double > & a, const vector < double > & b)
 {
-	double s;
+	double s = 0.0;
 	for (size_t i = 0; i < a.size(); ++i) {
 		s += a[i] * b[i];
 	}
@@ -75,39 +76,74 @@ double hcalc(vector < double > & X, int pmax)
 	vector < double > nu(pmax);
 	double s_p;
 
-	for (size_t p = 1; p < pmax; ++p) {
+	assert(((L - pmax) > 1));
+
+	for (size_t p = 0; p < pmax; ++p) {
 		for (size_t i = 0; i < L - pmax; ++i) {
-			dX[i] = X[i + p] - X[i];
+			dX[i] = X[i + (p + 1)] - X[i];
 		}
 		s_p    = STD(dX);
-		ksi[p] = log10((double)p);
+		ksi[p] = log10((double)(p + 1));
 		nu[p]  = log10((double)s_p);
 	}
-/*
+#if 0
 	for (size_t p = 0; p < pmax; ++p) {
 		printf("{%lf %lf} ", ksi[p], nu[p]);
 	}
 	printf("\n");
-*/
+#endif
 	return mnk_angle(ksi, nu);
 }
 
-int main(int agrc, char * argv[])
+#ifdef min
+#undef min
+#endif
+
+static void
+usage(const char * name)
 {
-	const char * file = argv[1];
-	FILE * f = fopen(file, "rb");
+	fprintf(stderr, "usage: %s [-f file]\n", name);
+	exit(1);
+}
+
+int main(int argc, char * argv[])
+{
+	FILE * f = stdin;
 	double d;
 	double m;
+	int i;
+
+	for (i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "-h")
+				|| !strcmp(argv[i], "--help"))
+		{
+			usage(argv[0]);
+		} else if (!strcmp(argv[i], "-f")) {
+			if (i < argc - 1) {
+				f = fopen(argv[i + 1], "rb");
+				if (!f) {
+					fprintf(stderr, "%s not found\n", 
+							argv[i + 1]);
+					usage(argv[0]);
+				}
+			} else {
+				usage(argv[0]);
+			}
+		}
+	}
+
 	vector < double > X;
 	while(fscanf(f, "%lf", &d) == 1) {
 		X.push_back(d);
 	}
 	printf("read %lu values\n", X.size());
+#if 1
 	m = sum(X) / X.size();
 	printf("m = %lf\n", m);
 	for (size_t i = 0; i < X.size(); ++i) {
 		X[i] -= m;
 	}
-	printf("%.16lf\n", hcalc(X, 30768));
+#endif
+	printf("%.16lf\n", hcalc(X, std::min(300, (int)X.size() / 10)));
 }
 

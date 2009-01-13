@@ -296,6 +296,9 @@ int main() {
 	gauss_7_7(const_view(img));
 	gauss_7_7_color(const_view(img));
 
+	Canny < 3 > c;
+	c(const_view(img), view(img_x), 10, 10);
+
 	jpeg_write_view("out-x_gradient.jpg",
 		color_converted_view<gray8_pixel_t>(const_view(img_x)));
 

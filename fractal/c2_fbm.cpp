@@ -212,6 +212,13 @@ void fbd(int N, double H)
 #endif
 }
 
+static void
+usage(const char * name)
+{
+	fprintf(stderr, "usage: %s [-H H] [-N N]\n", name);
+	exit(1);
+}
+
 int main (int argc, char * argv[])
 {
 	int N = 512;
@@ -226,6 +233,10 @@ int main (int argc, char * argv[])
 			if (sscanf(argv[i + 1], "%lf", &a) == 1) {
 				H = a;
 			}
+		} else if (!strcmp(argv[i], "-h")
+				|| !strcmp(argv[i], "--help"))
+		{
+			usage(argv[0]);
 		}
 	}
 
