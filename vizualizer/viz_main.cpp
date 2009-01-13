@@ -33,7 +33,7 @@
 
 int main( int argc, char **argv ) {
 	VizMainWindow * win = 
-			new VizMainWindow("Vizualizer 3D v3.0 (c) 2005-2008 Alexey Ozeritsky",
+			new VizMainWindow("Vizualizer 3D v3.0 (c) 2005-2009 Alexey Ozeritsky",
 								640, 480, argc, argv);
 	return win->exec(argc, argv);
 }

@@ -51,86 +51,109 @@ using namespace std;
 VizMainWindow * mainwindow = 0;
 
 /**
- * глобальные функции - врапперы для 
+ * глобальные функции - врапперы для
  * glut*Func* вызовов
  */
 /*__________________________________*/
-void global_timer(int value) {
+void global_timer (int value)
+{
 	static int step = 1;
-	if (mainwindow != 0) {
-		mainwindow->timer(value);
+	if (mainwindow != 0)
+	{
+		mainwindow->timer (value);
 	}
 	step ++;
-	glutTimerFunc(1000, global_timer, step);
+	glutTimerFunc (1000, global_timer, step);
 }
 
-void global_repaint() {
-	if (mainwindow != 0) {
+void global_repaint()
+{
+	if (mainwindow != 0)
+	{
 		mainwindow->repaint();
 	}
 }
 
-void global_idle() {
-	if (mainwindow != 0) {
+void global_idle()
+{
+	if (mainwindow != 0)
+	{
 		mainwindow->idle();
 	}
 }
 
-void global_resize(int w, int h) {
-	if (mainwindow != 0) {
-		mainwindow->resize(w, h);
+void global_resize (int w, int h)
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->resize (w, h);
 	}
 }
 
-void global_mouseMoveEvent ( int x, int y ) {
-	if (mainwindow != 0) {
-		mainwindow->mouseMoveEvent(x, y);
+void global_mouseMoveEvent ( int x, int y )
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->mouseMoveEvent (x, y);
 	}
 }
 
-void global_mousePressEvent ( int button, int state, int x, int y ) {
-	if (mainwindow != 0) {
-		mainwindow->mousePressEvent(button, state, x, y);
+void global_mousePressEvent ( int button, int state, int x, int y )
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->mousePressEvent (button, state, x, y);
 	}
 }
 
-void global_keyPressEvent1 ( unsigned char key, int x, int y ) {
-	if (mainwindow != 0) {
-		mainwindow->keyPressEvent1(key, x, y);
+void global_keyPressEvent1 ( unsigned char key, int x, int y )
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->keyPressEvent1 (key, x, y);
 	}
 }
 
-void global_keyPressEvent2 ( int key, int x, int y ) {
-	if (mainwindow != 0) {
-		mainwindow->keyPressEvent2(key, x, y);
+void global_keyPressEvent2 ( int key, int x, int y )
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->keyPressEvent2 (key, x, y);
 	}
 }
 
-void global_fileMenu(int i) {
-	if (mainwindow != 0) {
-		mainwindow->fileMenu(i);
+void global_fileMenu (int i)
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->fileMenu (i);
 	}
 }
 
-void global_actionsMenu(int i) {
-	if (mainwindow != 0) {
-		mainwindow->actionsMenu(i);
+void global_actionsMenu (int i)
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->actionsMenu (i);
 	}
 }
 
-void global_optionsMenu(int i) {
-	if (mainwindow != 0) {
-		mainwindow->optionsMenu(i);
+void global_optionsMenu (int i)
+{
+	if (mainwindow != 0)
+	{
+		mainwindow->optionsMenu (i);
 	}
 }
 /*___________________________________________________________________*/
-VizMainWindow::~VizMainWindow() {
+VizMainWindow::~VizMainWindow()
+{
 	delete v_objs;
 	delete p;
 }
 
-VizMainWindow::VizMainWindow(const char *name1, int w, int h, int argc, char **argv)
-  : p (new Config("vizualizer.ini", argc, argv)), name(name1), frame(new Rect(w, h))
+VizMainWindow::VizMainWindow (const char *name1, int w, int h, int argc, char **argv)
+		: p (new Config ("vizualizer.ini", argc, argv) ), name (name1), frame (new Rect (w, h) )
 {
 	old_mouse_y = -1;
 	old_mouse_x = -1;
@@ -140,10 +163,10 @@ VizMainWindow::VizMainWindow(const char *name1, int w, int h, int argc, char **a
 
 void VizMainWindow::config()
 {
-	flatMode = (bool)p->value("flatMode", "visual", 0);
-	int w = p->value("width",  "visual", 640);
-	int h = p->value("height", "visual", 480);
-	resize(w, h);
+	flatMode = (bool) p->value ("flatMode", "visual", 0);
+	int w = p->value ("width",  "visual", 640);
+	int h = p->value ("height", "visual", 480);
+	resize (w, h);
 	p->rewrite();
 }
 
@@ -151,22 +174,28 @@ void VizMainWindow::config()
  * функция, которая вызывается через некоторые промежутки времени
  * int value - номер события
  */
-void VizMainWindow::timer(int ) {
+void VizMainWindow::timer (int )
+{
 	processEvents();
 }
 
-void VizMainWindow::draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    try {
-	    v_objs->draw();
-    } catch (Exception &e) {
-        cerr << e.toString() << endl;
-    }
+void VizMainWindow::draw()
+{
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	try
+	{
+		v_objs->draw();
+	}
+	catch (Exception &e)
+	{
+		cerr << e.toString() << endl;
+	}
 	glFlush();
 	glutSwapBuffers();
 }
 
-void VizMainWindow::repaint() {	
+void VizMainWindow::repaint()
+{
 //	glLoadIdentity();
 //	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	draw();
@@ -175,18 +204,22 @@ void VizMainWindow::repaint() {
 /**
  * пока не используется
  */
-void VizMainWindow::idle() {
+void VizMainWindow::idle()
+{
 //	glutPostRedisplay();
 }
 
-void VizMainWindow::mouseMoveEvent(int x, int y) {
-	v_objs->mouseMoveEvent(x, y);
+void VizMainWindow::mouseMoveEvent (int x, int y)
+{
+	v_objs->mouseMoveEvent (x, y);
 	int mouse_x = x, mouse_y = y;
 
-	switch (last_mouse_button) {
+	switch (last_mouse_button)
+	{
 	case 0:
-		if (last_mouse_state == GLUT_DOWN) {
-			xa += mouse_y - old_mouse_y;	
+		if (last_mouse_state == GLUT_DOWN)
+		{
+			xa += mouse_y - old_mouse_y;
 			ya += mouse_x - old_mouse_x;
 			rotate();
 
@@ -195,21 +228,23 @@ void VizMainWindow::mouseMoveEvent(int x, int y) {
 		}
 		break;
 	case 1:
-        if (last_mouse_state == GLUT_DOWN) {
-			y0 += mouse_y - old_mouse_y;	
+		if (last_mouse_state == GLUT_DOWN)
+		{
+			y0 += mouse_y - old_mouse_y;
 			x0 -= mouse_x - old_mouse_x;
 			rotate();
 
 			old_mouse_x = mouse_x;
-			old_mouse_y = mouse_y;            
-        }
-        break;
+			old_mouse_y = mouse_y;
+		}
+		break;
 	default:
 		break;
 	}
 }
 
-void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
+void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
+{
 	GLint viewport[4];
 	GLdouble mvmatrix[16], projmatrix[16];
 	GLint realy;
@@ -221,56 +256,67 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 	old_mouse_x = x;
 	old_mouse_y = y;
 
-	v_objs->mousePressEvent(button, state, x, y);
-	switch (button) {
+	v_objs->mousePressEvent (button, state, x, y);
+	switch (button)
+	{
 	case 0:
 	case 1:
 #if 0
-		if (state == GLUT_DOWN) {
+		if (state == GLUT_DOWN)
+		{
 			old_mouse_x = x;
 			old_mouse_y = y;
 
 			//обратное преобразование для определения 3D координат мыши
-			glGetIntegerv(GL_VIEWPORT, viewport);
-			glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
-			glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+			glGetIntegerv (GL_VIEWPORT, viewport);
+			glGetDoublev (GL_MODELVIEW_MATRIX, mvmatrix);
+			glGetDoublev (GL_PROJECTION_MATRIX, projmatrix);
 
-			realy = viewport[3] - (GLint)y - 1;
+			realy = viewport[3] - (GLint) y - 1;
 			cout << "Cursor coordinates (" << x << "," << realy << ")" << endl;
 			cout << "Cursor coordinates (" << x << "," << y << ")" << endl;
 			//по оконным координатам x, y, z получаем мировые координаты
 			//аналогичная команда gluProject по мировым координатам получает оконные
 			// .,.,. <- изначальные координаты, матрицы преоброазований -> .,.,. получаемые координаты -
 			//  - оконные или мировые, в зависимости от команды
-			gluUnProject((GLdouble)x, (GLdouble) realy, 0.0, mvmatrix, projmatrix, viewport,
-				&wx, &wy, &wz);
+			gluUnProject ( (GLdouble) x, (GLdouble) realy, 0.0, mvmatrix, projmatrix, viewport,
+			               &wx, &wy, &wz);
 			cout << "World coordinates at z = 0.0 (" << wx << "," << wy << "," << wz << ",)" << endl;
-			gluUnProject((GLdouble)x, (GLdouble) realy, 1.0, mvmatrix, projmatrix, viewport,
-				&wx, &wy, &wz);
+			gluUnProject ( (GLdouble) x, (GLdouble) realy, 1.0, mvmatrix, projmatrix, viewport,
+			               &wx, &wy, &wz);
 			cout << "World coordinates at z = 1.0 (" << wx << "," << wy << "," << wz << ",)" << endl;
 
 			long t2 = clock();
-			if ((double)(t2 - last_clicked_time) / (double)CLOCKS_PER_SEC < 0.2) {
-				v_objs->trySelect(x, realy);
+			if ( (double) (t2 - last_clicked_time) / (double) CLOCKS_PER_SEC < 0.2)
+			{
+				v_objs->trySelect (x, realy);
 				last_clicked_time = 0;
-			} else {
+			}
+			else
+			{
 				last_clicked_time = clock();
 			}
 		}
 #endif
 		break;
 	case 3:
-		if (flatMode) {
+		if (flatMode)
+		{
 			zo *= 1.1;
 			rotate();
 			break;
-		} else {
+		}
+		else
+		{
 			zo -= 0.2;
 		}
 	case 4:
-		if (flatMode) {
+		if (flatMode)
+		{
 			zo /= 1.1;
-		} else {
+		}
+		else
+		{
 			zo += 0.1;
 		}
 		rotate();
@@ -278,52 +324,70 @@ void VizMainWindow::mousePressEvent(int button, int state, int x, int y) {
 	}
 }
 
-void VizMainWindow::keyPressEvent1(unsigned char key, int x, int y) {
-	if (console->isHidden()) {
-		v_objs->keyPressEvent1(key, x, y);
-		switch (key) {
+void VizMainWindow::keyPressEvent1 (unsigned char key, int x, int y)
+{
+	if (console->isHidden() )
+	{
+		v_objs->keyPressEvent1 (key, x, y);
+		switch (key)
+		{
 		case '=':
 		case '+':
-			if (flatMode) {
+			if (flatMode)
+			{
 				zo *= 1.1;
 				rotate();
 				break;
-			} else {
+			}
+			else
+			{
 				zo -= 0.2;
 			}
 		case '-':
-			if (flatMode) {
+			if (flatMode)
+			{
 				zo /= 1.1;
-			} else {
+			}
+			else
+			{
 				zo += 0.1;
 			}
 			rotate();
 			break;
 		case 'f':
-			if (isFullscreen) {
+			if (isFullscreen)
+			{
 				windowed();
-			} else {
+			}
+			else
+			{
 				fullscreen();
 			}
 			break;
 		case 'q':
 			v_objs->save();
-			exit(0);
+			exit (0);
 			break;
 		default:
 			break;
 		}
-	} else {
-		console->keyPressEvent1(key, x, y);
+	}
+	else
+	{
+		console->keyPressEvent1 (key, x, y);
 	}
 }
 
-void VizMainWindow::keyPressEvent2(int key, int x, int y) {
-	if (console->isHidden()) {
-		v_objs->keyPressEvent2(key, x, y);	
+void VizMainWindow::keyPressEvent2 (int key, int x, int y)
+{
+	if (console->isHidden() )
+	{
+		v_objs->keyPressEvent2 (key, x, y);
 
-		if (!flatMode) {
-			switch(key){
+		if (!flatMode)
+		{
+			switch (key)
+			{
 			case GLUT_KEY_UP:
 				xa += 5;// ya = 0; za = 0;
 				break;
@@ -337,8 +401,11 @@ void VizMainWindow::keyPressEvent2(int key, int x, int y) {
 				ya -= 5;// xa = 0; za = 0;
 				break;
 			}
-		} else {
-			switch(key){
+		}
+		else
+		{
+			switch (key)
+			{
 			case GLUT_KEY_UP:
 				y0 -= 5;
 				break;
@@ -354,32 +421,39 @@ void VizMainWindow::keyPressEvent2(int key, int x, int y) {
 			}
 		}
 		rotate();
-	} else {
-		console->keyPressEvent2(key, x, y);
+	}
+	else
+	{
+		console->keyPressEvent2 (key, x, y);
 	}
 }
 
-void VizMainWindow::fullscreen() {
-	old_width = frame->width(); old_height = frame->height();
+void VizMainWindow::fullscreen()
+{
+	old_width = frame->width();
+	old_height = frame->height();
 	glutFullScreen();
-	glutSetMenu(fileMenuDescriptor);
-	glutChangeToMenuEntry(2, "Window Mode", 3);
+	glutSetMenu (fileMenuDescriptor);
+	glutChangeToMenuEntry (2, "Window Mode", 3);
 	isFullscreen = true;
 }
 
-void VizMainWindow::windowed() {
-	glutReshapeWindow(old_width, old_height);
-	glutPositionWindow(100, 100);
-	glutSetMenu(fileMenuDescriptor);
-	glutChangeToMenuEntry(2, "Fullscreen", 2);
+void VizMainWindow::windowed()
+{
+	glutReshapeWindow (old_width, old_height);
+	glutPositionWindow (100, 100);
+	glutSetMenu (fileMenuDescriptor);
+	glutChangeToMenuEntry (2, "Fullscreen", 2);
 	isFullscreen = false;
 }
 
-void VizMainWindow::fileMenu(int i) {
-	switch (i) {
+void VizMainWindow::fileMenu (int i)
+{
+	switch (i)
+	{
 	case 0:
 		v_objs->save();
-		exit(0);
+		exit (0);
 		break;
 	case 1:
 		reset_view();
@@ -391,9 +465,12 @@ void VizMainWindow::fileMenu(int i) {
 		windowed();
 		break;
 	case 4:
-		if (console->isHidden()) {
+		if (console->isHidden() )
+		{
 			console->show();
-		} else {
+		}
+		else
+		{
 			console->hide();
 		}
 		glutPostRedisplay();
@@ -403,19 +480,29 @@ void VizMainWindow::fileMenu(int i) {
 	}
 }
 
-void VizMainWindow::actionsMenu(int i) {
+void VizMainWindow::actionsMenu (int i)
+{
 }
 
-void VizMainWindow::optionsMenu(int i) {
+void VizMainWindow::optionsMenu (int i)
+{
 }
 
-void VizMainWindow::reset_view() {
-	xa = 0.0; ya = 0.0; za = 0.0;
-	x0 = 0.0; y0 = 0.0; z0 = 0.0;
+void VizMainWindow::reset_view()
+{
+	xa = 0.0;
+	ya = 0.0;
+	za = 0.0;
+	x0 = 0.0;
+	y0 = 0.0;
+	z0 = 0.0;
 
-	if (flatMode) {
+	if (flatMode)
+	{
 		zo = 1.0;
-	} else {
+	}
+	else
+	{
 		zo = 3.0;
 	}
 
@@ -423,60 +510,69 @@ void VizMainWindow::reset_view() {
 	glutPostRedisplay();
 }
 
-void VizMainWindow::resize(int width, int height) {
-	frame->resize(width, height);
-	
-	glViewport( 0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
+void VizMainWindow::resize (int width, int height)
+{
+	frame->resize (width, height);
+
+	glViewport ( 0, 0, width, height);
+	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 
-	if (!flatMode) {
-		gluPerspective(60.0, (GLdouble)width/(GLdouble)height, 0.1, 1000.0);
-	} else {
-		double k1 = (double)width  / (double)height;
+	if (!flatMode)
+	{
+		gluPerspective (60.0, (GLdouble) width / (GLdouble) height, 0.1, 1000.0);
+	}
+	else
+	{
+		double k1 = (double) width  / (double) height;
 		double k2 = 1;
 		double r  = 1.5;
-		glOrtho(r * -k1, r * k1, r * -k2, r * k2, -5, 5);
+		glOrtho (r * -k1, r * k1, r * -k2, r * k2, -5, 5);
 	}
 
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity();
 	/*    коорд камеры,  точка куда смотрим,  верх*/
 
-	if (!flatMode) {
-		gluLookAt(0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
-	} else {
-		glScalef(zo, zo, 1.0);
-		gluLookAt(x0, y0, 3, x0, y0, z0, 0.0, 1.0, 0.0);
+	if (!flatMode)
+	{
+		gluLookAt (0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
+	}
+	else
+	{
+		glScalef (zo, zo, 1.0);
+		gluLookAt (x0, y0, 3, x0, y0, z0, 0.0, 1.0, 0.0);
 	}
 }
 
-void VizMainWindow::registerEvents() {
-	glutDisplayFunc(global_repaint);
+void VizMainWindow::registerEvents()
+{
+	glutDisplayFunc (global_repaint);
 //	glutIdleFunc(global_idle);
-	glutReshapeFunc(global_resize);
-	glutMouseFunc(global_mousePressEvent);
-	glutMotionFunc(global_mouseMoveEvent);
-	glutKeyboardFunc(global_keyPressEvent1);
-	glutSpecialFunc(global_keyPressEvent2);	
-	glutTimerFunc(100 /*m sec*/, global_timer, 0);
+	glutReshapeFunc (global_resize);
+	glutMouseFunc (global_mousePressEvent);
+	glutMotionFunc (global_mouseMoveEvent);
+	glutKeyboardFunc (global_keyPressEvent1);
+	glutSpecialFunc (global_keyPressEvent2);
+	glutTimerFunc (100 /*m sec*/, global_timer, 0);
 }
 
-void VizMainWindow::createMenues() {
+void VizMainWindow::createMenues()
+{
 	/* File Menu */
-	fileMenuDescriptor = glutCreateMenu(global_fileMenu);
-	glutSetMenu(fileMenuDescriptor);
+	fileMenuDescriptor = glutCreateMenu (global_fileMenu);
+	glutSetMenu (fileMenuDescriptor);
 //	glutAddMenuEntry("Open", 1);
 //	glutAddMenuEntry("Close", 2);
 //	glutAddMenuEntry("Save", 3);
-	glutAddMenuEntry("Reset View", 1);
-	glutAddMenuEntry("Fullscreen", 2);
+	glutAddMenuEntry ("Reset View", 1);
+	glutAddMenuEntry ("Fullscreen", 2);
 	//на 3 "Window Mode !" не занимать !
-	glutAddMenuEntry("Console", 4);
-	
-	glutAddMenuEntry("Quit", 0);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
-		
+	glutAddMenuEntry ("Console", 4);
+
+	glutAddMenuEntry ("Quit", 0);
+	glutAttachMenu (GLUT_RIGHT_BUTTON);
+
 	/* Options Menu */
 	//optionsMenuDescriptor = glutCreateMenu(global_optionsMenu);
 	//glutSetMenu(optionsMenuDescriptor);
@@ -490,47 +586,57 @@ void VizMainWindow::createMenues() {
 	//glutAttachMenu(GLUT_MIDDLE_BUTTON);
 }
 
-void VizMainWindow::clear() {
-	glClearColor(0.8, 0.8, 0.8, 0.0); //закраска черным цветом
-	glClearDepth(0.0); //сброс буфера глубины в нуль
+void VizMainWindow::clear()
+{
+	glClearColor (0.8, 0.8, 0.8, 0.0); //закраска черным цветом
+	glClearDepth (0.0); //сброс буфера глубины в нуль
 	//GL_COLOR_BUFFER_BIT - очистить пиксели
 	//GL_DEPTH_BUFFER_BIT - очистка буфера глубины
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glFlush();
 }
 
-void VizMainWindow::initGL(int argc, char **argv) {
-	glutInit(&argc, argv);
+void VizMainWindow::initGL (int argc, char **argv)
+{
+	glutInit (&argc, argv);
 	//двойная буферизация, rgb палитра, буфер глубины (для обрубания невидимых линий)
 	//альфа канал (прозрачность?)
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
-	glutInitWindowSize(frame->width(), frame->height());
-	glutCreateWindow(name.c_str());	    
-	glClearColor(0.8, 0.8, 0.8, 0.0);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
+	glutInitWindowSize (frame->width(), frame->height() );
+	glutCreateWindow (name.c_str() );
+	glClearColor (0.8, 0.8, 0.8, 0.0);
 	//glShadeModel(GL_FLAT);
-    glEnable(GL_DEPTH_TEST);//для обрубания невидимых линий
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_ALPHA_TEST);
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glEnable (GL_DEPTH_TEST);//для обрубания невидимых линий
+	glEnable (GL_LINE_SMOOTH);
+	glEnable (GL_ALPHA_TEST);
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	glHint (GL_POINT_SMOOTH_HINT, GL_NICEST);
 
 //    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-    glLineWidth (1);
+	glLineWidth (1);
 
 //	glLoadIdentity();
 //	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
-int VizMainWindow::exec(int argc, char **argv) {
-	xa = 0.0; ya = 0.0; za = 0.0;
-    x0 = 0.0; y0 = 0.0; z0 = 0.0;
+int VizMainWindow::exec (int argc, char **argv)
+{
+	xa = 0.0;
+	ya = 0.0;
+	za = 0.0;
+	x0 = 0.0;
+	y0 = 0.0;
+	z0 = 0.0;
 
-	if (flatMode) {
+	if (flatMode)
+	{
 		zo = 1.0;
-	} else {
+	}
+	else
+	{
 		zo = 3.0;
 	}
 
@@ -538,7 +644,7 @@ int VizMainWindow::exec(int argc, char **argv) {
 	v_objs   = new Viz_List();
 	v_events = new Viz_Event_Queue();
 	mainwindow = this;
-	initGL(argc, argv);
+	initGL (argc, argv);
 	init_basic_objects();
 	registerEvents();
 	createMenues();
@@ -547,72 +653,89 @@ int VizMainWindow::exec(int argc, char **argv) {
 	return 1;
 }
 
-void VizMainWindow::init_basic_objects() {
-	v_objs->push_back((console = new Viz_Console(this)));
-	
-	if (p->value("cube", "visual", 1)) {
-		v_objs->push_back((new Viz_Cube(2.0)));
+void VizMainWindow::init_basic_objects()
+{
+	v_objs->push_back ( (console = new Viz_Console (this) ) );
+
+	if (p->value ("cube", "visual", 1) )
+	{
+		v_objs->push_back ( (new Viz_Cube (2.0) ) );
 	}
 
 //    v_objs->push_back((new Viz_Surface("PROGINI.DAT", Viz_Surface::sPlain)));
 //    v_objs->push_back((new Viz_Surface("PROGINI.DAT", Viz_Surface::sNurbs)));
 }
 
-void VizMainWindow::save() {
+void VizMainWindow::save()
+{
 	v_objs->save();
 }
 
-void VizMainWindow::processEvents() {
-	try {
+void VizMainWindow::processEvents()
+{
+	try
+	{
 		v_events->process();
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		string name = e.toString();
-		console->pushErrorString(name);
+		console->pushErrorString (name);
 		v_events->clear_bad_events();
 	}
 	glutPostRedisplay();
 }
 
-void VizMainWindow::pushEvent(Viz_Event * e) {
+void VizMainWindow::pushEvent (Viz_Event * e)
+{
 //!\todo warning thread unsafe!
-	v_events->push(e);
+	v_events->push (e);
 }
 
 //вернуть разрешение окна
-Rect * VizMainWindow::getBoundingRect() {
+Rect * VizMainWindow::getBoundingRect()
+{
 	return frame;
 }
 
-void VizMainWindow::rotate() {
+void VizMainWindow::rotate()
+{
 	double w = frame->width();
 	double h = frame->height();
 	glLoadIdentity();
-    //cout << x0 << ":" << y0 << ":" << z0 << endl;
+	//cout << x0 << ":" << y0 << ":" << z0 << endl;
 
-	if (!flatMode) {
-		gluLookAt(0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-		glRotatef(xa,1.0,0.0,0.0);
-		glRotatef(ya,0.0,1.0,0.0);
-	} else {
-		glScalef(zo, zo, 1.0);
-		gluLookAt(
-			x0 / w, y0 / h, 3, 
-			x0 / w, y0 / h, z0, 
-			0.0, 1.0, 0.0);
+	if (!flatMode)
+	{
+		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
+		glRotatef (xa, 1.0, 0.0, 0.0);
+		glRotatef (ya, 0.0, 1.0, 0.0);
+	}
+	else
+	{
+		glScalef (zo, zo, 1.0);
+		gluLookAt (
+		    x0 / w, y0 / h, 3,
+		    x0 / w, y0 / h, z0,
+		    0.0, 1.0, 0.0);
 	}
 
 	draw();
 }
 
-void VizMainWindow::clear_objs(int mask) {
-	v_objs->clear(mask);
+void VizMainWindow::clear_objs (int mask)
+{
+	v_objs->clear (mask);
 }
 
-void VizMainWindow::pushObj(Viz_Obj *o) {
-	v_objs->push_back(o);
+void VizMainWindow::pushObj (Viz_Obj *o)
+{
+	v_objs->push_back (o);
 	glutPostRedisplay();
 }
 
-Viz_List * VizMainWindow::objects() {
+Viz_List * VizMainWindow::objects()
+{
 	return v_objs;
 }
+

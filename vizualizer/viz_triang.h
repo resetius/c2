@@ -2,7 +2,7 @@
 #define _VIZ_TRINAG_H
 /*$Id: viz_triang.h 1620 2007-02-18 15:24:21Z manwe $*/
 
-/* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2005, 2008, 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,10 @@ private:
 
 	void load_file();
 	void normalize();
+	void gen_lists();
+
+	unsigned int fill_; // filled
+	unsigned int wire_; // wireframe
 };
 
 #endif //_VIZ_TRINAG_H

@@ -43,11 +43,12 @@
 
 using namespace std;
 
-Viz_Triang::Viz_Triang(const char * file)
-	: fname_(file)
+Viz_Triang::Viz_Triang (const char * file)
+		: fname_ (file)
 {
 	load_file();
 	normalize();
+	gen_lists();
 
 	hidden_ = false;
 	oType_  = oGeneral;
@@ -60,12 +61,13 @@ Viz_Triang::~Viz_Triang()
 
 void Viz_Triang::normalize()
 {
-    double x_min = 1e20, x_max = -1e20;
-    double y_min = 1e20, y_max = -1e20;
-    double z_min = 1e20, z_max = -1e20;
+	double x_min = 1e20, x_max = -1e20;
+	double y_min = 1e20, y_max = -1e20;
+	double z_min = 1e20, z_max = -1e20;
 
-    //вычисляем максимум и минимиум покоординатно
-	for (int i = 0; i < (int)points_.size(); ++i) {
+	//вычисляем максимум и минимиум покоординатно
+	for (int i = 0; i < (int) points_.size(); ++i)
+	{
 		double x = points_[i].x;
 		double y = points_[i].y;
 		double z = points_[i].z;
@@ -78,13 +80,14 @@ void Viz_Triang::normalize()
 
 		if (z > z_max) z_max = z;
 		if (z < z_min) z_min = z;
-    }
+	}
 
-    double xx2 = 2.0 / (x_max - x_min);
-    double yy2 = 2.0 / (y_max - y_min);
-    double zz2 = 2.0 / (z_max - z_min);
+	double xx2 = 2.0 / (x_max - x_min);
+	double yy2 = 2.0 / (y_max - y_min);
+	double zz2 = 2.0 / (z_max - z_min);
 
-	for (int i = 0; i < (int)points_.size(); ++i) {
+	for (int i = 0; i < (int) points_.size(); ++i)
+	{
 		double & x = points_[i].x;
 		double & y = points_[i].y;
 		double & z = points_[i].z;
@@ -97,55 +100,64 @@ void Viz_Triang::normalize()
 
 void Viz_Triang::load_file()
 {
-	FILE * f = fopen(fname_.c_str(), "r");
+	FILE * f = fopen (fname_.c_str(), "r");
 	int size;
 #ifdef _DEBUG
-	if (!f) throw NotFound(fname_.c_str(), __FILE__, __LINE__);
+	if (!f) throw NotFound (fname_.c_str(), __FILE__, __LINE__);
 #else
-	if (!f) throw NotFound(fname_.c_str());
+	if (!f) throw NotFound (fname_.c_str() );
 #endif
 
 #define _BUF_SZ 32768
 	char s[32768];
-	
-	fgets(s, _BUF_SZ - 1, f);
 
-	do {
+	fgets (s, _BUF_SZ - 1, f);
+
+	do
+	{
 		double x, y, z;
 
 		if (*s == '#')
 			break;
 
-		if (sscanf(s, "%lf%lf%lf", &x, &y, &z) != 3) {
+		if (sscanf (s, "%lf%lf%lf", &x, &y, &z) != 3)
+		{
 			goto bad;
 		}
 
-		points_.push_back(Viz_Point(x, y, z));
-	} while (fgets(s, _BUF_SZ - 1, f));
+		points_.push_back (Viz_Point (x, y, z) );
+	}
+	while (fgets (s, _BUF_SZ - 1, f) );
 
-	size = (int)points_.size();
+	size = (int) points_.size();
 
-	fgets(s, _BUF_SZ - 1, f);
-	do {
+	fgets (s, _BUF_SZ - 1, f);
+	do
+	{
 		int n1, n2, n3;
-		if (sscanf(s, "%d%d%d", &n1, &n2, &n3) != 3) {
+		if (sscanf (s, "%d%d%d", &n1, &n2, &n3) != 3)
+		{
 			goto bad;
 		}
 
 		//так как индексы в файле с 1 а не с 0
-		--n1; --n2; --n3;
-		if (n1 >= size || n2 >= size || n3 >= size) {
+		--n1;
+		--n2;
+		--n3;
+		if (n1 >= size || n2 >= size || n3 >= size)
+		{
 			goto bad;
 		}
 
-		vector < int > triplet(3);
+		vector < int > triplet (3);
 		triplet[0] = n1;
 		triplet[1] = n2;
 		triplet[2] = n3;
 
-		nodes_.push_back(triplet);
+		nodes_.push_back (triplet);
 
-	} while (fgets(s, _BUF_SZ - 1, f));
+	}
+	while (fgets (s, _BUF_SZ - 1, f) );
 
 	return;
 
@@ -153,9 +165,9 @@ bad:
 	{
 		string out = "bad file format";
 #ifdef _DEBUG
-		throw BadArgument(out.c_str(), __FILE__, __LINE__);
+		throw BadArgument (out.c_str(), __FILE__, __LINE__);
 #else
-		throw BadArgument(out.c_str());
+		throw BadArgument (out.c_str() );
 #endif
 	}
 }
@@ -165,81 +177,55 @@ void Viz_Triang::draw()
 	if (hidden_)
 		return;
 
-	int sz = (int)nodes_.size();
+	int sz = (int) nodes_.size();
 
 	glPushMatrix();
 
-	switch (dMode_) {
+	switch (dMode_)
+	{
 	case dPoints:
-        glBegin(GL_POINTS);
-		glColor3d(0.0, 0.0, 1.0);
+		glBegin (GL_POINTS);
+		glColor3d (0.0, 0.0, 1.0);
 
-		sz = (int)points_.size();
+		sz = (int) points_.size();
 
-		for (int i = 0; i < sz; ++i) {
+		for (int i = 0; i < sz; ++i)
+		{
 			Viz_Point & p1 = points_[i];
 
-			glColor3d(0.0, 0.0, p1.z);
-			glVertex3d(p1.x, p1.y, p1.z);
+			glColor3d (0.0, 0.0, p1.z);
+			glVertex3d (p1.x, p1.y, p1.z);
 		}
 
 		glEnd();
 		break;
 
 	case dLines:
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(1, 1);
+		glEnable (GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset (1, 1);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		glBegin(GL_TRIANGLES);
-		for (int i = 0; i < sz; ++i) {
-			Viz_Point & p1 = points_[nodes_[i][0]];
-			Viz_Point & p2 = points_[nodes_[i][1]];
-			Viz_Point & p3 = points_[nodes_[i][2]];
-
-			glColor3d(0.0, 0.0, p1.z);
-			glVertex3d(p1.x, p1.y, p1.z);
-
-			glColor3d(0.0, 0.0, p2.z);
-			glVertex3d(p2.x, p2.y, p2.z);
-
-			glColor3d(0.0, 0.0, p3.z);
-			glVertex3d(p3.x, p3.y, p3.z);
-		}
-		glEnd();
-		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+		glCallList (fill_);
+		glDisable (GL_POLYGON_OFFSET_FILL);
 
 	case dFill:
-		if (dMode_ == dFill) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		} else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glColor4d(1.0, 0.0, 0.0, 1.0);
+		if (dMode_ == dFill)
+		{
+			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+			glCallList (fill_);
 		}
-
-		glBegin(GL_TRIANGLES);
-		for (int i = 0; i < sz; ++i) {
-			Viz_Point & p1 = points_[nodes_[i][0]];
-			Viz_Point & p2 = points_[nodes_[i][1]];
-			Viz_Point & p3 = points_[nodes_[i][2]];
-
-			if (dMode_ == dFill) glColor3d(0.0, 0.0, p1.z);
-			glVertex3d(p1.x, p1.y, p1.z);
-
-			if (dMode_ == dFill) glColor3d(0.0, 0.0, p2.z);
-			glVertex3d(p2.x, p2.y, p2.z);
-
-			if (dMode_ == dFill) glColor3d(0.0, 0.0, p3.z);
-			glVertex3d(p3.x, p3.y, p3.z);
+		else
+		{
+			glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+			glColor4d (1.0, 0.0, 0.0, 1.0);
+			glCallList (wire_);
 		}
-		glEnd();
 		break;
 
 	default:
 		glPopMatrix();
 		glFlush();
-		throw BadArgument("unknown drawing mode", __FILE__, __LINE__);
+		throw BadArgument ("unknown drawing mode", __FILE__, __LINE__);
 		break;
 	}
 
@@ -247,13 +233,58 @@ void Viz_Triang::draw()
 	glFlush();
 }
 
-void Viz_Triang::keyPressEvent1 ( unsigned char key, int x, int y ) {
-    switch(key) {
-    case 'd':
-        setDrawMode((DrawMode)(((int)dMode_ + 1) % 3));
-        glutPostRedisplay();
-        break;
-    default:
-        break;
-    }
+void Viz_Triang::gen_lists()
+{
+	int sz = (int) nodes_.size();
+	wire_ = glGenLists (1);
+	fill_ = glGenLists (1);
+
+	glNewList (wire_, GL_COMPILE);
+	glBegin (GL_TRIANGLES);
+	for (int i = 0; i < sz; ++i)
+	{
+		Viz_Point & p1 = points_[nodes_[i][0]];
+		Viz_Point & p2 = points_[nodes_[i][1]];
+		Viz_Point & p3 = points_[nodes_[i][2]];
+
+		glVertex3d (p1.x, p1.y, p1.z);
+		glVertex3d (p2.x, p2.y, p2.z);
+		glVertex3d (p3.x, p3.y, p3.z);
+	}
+	glEnd();
+	glEndList();
+
+	glNewList (fill_, GL_COMPILE);
+	glBegin (GL_TRIANGLES);
+	for (int i = 0; i < sz; ++i)
+	{
+		Viz_Point & p1 = points_[nodes_[i][0]];
+		Viz_Point & p2 = points_[nodes_[i][1]];
+		Viz_Point & p3 = points_[nodes_[i][2]];
+
+		glColor3d (0.0, 0.0, p1.z);
+		glVertex3d (p1.x, p1.y, p1.z);
+
+		glColor3d (0.0, 0.0, p2.z);
+		glVertex3d (p2.x, p2.y, p2.z);
+
+		glColor3d (0.0, 0.0, p3.z);
+		glVertex3d (p3.x, p3.y, p3.z);
+	}
+	glEnd();
+	glEndList();
 }
+
+void Viz_Triang::keyPressEvent1 ( unsigned char key, int x, int y )
+{
+	switch (key)
+	{
+	case 'd':
+		setDrawMode ( (DrawMode) ( ( (int) dMode_ + 1) % 3) );
+		glutPostRedisplay();
+		break;
+	default:
+		break;
+	}
+}
+
