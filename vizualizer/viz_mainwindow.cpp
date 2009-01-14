@@ -615,7 +615,7 @@ void VizMainWindow::createMenues()
 
 void VizMainWindow::clear()
 {
-	glClearColor (0.8, 0.8, 0.8, 0.0); //закраска черным цветом
+	//glClearColor (0.8, 0.8, 0.8, 0.0); //закраска черным цветом
 	glClearDepth (0.0); //сброс буфера глубины в нуль
 	//GL_COLOR_BUFFER_BIT - очистить пиксели
 	//GL_DEPTH_BUFFER_BIT - очистка буфера глубины
@@ -628,15 +628,17 @@ void VizMainWindow::initGL (int argc, char **argv)
 	glutInit (&argc, argv);
 	//двойная буферизация, rgb палитра, буфер глубины (для обрубания невидимых линий)
 	//альфа канал (прозрачность?)
-	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA);
+	//glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize (frame->width(), frame->height() );
 	glutCreateWindow (name.c_str() );
-	glClearColor (0.8, 0.8, 0.8, 0.0);
+	glClearColor (0.8, 0.8, 0.8, 1.0);
 	//glShadeModel(GL_FLAT);
 	glEnable (GL_DEPTH_TEST);//для обрубания невидимых линий
 	glEnable (GL_LINE_SMOOTH);
 	glEnable (GL_ALPHA_TEST);
 	glEnable (GL_BLEND);
+	glShadeModel(GL_FLAT);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);

@@ -47,7 +47,8 @@ public:
 		virtual const char * what() const throw() {
 			std::ostringstream ostr;
 			ostr << "Unknown type : " << unknownId_;
-			return ostr.str().c_str();
+			what_ = ostr.str();
+			return what_.c_str();
 		}
 
 		const IdentifierType GetId() {
@@ -55,6 +56,7 @@ public:
 		}
 
 	private:
+		mutable std::string what_;
 		IdentifierType unknownId_;
 	};
 

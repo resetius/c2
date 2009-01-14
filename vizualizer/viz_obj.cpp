@@ -314,7 +314,7 @@ Viz_Cube::~Viz_Cube() {}
 void Viz_Cube::draw() {
 	if (hidden_)
 		return;
-	glColor3f(0.0, 0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.0, 0.7);
 	glutWireCube(size);
 	glFlush();
 }
