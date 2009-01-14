@@ -100,9 +100,9 @@ void Viz_Console::draw() {
 		glMatrixMode(GL_MODELVIEW);     // Select The Modelview Matrix
 		glPushMatrix();                 // Store The Modelview Matrix
 		glLoadIdentity();               // Reset The Modelview Matrix
-		glTranslated(0, 0, 0);          // Position The Text (0,0 - Bottom L
+		glTranslatef(0, 0, 1);          // Position The Text (0,0 - Bottom L
 
-		glDepthMask(GL_FALSE);
+		//glDepthMask(GL_FALSE);
 		//рисуем консоль
 		glColor4f(0.5, 0.5, 0.5, 0.6);
 		glRectf(0.0, 1.0 / 2.0 * h, w, h);
@@ -110,7 +110,7 @@ void Viz_Console::draw() {
 		glTranslatef(0, 0, 1);
 		printBuffer(2, 1.0 / 2.0 * h + 2, w - 4, h - 1.0 / 2.0 * h);
 
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
 
 		glMatrixMode(GL_PROJECTION);  // Select The Projection Matrix
 		glPopMatrix();                // Restore The Old Projection
