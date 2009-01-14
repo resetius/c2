@@ -220,6 +220,7 @@ void Viz_Triang::draw()
 			glColor4d (1.0, 0.0, 0.0, 1.0);
 			glCallList (wire_);
 		}
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		break;
 
 	default:
