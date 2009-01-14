@@ -157,6 +157,7 @@ VizMainWindow::VizMainWindow (const char *name1, int w, int h, int argc, char **
 {
 	old_mouse_y = -1;
 	old_mouse_x = -1;
+	projMode = false;
 
 	config();
 }
@@ -300,7 +301,7 @@ void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
 #endif
 		break;
 	case 3:
-		if (flatMode)
+		if (flatMode || projMode)
 		{
 			zo *= 1.1;
 			rotate();
@@ -311,7 +312,7 @@ void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
 			zo -= 0.2;
 		}
 	case 4:
-		if (flatMode)
+		if (flatMode || projMode)
 		{
 			zo /= 1.1;
 		}
@@ -362,6 +363,16 @@ void VizMainWindow::keyPressEvent1 (unsigned char key, int x, int y)
 			else
 			{
 				fullscreen();
+			}
+			break;
+		case 'p':
+			if (projMode)
+			{
+				perspective();
+			}
+			else
+			{
+				orthogonal();
 			}
 			break;
 		case 'q':
@@ -447,6 +458,22 @@ void VizMainWindow::windowed()
 	isFullscreen = false;
 }
 
+void VizMainWindow::perspective()
+{
+	projMode = false;
+	resize(frame->width(), frame->height());
+	reset_view();
+	glutPostRedisplay();
+}
+
+void VizMainWindow::orthogonal()
+{
+	projMode = true;
+	resize(frame->width(), frame->height());
+	reset_view();
+	glutPostRedisplay();
+}
+
 void VizMainWindow::fileMenu (int i)
 {
 	switch (i)
@@ -497,7 +524,7 @@ void VizMainWindow::reset_view()
 	y0 = 0.0;
 	z0 = 0.0;
 
-	if (flatMode)
+	if (flatMode || projMode)
 	{
 		zo = 1.0;
 	}
@@ -518,7 +545,7 @@ void VizMainWindow::resize (int width, int height)
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 
-	if (!flatMode)
+	if (!flatMode && !projMode)
 	{
 		gluPerspective (60.0, (GLdouble) width / (GLdouble) height, 0.1, 1000.0);
 	}
@@ -534,7 +561,7 @@ void VizMainWindow::resize (int width, int height)
 	glLoadIdentity();
 	/*    коорд камеры,  точка куда смотрим,  верх*/
 
-	if (!flatMode)
+	if (!flatMode && !projMode)
 	{
 		gluLookAt (0.0, 0.0, zo, x0, y0, z0, 0.0, 1.0, 0.0);
 	}
@@ -631,7 +658,7 @@ int VizMainWindow::exec (int argc, char **argv)
 	y0 = 0.0;
 	z0 = 0.0;
 
-	if (flatMode)
+	if (flatMode || projMode)
 	{
 		zo = 1.0;
 	}
@@ -705,8 +732,15 @@ void VizMainWindow::rotate()
 	glLoadIdentity();
 	//cout << x0 << ":" << y0 << ":" << z0 << endl;
 
-	if (!flatMode)
+	if (!flatMode && !projMode)
 	{
+		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
+		glRotatef (xa, 1.0, 0.0, 0.0);
+		glRotatef (ya, 0.0, 1.0, 0.0);
+	}
+	else if (projMode && !flatMode)
+	{
+		glScalef (zo, zo, 1.0);
 		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
 		glRotatef (xa, 1.0, 0.0, 0.0);
 		glRotatef (ya, 0.0, 1.0, 0.0);

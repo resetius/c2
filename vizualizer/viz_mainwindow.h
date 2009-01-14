@@ -58,7 +58,7 @@ class VizMainWindow: public Viz_Obj {
 	int last_mouse_button;
 	int last_mouse_state;
 
-    long last_clicked_time;
+	long last_clicked_time;
 
 	bool isFullscreen;
 	int fileMenuDescriptor;
@@ -68,6 +68,7 @@ class VizMainWindow: public Viz_Obj {
 	//@{config
 	bool flatMode;
 	//@}
+	bool projMode;
 
 public:
 	~VizMainWindow();
@@ -110,6 +111,9 @@ private:
 	void reset_view();
 	void fullscreen();
 	void windowed();
+
+	void perspective();
+	void orthogonal();
 };
 
 #endif //_VIZ_MAINWINDOW_H
