@@ -1,4 +1,4 @@
-/*$Id: viz_mainwindow.cpp 407 2005-10-15 10:32:15Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

@@ -1,6 +1,6 @@
 #ifndef _REVIDX_FACTORY_H
 #define _REVIDX_FACTORY_H
-/*$Id: tool_factory.h 1560 2007-12-12 13:20:24Z aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2007, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

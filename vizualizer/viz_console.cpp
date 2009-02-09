@@ -1,4 +1,4 @@
-/*$Id: viz_console.cpp 1619 2007-02-18 14:02:16Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

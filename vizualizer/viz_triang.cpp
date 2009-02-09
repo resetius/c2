@@ -1,4 +1,4 @@
-/*$Id: viz_triang.cpp 1640 2007-02-23 20:43:20Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2007 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -135,6 +135,11 @@ void Viz_Triang::load_file()
 	do
 	{
 		int n1, n2, n3;
+
+		if (*s == '#') {
+			break;
+		}
+
 		if (sscanf (s, "%d%d%d", &n1, &n2, &n3) != 3)
 		{
 			goto bad;
