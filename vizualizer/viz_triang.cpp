@@ -86,15 +86,24 @@ void Viz_Triang::normalize()
 	double yy2 = 2.0 / (y_max - y_min);
 	double zz2 = 2.0 / (z_max - z_min);
 
+	double k = zz2;
+	if (xx2 <= yy2 && xx2 <= zz2) {
+		k = xx2;
+	} else if (yy2 <= xx2 && yy2 <= zz2) {
+		k = yy2;
+	} else if (zz2 <= xx2 && zz2 <= yy2) {
+		k = zz2;
+	}
+
 	for (int i = 0; i < (int) points_.size(); ++i)
 	{
 		double & x = points_[i].x;
 		double & y = points_[i].y;
 		double & z = points_[i].z;
 
-		x = (x - x_min) * xx2 - 1.0;
-		y = (y - y_min) * yy2 - 1.0;
-		z = (z - z_min) * zz2 - 1.0;
+		x = (x - x_min) * k - 1.0;
+		y = (y - y_min) * k - 1.0;
+		z = (z - z_min) * k - 1.0;
 	}
 }
 

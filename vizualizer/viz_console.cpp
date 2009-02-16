@@ -446,6 +446,7 @@ void Viz_Console::printHelp() {
 	pushString("Help:", ConsoleBuffer::sOutput);
 	pushString("Keys:", ConsoleBuffer::sOutput);
 	pushString("d - drawing mode", ConsoleBuffer::sOutput);
+	pushString("p - switch perspective", ConsoleBuffer::sOutput);
 	pushString("+ - zoom in", ConsoleBuffer::sOutput);
 	pushString("- - zoom out", ConsoleBuffer::sOutput);
 	pushString("<tab> - commands list/autocomplete (in console)", ConsoleBuffer::sOutput);
