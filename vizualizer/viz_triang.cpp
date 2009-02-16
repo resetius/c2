@@ -102,6 +102,8 @@ void Viz_Triang::load_file()
 {
 	FILE * f = fopen (fname_.c_str(), "r");
 	int size;
+	int lineno = 0;
+
 #ifdef _DEBUG
 	if (!f) throw NotFound (fname_.c_str(), __FILE__, __LINE__);
 #else
@@ -111,7 +113,7 @@ void Viz_Triang::load_file()
 #define _BUF_SZ 32768
 	char s[32768];
 
-	fgets (s, _BUF_SZ - 1, f);
+	fgets (s, _BUF_SZ - 1, f); lineno ++;
 
 	do
 	{
@@ -125,13 +127,14 @@ void Viz_Triang::load_file()
 			goto bad;
 		}
 
-		points_.push_back (Viz_Point (x, y, z) );
+		points_.push_back (Viz_Point (x, y, z));
+		lineno ++;
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
 
 	size = (int) points_.size();
 
-	fgets (s, _BUF_SZ - 1, f);
+	fgets (s, _BUF_SZ - 1, f); lineno ++;
 	do
 	{
 		int n1, n2, n3;
@@ -160,6 +163,7 @@ void Viz_Triang::load_file()
 		triplet[2] = n3;
 
 		nodes_.push_back (triplet);
+		lineno ++;
 
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
@@ -168,11 +172,13 @@ void Viz_Triang::load_file()
 
 bad:
 	{
-		string out = "bad file format";
+		ostringstream ss;
+		ss << "bad file format, lineno: " << lineno;
+	       	string out = ss.str();
 #ifdef _DEBUG
 		throw BadArgument (out.c_str(), __FILE__, __LINE__);
 #else
-		throw BadArgument (out.c_str() );
+		throw BadArgument (out.c_str());
 #endif
 	}
 }
