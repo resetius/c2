@@ -1,6 +1,6 @@
 #ifndef _VIZ_CONSOLE_H
 #define _VIZ_CONSOLE_H
-/*$Id: viz_console.h 1063 2006-04-24 09:10:36Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -54,11 +54,11 @@ public:
 	int type(int i); //!<тип i'й строки
 
 	void push_back(BufferItem &b);
-	void push_back(const char *, int t = sInput); 
-	void push_back(std::string &s, int t = sInput); 
+	void push_back(const std::string &s, int t = sInput); 
 	//void removeFirst(); //удаляет первый элемент
-    std::string &backStr();
-    void backAppend(int num, char c);
+	std::string &backStr();
+	void backAppend(int num, char c);
+
 private:
 	std::map < int, float*   > color_map;   //!<цветовая карта
 	std::map < int, std::string   > off_symb_map;//!<символы отступа
@@ -67,8 +67,7 @@ private:
 class BufferItem {
 public:
 	~BufferItem();
-	BufferItem(std::string &s1, int t = ConsoleBuffer::sInput);
-	BufferItem(const char * str, int t = ConsoleBuffer::sInput);
+	BufferItem(const std::string &s1, int t = ConsoleBuffer::sInput);
 
 	std::string & str();              //!<строка
 	int type(); //!<вернуть тип строки
@@ -93,19 +92,15 @@ public:
 	void hide();
 	void keyPressEvent1 ( unsigned char key, int x, int y );
 	void keyPressEvent2 ( int key, int x, int y );	
-	void pushInputString (std::string &s);
-	void pushInputString (const char *s);
-	void pushErrorString (std::string &s);
-	void pushErrorString (const char *s);
-	void pushOutputString (std::string &s);
-	void pushOutputString (const char *s);
-	void pushString (std::string &s, int type = ConsoleBuffer::sOutput);
-	void pushString (const char * s, int type = ConsoleBuffer::sOutput);
+	void pushInputString (const std::string &s);
+	void pushErrorString (const std::string &s);
+	void pushOutputString (const std::string &s);
+	void pushString (const std::string &s, int type = ConsoleBuffer::sOutput);
 	void printCommandsList();
 	void printHelp();
 	void save();
 
-	void processCommandString(std::string &command_string);
+	void processCommandString(const std::string &command_string);
 protected:
 	/**
 	 * печать буфера начиная с координат x, y.
@@ -113,9 +108,8 @@ protected:
 	 * размеры окна печати w*h
 	 */
 	void printBuffer(float x, float y, float w, float h); 
-	void printStr(std::string &s); //вывод строки по текущем координатам
-    void printStr(const char * s); //вывод строки по текущем координатам	
-	void processCommand(std::string & command, std::vector <std::string> &args);
+	void printStr(const std::string &s); //вывод строки по текущем координатам
+	void processCommand(const std::string & command, std::vector <std::string> &args);
 	void saveHistory();
 	void loadHistory();
 

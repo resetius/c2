@@ -76,7 +76,7 @@ Viz_Console::Viz_Console(Viz_Obj * parent) {
 	oType_ = oSystem;
 	offset = 0;
 	last   = 0;
-    pushInputString("");
+	pushInputString("");
 	loadHistory();
 }
 
@@ -159,15 +159,9 @@ void Viz_Console::printBuffer(float x, float y, float w, float h) {
 	}
 }
 
-void Viz_Console::printStr(string &s) {
+void Viz_Console::printStr(const string &s) {
 	const char * cs = s.c_str();
-    while ( *cs != 0 ) {
-		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *cs++);
-	}
-}
-
-void Viz_Console::printStr(const char * cs) {
-    while ( *cs != 0 ) {
+	while ( *cs != 0 ) {
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *cs++);
 	}
 }
@@ -184,7 +178,7 @@ void Viz_Console::hide() {
 	hidden_= true;
 }
 
-void Viz_Console::processCommandString(string &command_string) {
+void Viz_Console::processCommandString(const string &command_string) {
 	string command;
 	vector < string > args;
 	int c_old = 0;
@@ -206,7 +200,7 @@ void Viz_Console::processCommandString(string &command_string) {
 	processCommand(command, args);
 }
 
-void Viz_Console::processCommand(string & command, vector <string> &args) {
+void Viz_Console::processCommand(const string & command, vector <string> &args) {
     VizMainWindow * m_win = dynamic_cast<VizMainWindow*>(win);
 	try {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -371,45 +365,19 @@ void Viz_Console::keyPressEvent2 ( int key, int x, int y ) {
 	}
 }
 
-void Viz_Console::pushErrorString(const char *s) {
+void Viz_Console::pushErrorString(const string &s) {
 	pushString(s, ConsoleBuffer::sError);
 }
 
-void Viz_Console::pushErrorString(string &s) {
-	pushString(s, ConsoleBuffer::sError);
-}
-
-void Viz_Console::pushInputString(const char *s) {
+void Viz_Console::pushInputString(const string &s) {
 	pushString(s, ConsoleBuffer::sInput);
 }
 
-void Viz_Console::pushInputString(string &s) {
-	pushString(s, ConsoleBuffer::sInput);
-}
-
-void Viz_Console::pushOutputString(const char *s) {
+void Viz_Console::pushOutputString(const string &s) {
 	pushString(s, ConsoleBuffer::sOutput);
 }
 
-void Viz_Console::pushOutputString(string &s) {
-	pushString(s, ConsoleBuffer::sOutput);
-}
-
-void Viz_Console::pushString(string &s, int sType) {
-	if ((int)buffer.size() >= buffer_max_size) {
-		buffer.erase(buffer.begin());
-	}
-
-	if (buffer.empty()) {
-		buffer.push_back(s, sType);
-		buffer.push_back(""); //наверху всегда лежит строка ввода
-	} else {
-		buffer.back() = BufferItem(s, sType);
-		buffer.push_back(""); //наверху всегда лежит строка ввода
-	}
-}
-
-void Viz_Console::pushString(const char * s, int sType) {
+void Viz_Console::pushString(const string &s, int sType) {
 	if ((int)buffer.size() >= buffer_max_size) {
 		buffer.erase(buffer.begin());
 	}
@@ -492,13 +460,8 @@ void Viz_Console::saveHistory() {
 BufferItem::~BufferItem() {
 }
 
-BufferItem::BufferItem(string &s1, int t) {
+BufferItem::BufferItem(const string &s1, int t) {
 	s = s1; 
-	stype = t;
-}
-
-BufferItem::BufferItem(const char * str, int t) {
-	s = string(str); 
 	stype = t;
 }
 
@@ -536,12 +499,7 @@ int ConsoleBuffer::type(int i) {
 	return at(i).type();
 }
 
-void ConsoleBuffer::push_back(const char *s, int t) {
-	BufferItem b(s, t);
-	push_back(b);
-}
-
-void ConsoleBuffer::push_back(string &s, int t) {
+void ConsoleBuffer::push_back(const string &s, int t) {
 	BufferItem b(s, t);
 	push_back(b);
 }
@@ -557,3 +515,4 @@ string &ConsoleBuffer::backStr() {
 void ConsoleBuffer::backAppend(int num, char c) {
     backStr().append(num, c);
 }
+
