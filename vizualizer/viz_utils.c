@@ -144,3 +144,4 @@ void WritePPM(const char* Filename)
 
 	free(OutBuffer);
 }
+
