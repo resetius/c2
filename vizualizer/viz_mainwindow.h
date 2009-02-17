@@ -1,6 +1,6 @@
 #ifndef _VIZ_MAINWINDOW_H
 #define _VIZ_MAINWINDOW_H
-/*$Id: viz_mainwindow.h 622 2005-12-02 17:57:57Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -111,6 +111,7 @@ private:
 	void reset_view();
 	void fullscreen();
 	void windowed();
+	void save_to_postscript();
 
 	void perspective();
 	void orthogonal();

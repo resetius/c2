@@ -41,10 +41,13 @@
 #include <string>
 #include <time.h>
 #include <iostream>
+
 #include "asp_excs.h"
 #include "viz_obj.h"
 #include "viz_mainwindow.h"
 #include "viz_surface.h"
+
+#include "gl2ps.h"
 
 using namespace std;
 
@@ -375,6 +378,9 @@ void VizMainWindow::keyPressEvent1 (unsigned char key, int x, int y)
 				orthogonal();
 			}
 			break;
+		case 's':
+			save_to_postscript();
+			break;
 		case 'q':
 			v_objs->save();
 			exit (0);
@@ -437,6 +443,37 @@ void VizMainWindow::keyPressEvent2 (int key, int x, int y)
 	{
 		console->keyPressEvent2 (key, x, y);
 	}
+}
+
+void VizMainWindow::save_to_postscript()
+{
+	int state = GL2PS_OVERFLOW, bufsize = 0;
+	GLint viewport[4] = {0, 0, frame->width(), frame->height()};
+	FILE * f;
+
+	f = fopen("screen0.eps", "wb");
+	if (!f) return;
+
+	int options = GL2PS_DRAW_BACKGROUND | GL2PS_OCCLUSION_CULL | GL2PS_BEST_ROOT;
+	int sort    = GL2PS_BSP_SORT;
+	int format  = GL2PS_EPS;
+	int nbcol   = 0;
+
+	fprintf(stderr, "saving to %s\n", "screen0.eps");
+
+	while (state == GL2PS_OVERFLOW) {
+		bufsize += 1024 * 1024;
+		gl2psBeginPage("screen0.eps", "visualizer_3d_3_2", viewport, format, sort, options,
+			GL_RGBA, 0, NULL, nbcol, nbcol, nbcol,
+			bufsize, f, "screen0.eps");
+
+		draw();
+
+		state = gl2psEndPage();
+	}
+
+	fclose(f);
+	fprintf(stderr, "done\n");
 }
 
 void VizMainWindow::fullscreen()
