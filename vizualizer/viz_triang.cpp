@@ -82,6 +82,21 @@ void Viz_Triang::normalize()
 		if (z < z_min) z_min = z;
 	}
 
+	if (x_max == x_min) {
+		x_max = 1;
+		x_min = -1;
+	}
+
+	if (y_max == y_min) {
+		y_max = 1;
+		y_min = -1;
+	}
+
+	if (z_max == z_min) {
+		z_max = 1;
+		z_min = -1;
+	}
+
 	double xx2 = 2.0 / (x_max - x_min);
 	double yy2 = 2.0 / (y_max - y_min);
 	double zz2 = 2.0 / (z_max - z_min);
