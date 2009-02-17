@@ -1,4 +1,4 @@
-/*$Id: viz_main.cpp 363 2005-10-11 14:40:47Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -33,7 +33,8 @@
 
 int main( int argc, char **argv ) {
 	VizMainWindow * win = 
-			new VizMainWindow("Vizualizer 3D v3.1 (c) 2005-2009 Alexey Ozeritsky",
+			new VizMainWindow("Vizualizer 3D v3.2 (+gl2ps) (c) 2005-2009 Alexey Ozeritsky",
 								640, 480, argc, argv);
 	return win->exec(argc, argv);
 }
+

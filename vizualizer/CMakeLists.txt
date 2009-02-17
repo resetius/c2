@@ -25,6 +25,7 @@ add_executable(3Dviz3 viz_main.cpp viz_mainwindow.cpp
 	viz_sphere.cpp viz_utils.c viz_triang.cpp
 	viz_segments.cpp
 	asp_interpolate.c
+	gl2ps.c
 	asp_readdir.cpp
 	tool_config.cpp
 	)
