@@ -138,6 +138,14 @@ void Viz_Triang::load_file()
 	char s[32768];
 
 	fgets (s, _BUF_SZ - 1, f); lineno ++;
+	do
+	{
+		if (*s != '#')
+			break;
+
+		lineno ++;
+	}
+	while (fgets (s, _BUF_SZ - 1, f) );
 
 	do
 	{
