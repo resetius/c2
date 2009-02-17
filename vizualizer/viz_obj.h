@@ -1,6 +1,6 @@
 #ifndef _VIZ_OBJ_H
 #define _VIZ_OBJ_H
-/*$Id: viz_obj.h 1619 2007-02-18 14:02:16Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -121,12 +121,24 @@ protected:
 class Viz_Point
 {
 public:
+	// global 3D coordinates
 	double x;
 	double y;
 	double z;
 
-	Viz_Point (double x1, double y1, double z1) : x (x1), y (y1), z (z1) {}
-	Viz_Point() : x (0), y (0), z (0) {}
+	// function
+	double f;
+
+	// local 2D coordinates (for surface)
+	double u;
+	double v;
+
+	Viz_Point (double x1, double y1, double z1, 
+		double f1 = 0.0, double u1 = 0.0, double v1 = 0.0) 
+		: x (x1), y (y1), z (z1), f(f1), u(u1), v(v1) 
+	{}
+
+	Viz_Point() : x(0), y(0), z(0), f(0), u(0), v(0) {}
 };
 
 class Viz_List: public std::vector < Viz_Obj * >, Viz_Obj

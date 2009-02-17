@@ -44,7 +44,7 @@
 using namespace std;
 
 Viz_Triang::Viz_Triang (const char * file)
-		: fname_ (file)
+		: fname_ (file), tex_w_(0), tex_h_(0)
 {
 	load_file();
 	normalize();
@@ -149,17 +149,21 @@ void Viz_Triang::load_file()
 
 	do
 	{
-		double x, y, z;
+		double x = 0.0, y = 0.0, z = 0.0; // global coordinated
+		double u = 0.0, v = 0.0;          // local coordinates
+		double f = 0.0;
+		int m;
 
 		if (*s == '#')
 			break;
 
-		if (sscanf (s, "%lf%lf%lf", &x, &y, &z) != 3)
+		m = sscanf (s, "%lf%lf%lf%lf%lf%lf", &x, &y, &z, &f, &u, &v);
+		if (m < 2)
 		{
 			goto bad;
 		}
 
-		points_.push_back (Viz_Point (x, y, z));
+		points_.push_back (Viz_Point (x, y, z, f, u, v));
 		lineno ++;
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
@@ -196,7 +200,6 @@ void Viz_Triang::load_file()
 
 		nodes_.push_back (triplet);
 		lineno ++;
-
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
 
@@ -206,7 +209,7 @@ bad:
 	{
 		ostringstream ss;
 		ss << "bad file format, lineno: " << lineno;
-	       	string out = ss.str();
+		string out = ss.str();
 #ifdef _DEBUG
 		throw BadArgument (out.c_str(), __FILE__, __LINE__);
 #else
@@ -275,6 +278,47 @@ void Viz_Triang::draw()
 
 	glPopMatrix();
 	glFlush();
+}
+
+void Viz_Triang::build_tex()
+{
+	int nlines   = 10; 
+	double u_min = 1e20, u_max = -1e20;
+	double v_min = 1e20, v_max = -1e20;
+	double f_min = 1e20, f_max = -1e20;
+
+	//вычисл€ем максимум и минимиум покоординатно
+	for (int i = 0; i < (int) points_.size(); ++i)
+	{
+		double u = points_[i].u;
+		double v = points_[i].v;
+		double f = points_[i].f;
+
+		if (u > u_max) u_max = u;
+		if (u < u_min) u_min = u;
+
+		if (v > v_max) v_max = v;
+		if (v < v_min) v_min = v;
+
+		if (f > f_max) f_max = f;
+		if (f < f_min) f_min = f;
+	}
+
+	if (   u_max == u_min
+		|| v_max == v_min
+		|| f_max == f_min)
+	{
+		//TODO: show status
+		return;
+	}
+
+	tex_w_   = 1024;
+	tex_h_   = 1024;
+	texture_.resize(tex_w_ * tex_h_);
+
+	for (int i = 0; i <= nlines; ++i) {
+		double C = f_min + (double)i * (f_max - f_min) / nlines;
+	}
 }
 
 void Viz_Triang::gen_lists()

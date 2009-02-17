@@ -1,6 +1,6 @@
 #ifndef _VIZ_TRINAG_H
 #define _VIZ_TRINAG_H
-/*$Id: viz_triang.h 1620 2007-02-18 15:24:21Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008, 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -57,9 +57,14 @@ private:
 	std::vector < Viz_Point > points_;     //!<координаты точек
 	std::vector < std::vector < int > > nodes_; //!<номера узлов
 
+	int tex_w_;
+	int tex_h_;
+	std::vector < char > texture_;
+
 	void load_file();
 	void normalize();
 	void gen_lists();
+	void build_tex();
 
 	unsigned int fill_; // filled
 	unsigned int wire_; // wireframe
