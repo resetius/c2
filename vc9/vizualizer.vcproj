@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\vizualizer\gl2ps.c"
+				>
+			</File>
+			<File
 				RelativePath="..\vizualizer\tool_config.cpp"
 				>
 			</File>
@@ -260,6 +264,10 @@
 			</File>
 			<File
 				RelativePath="..\vizualizer\asp_singleton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vizualizer\gl2ps.h"
 				>
 			</File>
 			<File
