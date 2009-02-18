@@ -53,21 +53,24 @@ public:
 	void keyPressEvent1 ( unsigned char key, int x, int y );
 
 private:
+	enum {
+		dIsolines = Viz_Obj::dEnd,
+	};
+
 	std::string fname_;
 	std::vector < Viz_Point > points_;     //!<координаты точек
 	std::vector < std::vector < int > > nodes_; //!<номера узлов
-
-	int tex_w_;
-	int tex_h_;
-	std::vector < char > texture_;
+	std::vector < std::vector < int > > adj_; //!смежные с i узлы
 
 	void load_file();
 	void normalize();
 	void gen_lists();
-	void build_tex();
+	void build_isolines();
 
 	unsigned int fill_; // filled
 	unsigned int wire_; // wireframe
+
+	int mode_;
 };
 
 #endif //_VIZ_TRINAG_H

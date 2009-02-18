@@ -33,9 +33,13 @@
 #define GLUT_BUILDING_LIB
 #endif
 #include <GL/glut.h>
+#include <math.h>
+
 #include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <set>
+
 #include "asp_excs.h"
 #include "asp_interpolate.h"
 
@@ -44,10 +48,11 @@
 using namespace std;
 
 Viz_Triang::Viz_Triang (const char * file)
-		: fname_ (file), tex_w_(0), tex_h_(0)
+		: fname_ (file), mode_(dFill)
 {
 	load_file();
 	normalize();
+	build_isolines();
 	gen_lists();
 
 	hidden_ = false;
@@ -170,6 +175,8 @@ void Viz_Triang::load_file()
 
 	size = (int) points_.size();
 
+	adj_.resize(size);
+
 	fgets (s, _BUF_SZ - 1, f); lineno ++;
 	do
 	{
@@ -200,6 +207,10 @@ void Viz_Triang::load_file()
 
 		nodes_.push_back (triplet);
 		lineno ++;
+
+		adj_[n1].push_back(n2); adj_[n1].push_back(n3);
+		adj_[n2].push_back(n1); adj_[n2].push_back(n3);
+		adj_[n3].push_back(n1); adj_[n3].push_back(n2);
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
 
@@ -268,7 +279,8 @@ void Viz_Triang::draw()
 		}
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		break;
-
+	case dIsolines:
+		break;
 	default:
 		glPopMatrix();
 		glFlush();
@@ -280,9 +292,33 @@ void Viz_Triang::draw()
 	glFlush();
 }
 
-void Viz_Triang::build_tex()
+static int arg_min_f(std::vector < Viz_Point > & points, double C)
 {
-	int nlines   = 10; 
+	int m = 0;
+	for (int i = 0; i < (int)points.size(); ++i) {
+		if (fabs(points[i].f - C) < fabs(points[m].f - C)) {
+			m = i;
+		}
+	}
+	return m;
+}
+
+static int arg_min_f2(std::vector < Viz_Point > & points, std::vector < int > & adj, int root, double C)
+{
+	int m = adj[0];
+	for (int i = 0; i < (int)adj.size(); ++i) {
+		int j = adj[i];
+		if (j == root) continue;
+		if (fabs(points[j].f - C) < fabs(points[m].f - C)) {
+			m = i;
+		}
+	}
+	return m;
+}
+
+void Viz_Triang::build_isolines()
+{
+	int nlines   = 4; 
 	double u_min = 1e20, u_max = -1e20;
 	double v_min = 1e20, v_max = -1e20;
 	double f_min = 1e20, f_max = -1e20;
@@ -312,18 +348,31 @@ void Viz_Triang::build_tex()
 		return;
 	}
 
-	tex_w_   = 1024;
-	tex_h_   = 1024;
-	texture_.resize(tex_w_ * tex_h_);
+	vector < vector < int > > isolines;
+	isolines.reserve(nlines + 1);
 
 	for (int i = 0; i <= nlines; ++i) {
 		double C = f_min + (double)i * (f_max - f_min) / nlines;
+		vector < int > isoline;
+		set < int > ps;
 
 		//1. ищем аргумент(ы) min |F(u, v) - C|
+		int m = arg_min_f(points_, C); isoline.push_back(m); ps.insert(m);
 		//2. для перехода к следующей точки рассматриваем все смежные с (u,v) узлы
-		//3. ищем аргумент min|F(u1, v1) - C|, где (u1, v1) смежный узел с (u, v)
-		//4. если (u1,v1) уже было рассмотрено ранее, то выходим, иначе переходим к (3)
+		while (true) {
+			//3. ищем аргумент min|F(u1, v1) - C|, где (u1, v1) смежный узел с (u, v)
+			m = arg_min_f2(points_, adj_[m], m, C);
+			//4. если (u1,v1) уже было рассмотрено ранее, то выходим, иначе переходим к (3)
+			if (ps.find(m) != ps.end()) {
+				break;
+			}
+			isoline.push_back(m); ps.insert(m);
+		}
+
+		isolines.push_back(isoline);
 	}
+
+	fprintf(stderr, "isolines done\n");
 }
 
 void Viz_Triang::gen_lists()
@@ -355,13 +404,13 @@ void Viz_Triang::gen_lists()
 		Viz_Point & p2 = points_[nodes_[i][1]];
 		Viz_Point & p3 = points_[nodes_[i][2]];
 
-		glColor3d (0.0, 0.0, p1.z);
+		glColor3d (0.0, 0.0, p1.f);
 		glVertex3d (p1.x, p1.y, p1.z);
 
-		glColor3d (0.0, 0.0, p2.z);
+		glColor3d (0.0, 0.0, p2.f);
 		glVertex3d (p2.x, p2.y, p2.z);
 
-		glColor3d (0.0, 0.0, p3.z);
+		glColor3d (0.0, 0.0, p3.f);
 		glVertex3d (p3.x, p3.y, p3.z);
 	}
 	glEnd();
@@ -373,7 +422,7 @@ void Viz_Triang::keyPressEvent1 ( unsigned char key, int x, int y )
 	switch (key)
 	{
 	case 'd':
-		setDrawMode ( (DrawMode) ( ( (int) dMode_ + 1) % 3) );
+		dMode_ = (dMode_ + 1) % 4;
 		glutPostRedisplay();
 		break;
 	default:

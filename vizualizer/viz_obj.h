@@ -77,7 +77,8 @@ public:
 	{
 		dPoints = 0, //точками
 		dLines  = 1, //линиями (wireframe)
-		dFill   = 2  //закрашенные многоугольники
+		dFill   = 2,  //закрашенные многоугольники
+		dEnd    = 3,
 	};
 
 	enum ObjType
