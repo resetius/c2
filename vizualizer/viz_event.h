@@ -1,6 +1,6 @@
 #ifndef _VIZ_EVENT_H
 #define _VIZ_EVENT_H
-/*$Id: viz_event.h 1867 2008-05-23 21:11:01Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -235,7 +235,7 @@ public:
 	void process();
 };
 
-REGISTER_EVENT(SaveScreen, "screen", "save screenshot to ppm format");
+REGISTER_EVENT(SaveScreen, "screen", "save screenshot to eps format");
 
 class LoadTriang: public Viz_Event {
 	std::string file_name_;

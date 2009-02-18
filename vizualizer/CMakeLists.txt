@@ -3,7 +3,6 @@ include(FindMPI)
 include(FindOpenGL)
 include(FindGLUT)
 include(CheckLibraryExists)
-include(FindGLIB2)
 include(UsePkgConfig)
 
 pkgconfig(glib-2.0 GLIB2_INC_DIR GLIB2_LINK_DIR GLIB2_LINK_FLAGS
@@ -22,7 +21,7 @@ set(OGL ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 add_executable(3Dviz3 viz_main.cpp viz_mainwindow.cpp
 	viz_obj.cpp viz_console.cpp viz_event.cpp viz_surface.cpp
-	viz_sphere.cpp viz_utils.c viz_triang.cpp
+	viz_sphere.cpp viz_triang.cpp
 	viz_segments.cpp
 	asp_interpolate.c
 	gl2ps.c

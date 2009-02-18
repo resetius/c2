@@ -97,6 +97,8 @@ public:
 	void processEvents();
 	void clear_objs(int mask);
 	void save();
+	void save_to_postscript(const std::string & filename);
+
 	Viz_List * objects();
 	
 	Rect * getBoundingRect();//вернуть разрешение окна
@@ -111,7 +113,6 @@ private:
 	void reset_view();
 	void fullscreen();
 	void windowed();
-	void save_to_postscript();
 
 	void perspective();
 	void orthogonal();

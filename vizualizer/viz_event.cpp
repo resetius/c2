@@ -1,4 +1,4 @@
-/*$Id: viz_event.cpp 1868 2008-05-24 09:31:55Z manwe $*/
+/*$Id$*/
 
 /* Copyright (c) 2005, 2008 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -33,13 +33,13 @@
 #define GLUT_BUILDING_LIB
 #endif
 #include <GL/glut.h>
+
 #include "viz_event.h"
 #include "viz_mainwindow.h"
 #include "viz_surface.h"
 #include "viz_sphere.h"
 #include "viz_segments.h"
 #include "viz_triang.h"
-#include "viz_utils.h"
 
 using namespace std;
 
@@ -372,7 +372,7 @@ void SaveScreen::process()
 	if (m_win)
 		m_win->draw();
 	glutPostRedisplay();
-	WritePPM(file_name_.c_str());
+	m_win->save_to_postscript(file_name_.c_str());
 }
 
 Batch::Batch(Viz_Obj * console, std::vector < std::string > &args)	

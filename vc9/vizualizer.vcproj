@@ -240,10 +240,6 @@
 				RelativePath="..\vizualizer\viz_triang.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\vizualizer\viz_utils.c"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -308,10 +304,6 @@
 			</File>
 			<File
 				RelativePath="..\vizualizer\viz_triang.h"
-				>
-			</File>
-			<File
-				RelativePath="..\vizualizer\viz_utils.h"
 				>
 			</File>
 		</Filter>

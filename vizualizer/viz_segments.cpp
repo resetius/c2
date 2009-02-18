@@ -303,7 +303,7 @@ Viz_Segments::Viz_Segments(const char * fname)
 	oType_  = Viz_Obj::oGeneral;
 	dMode_  = Viz_Obj::dLines;
 	hidden_ = false;
-	lst     = -1;
+	lst     = (unsigned)-1;
 
 	FILE * f = fopen(fname, "r");
 	if (!f) return;

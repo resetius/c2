@@ -379,7 +379,7 @@ void VizMainWindow::keyPressEvent1 (unsigned char key, int x, int y)
 			}
 			break;
 		case 's':
-			save_to_postscript();
+			save_to_postscript("screen_0.eps");
 			break;
 		case 'q':
 			v_objs->save();
@@ -445,27 +445,31 @@ void VizMainWindow::keyPressEvent2 (int key, int x, int y)
 	}
 }
 
-void VizMainWindow::save_to_postscript()
+void VizMainWindow::save_to_postscript(const std::string & filename)
 {
 	int state = GL2PS_OVERFLOW, bufsize = 0;
 	GLint viewport[4] = {0, 0, frame->width(), frame->height()};
 	FILE * f;
 
-	f = fopen("screen0.eps", "wb");
-	if (!f) return;
+	f = fopen(filename.c_str(), "wb");
+	if (!f) {
+		//TODO: print status
+		return;
+	}
 
 	int options = GL2PS_DRAW_BACKGROUND | GL2PS_OCCLUSION_CULL | GL2PS_BEST_ROOT;
 	int sort    = GL2PS_BSP_SORT;
 	int format  = GL2PS_EPS;
 	int nbcol   = 0;
 
-	fprintf(stderr, "saving to %s\n", "screen0.eps");
+	//TODO: print status
+	fprintf(stderr, "saving to %s\n", filename.c_str());
 
 	while (state == GL2PS_OVERFLOW) {
 		bufsize += 1024 * 1024;
-		gl2psBeginPage("screen0.eps", "visualizer_3d_3_2", viewport, format, sort, options,
+		gl2psBeginPage(filename.c_str(), "visualizer_3d_3_2", viewport, format, sort, options,
 			GL_RGBA, 0, NULL, nbcol, nbcol, nbcol,
-			bufsize, f, "screen0.eps");
+			bufsize, f, filename.c_str());
 
 		draw();
 
@@ -473,6 +477,7 @@ void VizMainWindow::save_to_postscript()
 	}
 
 	fclose(f);
+	//TODO: print status
 	fprintf(stderr, "done\n");
 }
 
