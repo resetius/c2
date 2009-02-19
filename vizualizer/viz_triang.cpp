@@ -282,11 +282,11 @@ void Viz_Triang::draw()
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		break;
 	case dIsolines:
-//		glEnable (GL_POLYGON_OFFSET_FILL);
-//		glPolygonOffset (1, 1);
-//		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-//		glCallList (fill_);
-//		glDisable (GL_POLYGON_OFFSET_FILL);
+		glEnable (GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset (10, 10);
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+		glCallList (fill_);
+		glDisable (GL_POLYGON_OFFSET_FILL);
 
 		glCallList (isoline_);
 		break;
@@ -354,6 +354,16 @@ next1:
 		break;
 next2:
 		;
+	}
+
+	if (dist(r.front(), r.back()) < 1e-15) {
+		for (int k = 0; k < 10 && k < (int)r.size() - 1; ++k) {
+			r.push_back(r[k + 1]);
+		}
+	} else {
+		for (int k = 0; k < 10; ++k) {
+			r.push_back(r.back());
+		}
 	}
 
 	vector < Viz_Point > ret(r.begin(), r.end());
@@ -470,20 +480,40 @@ void Viz_Triang::build_isolines()
 	//}
 	//glEnd();
 
-	GLint max_eval;
-	glGetIntegerv(GL_MAX_EVAL_ORDER, &max_eval);
+	GLint max_eval = 8;
+//	glGetIntegerv(GL_MAX_EVAL_ORDER, &max_eval);
 
 	glEnable(GL_MAP1_VERTEX_3); 
+	GLUnurbs * nobj = gluNewNurbsRenderer();
+
 	for (int i = 0; i < (int)isolines.size(); ++i) {
-		vector < double > ps;
+		vector < float > ps;
+		vector < float > knots;
+
 		for (int k = 0; k < (int)isolines[i].size(); k += 1) {
 			ps.push_back(isolines[i][k].x);
 			ps.push_back(isolines[i][k].y);
 			ps.push_back(isolines[i][k].z);
 		}
 
+		int steps = (int)isolines[i].size() + max_eval;
+		for (int k = 0, l = 0; k < steps; k += 6, l += 1) {
+			knots.push_back(l);
+			knots.push_back(l);
+			knots.push_back(l);
+			knots.push_back(l);
+			knots.push_back(l);
+			knots.push_back(l);
+		}
+
 		glColor3f(isolines[i][0].f, 0.0, 1.0 - isolines[i][0].f);
 
+		gluBeginCurve(nobj);
+		gluNurbsCurve(nobj, steps, &knots[0], 3, 
+			&ps[0], max_eval, GL_MAP1_VERTEX_3);
+		gluEndCurve(nobj);
+
+#if 0
 		int off  = 0;
 		int nps  = ps.size() / 3;
 
@@ -493,8 +523,8 @@ void Viz_Triang::build_isolines()
 
 			glMap1d(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, eval, &ps[off * 3]);
 			glBegin(GL_LINE_STRIP);
-			for (int i = 0; i <= steps; ++i) {
-				glEvalCoord1d((double)i/(double)steps);
+			for (int k = 0; k <= steps; ++k) {
+				glEvalCoord1d((double)k/(double)steps);
 			}
 			glEnd();
 
@@ -502,9 +532,12 @@ void Viz_Triang::build_isolines()
 
 			off += eval - 1;
 		}
+#endif
 	}
 
 	glEndList();
+
+	gluDeleteNurbsRenderer(nobj);
 
 	fprintf(stderr, "isolines done\n");
 }
