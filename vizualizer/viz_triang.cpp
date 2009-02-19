@@ -205,7 +205,7 @@ void Viz_Triang::load_file()
 		triplet[1] = n2;
 		triplet[2] = n3;
 
-		nodes_.push_back (triplet);
+		tri_.push_back (triplet);
 		lineno ++;
 
 		adj_[n1].push_back(n2); adj_[n1].push_back(n3);
@@ -234,7 +234,7 @@ void Viz_Triang::draw()
 	if (hidden_)
 		return;
 
-	int sz = (int) nodes_.size();
+	int sz = (int) tri_.size();
 
 	glPushMatrix();
 
@@ -280,6 +280,13 @@ void Viz_Triang::draw()
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		break;
 	case dIsolines:
+		glEnable (GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset (1, 1);
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+		glCallList (fill_);
+		glDisable (GL_POLYGON_OFFSET_FILL);
+
+		glCallList (isoline_);
 		break;
 	default:
 		glPopMatrix();
@@ -290,30 +297,6 @@ void Viz_Triang::draw()
 
 	glPopMatrix();
 	glFlush();
-}
-
-static int arg_min_f(std::vector < Viz_Point > & points, double C)
-{
-	int m = 0;
-	for (int i = 0; i < (int)points.size(); ++i) {
-		if (fabs(points[i].f - C) < fabs(points[m].f - C)) {
-			m = i;
-		}
-	}
-	return m;
-}
-
-static int arg_min_f2(std::vector < Viz_Point > & points, std::vector < int > & adj, int root, double C)
-{
-	int m = adj[0];
-	for (int i = 0; i < (int)adj.size(); ++i) {
-		int j = adj[i];
-		if (j == root) continue;
-		if (fabs(points[j].f - C) < fabs(points[m].f - C)) {
-			m = i;
-		}
-	}
-	return m;
 }
 
 void Viz_Triang::build_isolines()
@@ -348,36 +331,75 @@ void Viz_Triang::build_isolines()
 		return;
 	}
 
-	vector < vector < int > > isolines;
+	vector < vector < Viz_Point > > isolines;
 	isolines.reserve(nlines + 1);
 
 	for (int i = 0; i <= nlines; ++i) {
 		double C = f_min + (double)i * (f_max - f_min) / nlines;
-		vector < int > isoline;
-		set < int > ps;
+		vector < Viz_Point > isoline;
 
-		//1. ищем аргумент(ы) min |F(u, v) - C|
-		int m = arg_min_f(points_, C); isoline.push_back(m); ps.insert(m);
-		//2. для перехода к следующей точки рассматриваем все смежные с (u,v) узлы
-		while (true) {
-			//3. ищем аргумент min|F(u1, v1) - C|, где (u1, v1) смежный узел с (u, v)
-			m = arg_min_f2(points_, adj_[m], m, C);
-			//4. если (u1,v1) уже было рассмотрено ранее, то выходим, иначе переходим к (3)
-			if (ps.find(m) != ps.end()) {
-				break;
+		for (int t = 0; t < (int)tri_.size(); ++t) {
+			vector < int > &tr = tri_[t];
+			Viz_Point & p0 = points_[tr[0]];
+			Viz_Point & p1 = points_[tr[1]];
+			Viz_Point & p2 = points_[tr[2]];
+
+			vector < Viz_Point > intersect;
+
+			if ((p0.f - C) * (p1.f - C) < 0) {
+				// intersection
+				double k = (p0.f - C);
+				intersect.push_back(Viz_Point(
+							p0.x + k * (p1.x - p0.x),
+							p0.y + k * (p1.y - p0.y),
+							p0.z + k * (p1.x - p0.z), C));
 			}
-			isoline.push_back(m); ps.insert(m);
+
+			if ((p1.f - C) * (p2.f - C) < 0) {
+				// intersection
+				double k = (p1.f - C);
+				intersect.push_back(Viz_Point(
+							p1.x + k * (p2.x - p1.x),
+							p1.y + k * (p2.y - p1.y),
+							p1.z + k * (p2.x - p1.z), C));
+			}
+
+			if ((p2.f - C) * (p0.f - C) < 0) {
+				// intersection
+				double k = (p2.f - C);
+				intersect.push_back(Viz_Point(
+							p2.x + k * (p0.x - p2.x),
+							p2.y + k * (p0.y - p2.y),
+							p2.z + k * (p0.x - p2.z), C));
+			}
+
+			if (intersect.size() == 2) {
+				isoline.insert(isoline.end(), intersect.begin(), intersect.end());
+			}
 		}
 
 		isolines.push_back(isoline);
 	}
+
+	isoline_ = glGenLists (1);
+	glNewList (isoline_, GL_COMPILE);
+
+	glBegin (GL_LINES);
+	for (int i = 0; i <= nlines; ++i) {
+		for (int k = 0; k < (int)isolines[i].size(); ++k) {
+			glColor3f(isolines[i][k].f, 0.0, 0.0);
+			glVertex3f(isolines[i][k].x, isolines[i][k].y, isolines[i][k].z);
+		}
+	}
+	glEnd();
+	glEndList();
 
 	fprintf(stderr, "isolines done\n");
 }
 
 void Viz_Triang::gen_lists()
 {
-	int sz = (int) nodes_.size();
+	int sz = (int) tri_.size();
 	wire_ = glGenLists (1);
 	fill_ = glGenLists (1);
 
@@ -385,9 +407,9 @@ void Viz_Triang::gen_lists()
 	glBegin (GL_TRIANGLES);
 	for (int i = 0; i < sz; ++i)
 	{
-		Viz_Point & p1 = points_[nodes_[i][0]];
-		Viz_Point & p2 = points_[nodes_[i][1]];
-		Viz_Point & p3 = points_[nodes_[i][2]];
+		Viz_Point & p1 = points_[tri_[i][0]];
+		Viz_Point & p2 = points_[tri_[i][1]];
+		Viz_Point & p3 = points_[tri_[i][2]];
 
 		glVertex3d (p1.x, p1.y, p1.z);
 		glVertex3d (p2.x, p2.y, p2.z);
@@ -400,9 +422,9 @@ void Viz_Triang::gen_lists()
 	glBegin (GL_TRIANGLES);
 	for (int i = 0; i < sz; ++i)
 	{
-		Viz_Point & p1 = points_[nodes_[i][0]];
-		Viz_Point & p2 = points_[nodes_[i][1]];
-		Viz_Point & p3 = points_[nodes_[i][2]];
+		Viz_Point & p1 = points_[tri_[i][0]];
+		Viz_Point & p2 = points_[tri_[i][1]];
+		Viz_Point & p3 = points_[tri_[i][2]];
 
 		glColor3d (0.0, 0.0, p1.f);
 		glVertex3d (p1.x, p1.y, p1.z);

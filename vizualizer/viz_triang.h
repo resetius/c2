@@ -59,7 +59,7 @@ private:
 
 	std::string fname_;
 	std::vector < Viz_Point > points_;     //!<координаты точек
-	std::vector < std::vector < int > > nodes_; //!<номера узлов
+	std::vector < std::vector < int > > tri_; //!<номера узлов
 	std::vector < std::vector < int > > adj_; //!смежные с i узлы
 
 	void load_file();
@@ -69,6 +69,7 @@ private:
 
 	unsigned int fill_; // filled
 	unsigned int wire_; // wireframe
+	unsigned int isoline_;
 
 	int mode_;
 };
