@@ -49,6 +49,18 @@
 
 using namespace std;
 
+// Сделать в v3.5 ?
+// 1. все команды объектам посылаются асинхронно, за исключением
+// 2. draw (иначе не будет происходить обновление окна)
+// 3. функция draw вызывается только из MainWindow
+// 4. у каждого объекта есть свой поток.
+// 5. поток объекта создается на этапе старта команды создания объекта 
+//   (инфраструктура Viz_Event)
+// 6. у главного окна есть очедь команд, принимаемых от объектов (glib)
+// 7. у каждого объекта есть очередь команд, принимаемых от MainWindow
+//    и других объектов (glib)
+// 8. на основе этого легко сделать обновление поверхностей по внешним командам
+
 Viz_Triang::Viz_Triang (const char * file)
 		: fname_ (file), mode_(dFill)
 {
@@ -283,7 +295,7 @@ void Viz_Triang::draw()
 		break;
 	case dIsolines:
 		glEnable (GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset (10, 10);
+		glPolygonOffset (20, 20);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		glCallList (fill_);
 		glDisable (GL_POLYGON_OFFSET_FILL);
@@ -485,6 +497,7 @@ void Viz_Triang::build_isolines()
 
 	glEnable(GL_MAP1_VERTEX_3); 
 	GLUnurbs * nobj = gluNewNurbsRenderer();
+	gluNurbsProperty(nobj, GLU_SAMPLING_TOLERANCE, 2);
 
 	for (int i = 0; i < (int)isolines.size(); ++i) {
 		vector < float > ps;
@@ -497,7 +510,8 @@ void Viz_Triang::build_isolines()
 		}
 
 		int steps = (int)isolines[i].size() + max_eval;
-		for (int k = 0, l = 0; k < steps; k += 6, l += 1) {
+		for (int k = 0, l = 0; k < steps; k += 7, l += 1) {
+			knots.push_back(l);
 			knots.push_back(l);
 			knots.push_back(l);
 			knots.push_back(l);
