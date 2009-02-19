@@ -350,12 +350,9 @@ void Viz_Triang::build_isolines()
 				// intersection
 				double k = (C - p0.f) / (p1.f - p0.f);
 				intersect.push_back(Viz_Point(
-							//(p0.x + p1.x) * 0.5,
-							//(p0.y + p1.y) * 0.5,
-							//(p0.z + p1.z) * 0.5,
-							p0.x + k * (p0.x - p1.x),
-							p0.y + k * (p0.y - p1.y),
-							p0.z + k * (p0.z - p1.z), 
+							p0.x + k * (p1.x - p0.x),
+							p0.y + k * (p1.y - p0.y),
+							p0.z + k * (p1.z - p0.z), 
 							C));
 			}
 
@@ -363,12 +360,9 @@ void Viz_Triang::build_isolines()
 				// intersection
 				double k = (C - p1.f) / (p2.f - p1.f);
 				intersect.push_back(Viz_Point(
-							//(p1.x + p2.x) * 0.5,
-							//(p1.y + p2.y) * 0.5,
-							//(p1.z + p2.z) * 0.5,
-							p1.x + k * (p1.x - p2.x),
-							p1.y + k * (p1.y - p2.y),
-							p1.z + k * (p1.z - p2.z), 
+							p1.x + k * (p2.x - p1.x),
+							p1.y + k * (p2.y - p1.y),
+							p1.z + k * (p2.z - p1.z), 
 							C));
 			}
 
@@ -376,12 +370,9 @@ void Viz_Triang::build_isolines()
 				// intersection
 				double k = (C - p2.f) / (p0.f - p2.f);
 				intersect.push_back(Viz_Point(
-							//(p0.x + p2.x) * 0.5,
-							//(p0.y + p2.y) * 0.5,
-							//(p0.z + p2.z) * 0.5,
-							p2.x + k * (p2.x - p0.x),
-							p2.y + k * (p2.y - p0.y),
-							p2.z + k * (p2.z - p0.z), 
+							p2.x + k * (p0.x - p2.x),
+							p2.y + k * (p0.y - p2.y),
+							p2.z + k * (p0.z - p2.z), 
 							C));
 			}
 
@@ -399,7 +390,7 @@ void Viz_Triang::build_isolines()
 	glBegin (GL_LINES);
 	for (int i = 0; i <= nlines; ++i) {
 		for (int k = 0; k < (int)isolines[i].size(); k += 1) {
-			glColor3f(isolines[i][k].f, 0.0, 0.0);
+			glColor3f(isolines[i][k].f, 0.0, 1.0 - isolines[i][k].f);
 			glVertex3f(isolines[i][k].x, isolines[i][k].y, isolines[i][k].z);
 		}
 	}
