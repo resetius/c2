@@ -301,7 +301,7 @@ void Viz_Triang::draw()
 
 void Viz_Triang::build_isolines()
 {
-	int nlines   = 4; 
+	int nlines   = 10; 
 	double u_min = 1e20, u_max = -1e20;
 	double v_min = 1e20, v_max = -1e20;
 	double f_min = 1e20, f_max = -1e20;
@@ -348,29 +348,41 @@ void Viz_Triang::build_isolines()
 
 			if ((p0.f - C) * (p1.f - C) < 0) {
 				// intersection
-				double k = (p0.f - C);
+				double k = (C - p0.f) / (p1.f - p0.f);
 				intersect.push_back(Viz_Point(
-							p0.x + k * (p1.x - p0.x),
-							p0.y + k * (p1.y - p0.y),
-							p0.z + k * (p1.z - p0.z), C));
+							//(p0.x + p1.x) * 0.5,
+							//(p0.y + p1.y) * 0.5,
+							//(p0.z + p1.z) * 0.5,
+							p0.x + k * (p0.x - p1.x),
+							p0.y + k * (p0.y - p1.y),
+							p0.z + k * (p0.z - p1.z), 
+							C));
 			}
 
 			if ((p1.f - C) * (p2.f - C) < 0) {
 				// intersection
-				double k = (p1.f - C);
+				double k = (C - p1.f) / (p2.f - p1.f);
 				intersect.push_back(Viz_Point(
-							p1.x + k * (p2.x - p1.x),
-							p1.y + k * (p2.y - p1.y),
-							p1.z + k * (p2.z - p1.z), C));
+							//(p1.x + p2.x) * 0.5,
+							//(p1.y + p2.y) * 0.5,
+							//(p1.z + p2.z) * 0.5,
+							p1.x + k * (p1.x - p2.x),
+							p1.y + k * (p1.y - p2.y),
+							p1.z + k * (p1.z - p2.z), 
+							C));
 			}
 
 			if ((p2.f - C) * (p0.f - C) < 0) {
 				// intersection
-				double k = (p2.f - C);
+				double k = (C - p2.f) / (p0.f - p2.f);
 				intersect.push_back(Viz_Point(
-							p2.x + k * (p0.x - p2.x),
-							p2.y + k * (p0.y - p2.y),
-							p2.z + k * (p0.z - p2.z), C));
+							//(p0.x + p2.x) * 0.5,
+							//(p0.y + p2.y) * 0.5,
+							//(p0.z + p2.z) * 0.5,
+							p2.x + k * (p2.x - p0.x),
+							p2.y + k * (p2.y - p0.y),
+							p2.z + k * (p2.z - p0.z), 
+							C));
 			}
 
 			if (intersect.size() == 2) {
@@ -386,7 +398,7 @@ void Viz_Triang::build_isolines()
 
 	glBegin (GL_LINES);
 	for (int i = 0; i <= nlines; ++i) {
-		for (int k = 0; k < (int)isolines[i].size(); ++k) {
+		for (int k = 0; k < (int)isolines[i].size(); k += 1) {
 			glColor3f(isolines[i][k].f, 0.0, 0.0);
 			glVertex3f(isolines[i][k].x, isolines[i][k].y, isolines[i][k].z);
 		}
