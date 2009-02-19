@@ -39,6 +39,8 @@
 #include <iostream>
 #include <sstream>
 #include <set>
+#include <list>
+#include <deque>
 
 #include "asp_excs.h"
 #include "asp_interpolate.h"
@@ -280,11 +282,11 @@ void Viz_Triang::draw()
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		break;
 	case dIsolines:
-		glEnable (GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset (1, 1);
-		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-		glCallList (fill_);
-		glDisable (GL_POLYGON_OFFSET_FILL);
+//		glEnable (GL_POLYGON_OFFSET_FILL);
+//		glPolygonOffset (1, 1);
+//		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+//		glCallList (fill_);
+//		glDisable (GL_POLYGON_OFFSET_FILL);
 
 		glCallList (isoline_);
 		break;
@@ -297,6 +299,76 @@ void Viz_Triang::draw()
 
 	glPopMatrix();
 	glFlush();
+}
+
+typedef list < vector < Viz_Point > > segments_t;
+typedef vector < vector < Viz_Point > > isolines_t;
+
+static vector < Viz_Point >
+get_curve(segments_t & seg)
+{
+	deque < Viz_Point > r;
+	segments_t::iterator first = seg.begin();
+	r.push_back((*first)[0]);
+	r.push_back((*first)[1]);
+
+	seg.erase(first);
+
+	// добавляем в конец
+	while (true) {
+		segments_t::iterator it;
+		for (it = seg.begin(); it != seg.end(); ++it)
+		{
+			if (dist(r.back(), (*it)[0]) < 1e-15) {
+				r.push_back((*it)[1]);
+				seg.erase(it);
+				goto next1;
+			} else if (dist(r.back(), (*it)[1]) < 1e-15) {
+				r.push_back((*it)[0]);
+				seg.erase(it);
+				goto next1;
+			}
+		}
+
+		break;
+next1:
+		;
+	}
+
+	// добавляем в начало
+	while (true) {
+		segments_t::iterator it;
+		for (it = seg.begin(); it != seg.end(); ++it)
+		{
+			if (dist(r.front(), (*it)[0]) < 1e-15) {
+				r.push_front((*it)[1]);
+				seg.erase(it);
+				goto next2;
+			} else if (dist(r.front(), (*it)[1]) < 1e-15) {
+				r.push_front((*it)[0]);
+				seg.erase(it);
+				goto next2;
+			}
+		}
+
+		break;
+next2:
+		;
+	}
+
+	vector < Viz_Point > ret(r.begin(), r.end());
+	return ret;
+}
+
+static isolines_t
+sort_segments(segments_t & segments)
+{
+	isolines_t ret;
+	while (!segments.empty()) {
+		vector < Viz_Point > i1 = get_curve(segments);
+		ret.push_back(i1);
+	}
+	return ret;
 }
 
 void Viz_Triang::build_isolines()
@@ -331,12 +403,13 @@ void Viz_Triang::build_isolines()
 		return;
 	}
 
-	vector < vector < Viz_Point > > isolines;
+	isolines_t isolines;
 	isolines.reserve(nlines + 1);
 
 	for (int i = 0; i <= nlines; ++i) {
 		double C = f_min + (double)i * (f_max - f_min) / nlines;
-		vector < Viz_Point > isoline;
+		segments_t segments;
+		isolines_t isoline;
 
 		for (int t = 0; t < (int)tri_.size(); ++t) {
 			vector < int > &tr = tri_[t];
@@ -344,12 +417,12 @@ void Viz_Triang::build_isolines()
 			Viz_Point & p1 = points_[tr[1]];
 			Viz_Point & p2 = points_[tr[2]];
 
-			vector < Viz_Point > intersect;
+			vector < Viz_Point > segment;
 
 			if ((p0.f - C) * (p1.f - C) < 0) {
 				// intersection
 				double k = (C - p0.f) / (p1.f - p0.f);
-				intersect.push_back(Viz_Point(
+				segment.push_back(Viz_Point(
 							p0.x + k * (p1.x - p0.x),
 							p0.y + k * (p1.y - p0.y),
 							p0.z + k * (p1.z - p0.z), 
@@ -359,7 +432,7 @@ void Viz_Triang::build_isolines()
 			if ((p1.f - C) * (p2.f - C) < 0) {
 				// intersection
 				double k = (C - p1.f) / (p2.f - p1.f);
-				intersect.push_back(Viz_Point(
+				segment.push_back(Viz_Point(
 							p1.x + k * (p2.x - p1.x),
 							p1.y + k * (p2.y - p1.y),
 							p1.z + k * (p2.z - p1.z), 
@@ -369,32 +442,68 @@ void Viz_Triang::build_isolines()
 			if ((p2.f - C) * (p0.f - C) < 0) {
 				// intersection
 				double k = (C - p2.f) / (p0.f - p2.f);
-				intersect.push_back(Viz_Point(
+				segment.push_back(Viz_Point(
 							p2.x + k * (p0.x - p2.x),
 							p2.y + k * (p0.y - p2.y),
 							p2.z + k * (p0.z - p2.z), 
 							C));
 			}
 
-			if (intersect.size() == 2) {
-				isoline.insert(isoline.end(), intersect.begin(), intersect.end());
+			if (segment.size() == 2) {
+				segments.push_back(segment);
 			}
 		}
 
-		isolines.push_back(isoline);
+		isoline = sort_segments(segments);
+		isolines.insert(isolines.end(), isoline.begin(), isoline.end());
 	}
 
 	isoline_ = glGenLists (1);
 	glNewList (isoline_, GL_COMPILE);
 
-	glBegin (GL_LINES);
-	for (int i = 0; i <= nlines; ++i) {
+	//glBegin (GL_LINE_STRIP);
+	//for (int i = 0; i < (int)isolines.size(); ++i) {
+	//	for (int k = 0; k < (int)isolines[i].size(); k += 1) {
+	//		glColor3f(isolines[i][k].f, 0.0, 1.0 - isolines[i][k].f);
+	//		glVertex3f(isolines[i][k].x, isolines[i][k].y, isolines[i][k].z);
+	//	}
+	//}
+	//glEnd();
+
+	GLint max_eval;
+	glGetIntegerv(GL_MAX_EVAL_ORDER, &max_eval);
+
+	glEnable(GL_MAP1_VERTEX_3); 
+	for (int i = 0; i < (int)isolines.size(); ++i) {
+		vector < double > ps;
 		for (int k = 0; k < (int)isolines[i].size(); k += 1) {
-			glColor3f(isolines[i][k].f, 0.0, 1.0 - isolines[i][k].f);
-			glVertex3f(isolines[i][k].x, isolines[i][k].y, isolines[i][k].z);
+			ps.push_back(isolines[i][k].x);
+			ps.push_back(isolines[i][k].y);
+			ps.push_back(isolines[i][k].z);
+		}
+
+		glColor3f(isolines[i][0].f, 0.0, 1.0 - isolines[i][0].f);
+
+		int off  = 0;
+		int nps  = ps.size() / 3;
+
+		while (off < nps) {
+			int eval = std::min(nps - off, max_eval);
+			int steps = eval * 10;
+
+			glMap1d(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, eval, &ps[off * 3]);
+			glBegin(GL_LINE_STRIP);
+			for (int i = 0; i <= steps; ++i) {
+				glEvalCoord1d((double)i/(double)steps);
+			}
+			glEnd();
+
+			if (eval == 1) break;
+
+			off += eval - 1;
 		}
 	}
-	glEnd();
+
 	glEndList();
 
 	fprintf(stderr, "isolines done\n");

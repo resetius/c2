@@ -32,6 +32,7 @@
  */
 
 #include <vector>
+#include <math.h>
 
 class Box
 {
@@ -123,9 +124,11 @@ class Viz_Point
 {
 public:
 	// global 3D coordinates
-	double x;
-	double y;
-	double z;
+	double d[3];
+
+	double &x;
+	double &y;
+	double &z;
 
 	// function
 	double f;
@@ -136,11 +139,51 @@ public:
 
 	Viz_Point (double x1, double y1, double z1, 
 		double f1 = 0.0, double u1 = 0.0, double v1 = 0.0) 
-		: x (x1), y (y1), z (z1), f(f1), u(u1), v(v1) 
-	{}
+		:  x(d[0]), y(d[1]), z(d[2]), f(f1), u(u1), v(v1) 
+	{
+		d[0] = x1;
+		d[1] = y1;
+		d[2] = z1;
+	}
 
-	Viz_Point() : x(0), y(0), z(0), f(0), u(0), v(0) {}
+	Viz_Point() : x(d[0]), y(d[1]), z(d[2]), f(0), u(0), v(0) 
+	{
+		d[0] = 0;
+		d[1] = 0;
+		d[2] = 0;
+	}
+
+	Viz_Point(const Viz_Point & p): x(d[0]), y(d[1]), z(d[2])
+	{
+		d[0] = p.x;
+		d[1] = p.y;
+		d[2] = p.z;
+
+		f = p.f;
+		u = p.u;
+		v = p.v;
+	}
+
+	Viz_Point & operator = (const Viz_Point & p)
+	{
+		d[0] = p.x;
+		d[1] = p.y;
+		d[2] = p.z;
+
+		f = p.f;
+		u = p.u;
+		v = p.v;
+
+		return *this;
+	}
 };
+
+inline double dist(const Viz_Point & p1, const Viz_Point & p2)
+{
+	return sqrt((p1.x - p2.x) * (p1.x - p2.x) 
+		+ (p1.y - p2.y) * (p1.y - p2.y) 
+		+ (p1.z - p2.z) * (p1.z - p2.z));
+}
 
 class Viz_List: public std::vector < Viz_Obj * >, Viz_Obj
 {
