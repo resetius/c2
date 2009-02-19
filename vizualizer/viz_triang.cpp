@@ -352,7 +352,7 @@ void Viz_Triang::build_isolines()
 				intersect.push_back(Viz_Point(
 							p0.x + k * (p1.x - p0.x),
 							p0.y + k * (p1.y - p0.y),
-							p0.z + k * (p1.x - p0.z), C));
+							p0.z + k * (p1.z - p0.z), C));
 			}
 
 			if ((p1.f - C) * (p2.f - C) < 0) {
@@ -361,7 +361,7 @@ void Viz_Triang::build_isolines()
 				intersect.push_back(Viz_Point(
 							p1.x + k * (p2.x - p1.x),
 							p1.y + k * (p2.y - p1.y),
-							p1.z + k * (p2.x - p1.z), C));
+							p1.z + k * (p2.z - p1.z), C));
 			}
 
 			if ((p2.f - C) * (p0.f - C) < 0) {
@@ -370,7 +370,7 @@ void Viz_Triang::build_isolines()
 				intersect.push_back(Viz_Point(
 							p2.x + k * (p0.x - p2.x),
 							p2.y + k * (p0.y - p2.y),
-							p2.z + k * (p0.x - p2.z), C));
+							p2.z + k * (p0.z - p2.z), C));
 			}
 
 			if (intersect.size() == 2) {
