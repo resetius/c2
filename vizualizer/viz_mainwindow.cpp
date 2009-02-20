@@ -831,6 +831,7 @@ void VizMainWindow::rotate()
 
 //	glLoadIdentity();
 
+	//rotate
 	if (!flatMode && !projMode)
 	{
 //		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
@@ -859,7 +860,10 @@ void VizMainWindow::rotate()
 		    0.0, 1.0, 0.0);
 	}
 
-	draw();
+	// zoom
+	xaxis = im[0]*0 + im[4]*0 + im[8] *1;
+        yaxis = im[1]*0 + im[5]*0 + im[9] *1;
+        zaxis = im[2]*0 + im[6]*0 + im[10]*1;
 
 	glTranslatef(dzo * xaxis, dzo * yaxis, dzo * zaxis);
 	draw();
