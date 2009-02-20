@@ -331,14 +331,10 @@ void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
 	case 3:
 		if (flatMode || projMode)
 		{
-			//zo *= 1.1;
 			dzo = 1.1;
-			rotate();
-			break;
 		}
 		else
 		{
-			//zo -= 0.2;
 			dzo = -0.2;
 		}
 		rotate();
@@ -346,8 +342,7 @@ void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
 	case 4:
 		if (flatMode || projMode)
 		{
-			//zo /= 1.1;
-			dzo = -1.1;
+			dzo = 1/1.1;
 		}
 		else
 		{
@@ -534,6 +529,7 @@ void VizMainWindow::windowed()
 void VizMainWindow::perspective()
 {
 	projMode = false;
+	zo = 3.0;
 	resize(frame->width(), frame->height());
 	glutPostRedisplay();
 }
@@ -541,6 +537,7 @@ void VizMainWindow::perspective()
 void VizMainWindow::orthogonal()
 {
 	projMode = true;
+	zo = 1.0;
 	resize(frame->width(), frame->height());
 	glutPostRedisplay();
 }
@@ -639,7 +636,7 @@ void VizMainWindow::resize(int width, int height)
 	else
 	{
 		glScalef (zo, zo, 1.0);
-		gluLookAt (x0, y0, 3, x0 / width, y0 / height, z0 / 2.0, 0.0, 1.0, 0.0);
+		gluLookAt (x0, y0, zo, x0 / width, y0 / height, z0 / 2.0, 0.0, 1.0, 0.0);
 	}
 }
 
@@ -841,13 +838,13 @@ void VizMainWindow::rotate()
 	}
 	else if (projMode && !flatMode)
 	{
-		glScalef (zo, zo, 1.0);
-		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
+		//glScalef (zo, zo, 1.0);
+		//gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
 
 		//glRotatef (xa, 1.0, 0.0, 0.0);
 		//glRotatef (ya, 0.0, 1.0, 0.0);
 
-		//glRotatef(angle, xaxis, yaxis, zaxis);
+		glRotatef(angle, xaxis, yaxis, zaxis);
 	}
 	else
 	{
@@ -860,13 +857,19 @@ void VizMainWindow::rotate()
 
 	// zoom
 	xaxis = im[0]*0 + im[4]*0 + im[8] *1;
-        yaxis = im[1]*0 + im[5]*0 + im[9] *1;
+       	yaxis = im[1]*0 + im[5]*0 + im[9] *1;
         zaxis = im[2]*0 + im[6]*0 + im[10]*1;
 
-	glTranslatef(-dzo * xaxis, -dzo * yaxis, -dzo * zaxis);
+	if (!flatMode && !projMode) {
+		glTranslatef(-dzo * xaxis, -dzo * yaxis, -dzo * zaxis);
+		dzo = 0.0;
+	} else {
+		glScalef (dzo, dzo, dzo);
+		dzo = 1.0;
+	}
+
 	draw();
 
-	dzo = 0.0;
 	mx  = 0;
 	my  = 0;
 
