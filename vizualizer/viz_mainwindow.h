@@ -52,6 +52,9 @@ class VizMainWindow: public Viz_Obj {
 	double x0, y0, z0; //точка в которую смотрим
 	double zo;         //зум
 
+	double xaxis, yaxis, zaxis;
+	double angle;
+
 	int old_mouse_x, old_mouse_y; //старые координаты мыши в момент нажатия
 	int old_width, old_height;    //для перехода из fullscreen обратно
 
@@ -69,6 +72,10 @@ class VizMainWindow: public Viz_Obj {
 	bool flatMode;
 	//@}
 	bool projMode;
+
+	double im[16]; // inverse matrix
+	double m[16];  // matrix
+	int viewport[4];
 
 public:
 	~VizMainWindow();
@@ -116,6 +123,7 @@ private:
 
 	void perspective();
 	void orthogonal();
+	void update_im(); //updates inverse matrix
 };
 
 #endif //_VIZ_MAINWINDOW_H

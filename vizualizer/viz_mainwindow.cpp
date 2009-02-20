@@ -43,6 +43,8 @@
 #include <iostream>
 
 #include "asp_excs.h"
+#include "asp_gauss.h"
+
 #include "viz_obj.h"
 #include "viz_mainwindow.h"
 #include "viz_surface.h"
@@ -162,6 +164,11 @@ VizMainWindow::VizMainWindow (const char *name1, int w, int h, int argc, char **
 	old_mouse_x = -1;
 	projMode = false;
 
+	xaxis = 1.0;
+	yaxis = 1.0;
+	zaxis = 0.0;
+	angle = 0.0;
+
 	config();
 }
 
@@ -213,6 +220,17 @@ void VizMainWindow::idle()
 //	glutPostRedisplay();
 }
 
+void VizMainWindow::update_im()
+{
+	glGetDoublev(GL_MODELVIEW_MATRIX, m);
+	inverse_general_matrix_my(im, m, 4);
+}
+
+static double vlen(double x, double y, double z)
+{
+	return sqrt(x * x + y * y + z * z);
+}
+
 void VizMainWindow::mouseMoveEvent (int x, int y)
 {
 	v_objs->mouseMoveEvent (x, y);
@@ -223,8 +241,9 @@ void VizMainWindow::mouseMoveEvent (int x, int y)
 	case 0:
 		if (last_mouse_state == GLUT_DOWN)
 		{
-			xa += mouse_y - old_mouse_y;
-			ya += mouse_x - old_mouse_x;
+			xa = mouse_y - old_mouse_y;
+			ya = mouse_x - old_mouse_x;
+
 			rotate();
 
 			old_mouse_x = mouse_x;
@@ -406,16 +425,16 @@ void VizMainWindow::keyPressEvent2 (int key, int x, int y)
 			switch (key)
 			{
 			case GLUT_KEY_UP:
-				xa += 5;// ya = 0; za = 0;
+				xa = -5;// ya = 0; za = 0;
 				break;
 			case GLUT_KEY_DOWN:
-				xa -= 5;// ya = 0; za = 0;
+				xa = +5;// ya = 0; za = 0;
 				break;
 			case GLUT_KEY_RIGHT:
-				ya += 5;// xa = 0; za = 0;
+				ya = +5;// xa = 0; za = 0;
 				break;
 			case GLUT_KEY_LEFT:
-				ya -= 5;// xa = 0; za = 0;
+				ya = -5;// xa = 0; za = 0;
 				break;
 			}
 		}
@@ -773,21 +792,39 @@ void VizMainWindow::rotate()
 {
 	double w = frame->width();
 	double h = frame->height();
-	glLoadIdentity();
+//	glLoadIdentity();
 	//cout << x0 << ":" << y0 << ":" << z0 << endl;
+
+	double dy = ya;
+	double dx = xa;
+	double dz = 0.0;
+
+	update_im();
+	xaxis = im[0]*dx + im[4]*dy + im[8] *dz;
+	yaxis = im[1]*dx + im[5]*dy + im[9] *dz;
+	zaxis = im[2]*dx + im[6]*dy + im[10]*dz;
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	angle = vlen(dx, dy, dz)/(double)(viewport[2]+1) * 180.0;
+
 
 	if (!flatMode && !projMode)
 	{
-		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-		glRotatef (xa, 1.0, 0.0, 0.0);
-		glRotatef (ya, 0.0, 1.0, 0.0);
+//		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
+		//glRotatef (xa, 1.0, 0.0, 0.0);
+		//glRotatef (ya, 0.0, 1.0, 0.0);
+
+		fprintf(stderr, "rotate on %lf -> %lf, %lf, %lf\n", angle, xaxis, yaxis, zaxis);
+		glRotatef(angle, xaxis, yaxis, zaxis);
 	}
 	else if (projMode && !flatMode)
 	{
 		glScalef (zo, zo, 1.0);
 		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-		glRotatef (xa, 1.0, 0.0, 0.0);
-		glRotatef (ya, 0.0, 1.0, 0.0);
+		//glRotatef (xa, 1.0, 0.0, 0.0);
+		//glRotatef (ya, 0.0, 1.0, 0.0);
+
+		glRotatef(angle, xaxis, yaxis, zaxis);
 	}
 	else
 	{
