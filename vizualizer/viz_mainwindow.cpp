@@ -535,7 +535,6 @@ void VizMainWindow::perspective()
 {
 	projMode = false;
 	resize(frame->width(), frame->height());
-	reset_view();
 	glutPostRedisplay();
 }
 
@@ -543,7 +542,6 @@ void VizMainWindow::orthogonal()
 {
 	projMode = true;
 	resize(frame->width(), frame->height());
-	reset_view();
 	glutPostRedisplay();
 }
 
@@ -610,7 +608,7 @@ void VizMainWindow::reset_view()
 	glutPostRedisplay();
 }
 
-void VizMainWindow::resize (int width, int height)
+void VizMainWindow::resize(int width, int height)
 {
 	frame->resize (width, height);
 
@@ -641,7 +639,7 @@ void VizMainWindow::resize (int width, int height)
 	else
 	{
 		glScalef (zo, zo, 1.0);
-		gluLookAt (x0, y0, 3, x0, y0, z0, 0.0, 1.0, 0.0);
+		gluLookAt (x0, y0, 3, x0 / width, y0 / height, z0 / 2.0, 0.0, 1.0, 0.0);
 	}
 }
 
@@ -818,7 +816,7 @@ void VizMainWindow::rotate()
 	zaxis = im[2]*dx + im[6]*dy + im[10]*dz;
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
-	angle = atan(vlen(dx, dy, dz)/(double)(viewport[2]+1)) / M_PI * 180.0;
+	angle = vlen(dx, dy, dz)/(double)(viewport[2]+1) * 180.0;
 	nr = vlen(xaxis, yaxis, zaxis);
 	if (fabs(nr) < 1e-15) {
 		angle = 0.0;
@@ -865,12 +863,14 @@ void VizMainWindow::rotate()
         yaxis = im[1]*0 + im[5]*0 + im[9] *1;
         zaxis = im[2]*0 + im[6]*0 + im[10]*1;
 
-	glTranslatef(dzo * xaxis, dzo * yaxis, dzo * zaxis);
+	glTranslatef(-dzo * xaxis, -dzo * yaxis, -dzo * zaxis);
 	draw();
 
 	dzo = 0.0;
 	mx  = 0;
 	my  = 0;
+
+	fprintf(stderr, "<- in rotate\n");
 }
 
 void VizMainWindow::clear_objs (int mask)
