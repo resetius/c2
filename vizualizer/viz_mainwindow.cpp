@@ -253,8 +253,9 @@ void VizMainWindow::mouseMoveEvent (int x, int y)
 	case 1:
 		if (last_mouse_state == GLUT_DOWN)
 		{
-			y0 += mouse_y - old_mouse_y;
-			x0 -= mouse_x - old_mouse_x;
+			y0 = mouse_y - old_mouse_y;
+			x0 = mouse_x - old_mouse_x;
+
 			rotate();
 
 			old_mouse_x = mouse_x;
@@ -787,8 +788,6 @@ void VizMainWindow::rotate()
 {
 	double w = frame->width();
 	double h = frame->height();
-//	glLoadIdentity();
-	//cout << x0 << ":" << y0 << ":" << z0 << endl;
 
 	double dy = my;
 	double dx = mx;
@@ -812,26 +811,13 @@ void VizMainWindow::rotate()
 		zaxis /= nr;
 	}
 
-//	glLoadIdentity();
-
 	//rotate
 	if (!flatMode && !projMode)
 	{
-//		gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-		//glRotatef (xa, 1.0, 0.0, 0.0);
-		//glRotatef (ya, 0.0, 1.0, 0.0);
-
-		fprintf(stderr, "rotate on %lf -> %lf, %lf, %lf\n", angle, xaxis, yaxis, zaxis);
 		glRotatef(angle, xaxis, yaxis, zaxis);
 	}
 	else if (projMode && !flatMode)
 	{
-		//glScalef (zo, zo, 1.0);
-		//gluLookAt (0.0, 0.0, zo, x0 / w, y0 / h, z0 / 2.0, 0.0, 1.0, 0.0);
-
-		//glRotatef (xa, 1.0, 0.0, 0.0);
-		//glRotatef (ya, 0.0, 1.0, 0.0);
-
 		glRotatef(angle, xaxis, yaxis, zaxis);
 	}
 	else
@@ -848,20 +834,31 @@ void VizMainWindow::rotate()
        	yaxis = im[1]*0 + im[5]*0 + im[9] *1;
         zaxis = im[2]*0 + im[6]*0 + im[10]*1;
 
+	// move
+	y0 = -y0;
+	dx = im[0]*x0 + im[4]*y0 + im[8] *0;
+	dy = im[1]*x0 + im[5]*y0 + im[9] *0;
+	dz = im[2]*x0 + im[6]*y0 + im[10]*0;
+
+	dx /= 100.0;
+	dy /= 100.0;
+	dz /= 100.0;
+
 	if (!flatMode && !projMode) {
-		glTranslatef(-dzo * xaxis, -dzo * yaxis, -dzo * zaxis);
+		glTranslatef(-dzo * xaxis + dx, -dzo * yaxis + dy, -dzo * zaxis + dz);
 		dzo = 0.0;
 	} else {
 		glScalef (dzo, dzo, dzo);
+		glTranslatef(dx, dy, dz);
 		dzo = 1.0;
 	}
 
 	draw();
 
-	mx  = 0;
-	my  = 0;
-
-	fprintf(stderr, "<- in rotate\n");
+	mx = 0;
+	my = 0;
+	x0 = 0;
+	y0 = 0;
 }
 
 void VizMainWindow::clear_objs (int mask)
