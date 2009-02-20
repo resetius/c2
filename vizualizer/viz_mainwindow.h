@@ -49,8 +49,11 @@ class VizMainWindow: public Viz_Obj {
 	Viz_Event_Queue * v_events;
 
 	double xa, ya, za; //углы обзора
+	double mx, my;
+
 	double x0, y0, z0; //точка в которую смотрим
 	double zo;         //зум
+	double dzo;
 
 	double xaxis, yaxis, zaxis;
 	double angle;
@@ -75,6 +78,8 @@ class VizMainWindow: public Viz_Obj {
 
 	double im[16]; // inverse matrix
 	double m[16];  // matrix
+	double rm[16]; // rotation matrix
+
 	int viewport[4];
 
 public:
@@ -88,6 +93,7 @@ public:
 	void idle();
 	void resize(int width, int height);
 	void rotate();
+	void zoom();
 	
 	void timer(int value); //обработка периодических событий. value - идентификатор события
 	void mouseMoveEvent ( int x, int y );
