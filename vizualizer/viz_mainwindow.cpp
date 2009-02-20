@@ -177,6 +177,9 @@ void VizMainWindow::config()
 	flatMode = (bool) p->value ("flatMode", "visual", 0);
 	int w = p->value ("width",  "visual", 640);
 	int h = p->value ("height", "visual", 480);
+	if (flatMode) {
+		dzo = 1.0;
+	}
 	resize (w, h);
 	p->rewrite();
 }
@@ -341,7 +344,6 @@ void VizMainWindow::mousePressEvent (int button, int state, int x, int y)
 		}
 		else
 		{
-			//zo += 0.1;
 			dzo = 0.2;
 		}
 		rotate();
@@ -358,24 +360,24 @@ void VizMainWindow::keyPressEvent1 (unsigned char key, int x, int y)
 		{
 		case '=':
 		case '+':
-			if (flatMode)
+			if (flatMode || projMode)
 			{
-				zo *= 1.1;
-				rotate();
-				break;
+				dzo = 1.1;
 			}
 			else
 			{
-				zo -= 0.2;
+				dzo = -0.2;
 			}
+			rotate();
+			break;
 		case '-':
-			if (flatMode)
+			if (flatMode || projMode)
 			{
-				zo /= 1.1;
+				dzo = 1/1.1;
 			}
 			else
 			{
-				zo += 0.1;
+				dzo = 0.2;
 			}
 			rotate();
 			break;
@@ -445,16 +447,16 @@ void VizMainWindow::keyPressEvent2 (int key, int x, int y)
 			switch (key)
 			{
 			case GLUT_KEY_UP:
-				y0 -= 5;
+				y0 = -5;
 				break;
 			case GLUT_KEY_DOWN:
-				y0 += 5;
+				y0 = +5;
 				break;
 			case GLUT_KEY_RIGHT:
-				x0 -= 5;
+				x0 = +5;
 				break;
 			case GLUT_KEY_LEFT:
-				x0 += 5;
+				x0 = -5;
 				break;
 			}
 		}
@@ -588,11 +590,13 @@ void VizMainWindow::reset_view()
 
 	if (flatMode || projMode)
 	{
-		zo = 1.0;
+		zo  = 1.0;
+		dzo = 1.0;
 	}
 	else
 	{
-		zo = 3.0;
+		zo  = 3.0;
+		dzo = 0.0;
 	}
 
 	rotate();
@@ -821,14 +825,6 @@ void VizMainWindow::rotate()
 	else if (projMode && !flatMode)
 	{
 		glRotatef(angle, xaxis, yaxis, zaxis);
-	}
-	else
-	{
-		glScalef (zo, zo, 1.0);
-		gluLookAt (
-		    x0 / w, y0 / h, 3,
-		    x0 / w, y0 / h, z0,
-		    0.0, 1.0, 0.0);
 	}
 
 	// zoom
