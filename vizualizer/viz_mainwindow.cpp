@@ -524,7 +524,8 @@ void VizMainWindow::windowed()
 void VizMainWindow::perspective()
 {
 	projMode = false;
-	zo = 3.0;
+	zo  = 3.0;
+	dzo = 0.0;
 	resize(frame->width(), frame->height());
 	glutPostRedisplay();
 }
@@ -532,7 +533,8 @@ void VizMainWindow::perspective()
 void VizMainWindow::orthogonal()
 {
 	projMode = true;
-	zo = 1.0;
+	zo  = 1.0;
+	dzo = 1.0;
 	resize(frame->width(), frame->height());
 	glutPostRedisplay();
 }
