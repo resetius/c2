@@ -20,5 +20,4 @@ set(EXECUTABLE_OUTPUT_PATH "./bin")
 
 add_subdirectory(filters)
 add_subdirectory(fractal)
-add_subdirectory(vizualizer)
 
