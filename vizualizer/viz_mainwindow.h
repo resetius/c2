@@ -48,7 +48,6 @@ class VizMainWindow: public Viz_Obj {
 	Viz_Console     * console;
 	Viz_Event_Queue * v_events;
 
-	double xa, ya, za; //углы обзора
 	double mx, my;
 
 	double x0, y0, z0; //точка в которую смотрим
@@ -78,7 +77,6 @@ class VizMainWindow: public Viz_Obj {
 
 	double im[16]; // inverse matrix
 	double m[16];  // matrix
-	double rm[16]; // rotation matrix
 
 	int viewport[4];
 

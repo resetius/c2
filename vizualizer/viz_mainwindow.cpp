@@ -169,9 +169,6 @@ VizMainWindow::VizMainWindow (const char *name1, int w, int h, int argc, char **
 	zaxis = 0.0;
 	angle = 0.0;
 
-	memset(rm, 0.0, 16 * sizeof(double));
-	rm[0] = rm[5] = rm[10] = rm[15] = 1.0;
-
 	config();
 }
 
@@ -246,9 +243,6 @@ void VizMainWindow::mouseMoveEvent (int x, int y)
 		{
 			mx = mouse_y - old_mouse_y;
 			my = mouse_x - old_mouse_x;
-
-			xa += mx;
-			ya += my;
 
 			rotate();
 
@@ -432,16 +426,16 @@ void VizMainWindow::keyPressEvent2 (int key, int x, int y)
 			switch (key)
 			{
 			case GLUT_KEY_UP:
-				xa = -5;// ya = 0; za = 0;
+				mx = -5;// ya = 0; za = 0;
 				break;
 			case GLUT_KEY_DOWN:
-				xa = +5;// ya = 0; za = 0;
+				mx = +5;// ya = 0; za = 0;
 				break;
 			case GLUT_KEY_RIGHT:
-				ya = +5;// xa = 0; za = 0;
+				my = +5;// xa = 0; za = 0;
 				break;
 			case GLUT_KEY_LEFT:
-				ya = -5;// xa = 0; za = 0;
+				my = -5;// xa = 0; za = 0;
 				break;
 			}
 		}
@@ -585,9 +579,6 @@ void VizMainWindow::optionsMenu (int i)
 
 void VizMainWindow::reset_view()
 {
-	xa = 0.0;
-	ya = 0.0;
-	za = 0.0;
 	x0 = 0.0;
 	y0 = 0.0;
 	z0 = 0.0;
@@ -721,9 +712,6 @@ void VizMainWindow::initGL (int argc, char **argv)
 
 int VizMainWindow::exec (int argc, char **argv)
 {
-	xa = 0.0;
-	ya = 0.0;
-	za = 0.0;
 	x0 = 0.0;
 	y0 = 0.0;
 	z0 = 0.0;
