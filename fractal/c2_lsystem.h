@@ -37,6 +37,8 @@
 #include <list>
 #include <iostream>
 
+typedef unsigned int uint;
+
 struct Group
 {
 	bool error;

@@ -33,6 +33,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <vector>
+#include <stdlib.h>
 
 #include "c2_koch.h"
 
