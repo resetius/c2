@@ -174,7 +174,7 @@ void julia2(int s, double c1, double c2)
 	//part1: fixed point
 	cmpl w1 = std::sqrt(1.0 - 4.0 * c);
 	cmpl z1 = 0.5 * (1.0 + w1);
-	cmpl z2 = 0.5 * (1.0 + w1);
+	cmpl z2 = 0.5 * (1.0 - w1);
 	cmpl z  = (std::abs(z1) > std::abs(z2)) ? z1 : z2;
 
 	//part2: iterations
