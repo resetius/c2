@@ -28,6 +28,9 @@ target_link_libraries(ifs fractal fl gd)
 add_executable(mandelbrot c2_mandelbrot.cpp)
 target_link_libraries(mandelbrot gd )
 
+add_executable(mandelbulb c2_mandelbulb.cpp)
+target_link_libraries(mandelbulb gd )
+
 add_executable(julia c2_julia.cpp)
 target_link_libraries(julia gd )
 
@@ -38,5 +41,6 @@ add_executable(fbm_hcalc c2_fbm_hcalc)
 target_link_libraries(fbm_hcalc m)
 
 set_target_properties(mandelbrot PROPERTIES  LINK_FLAGS "-fopenmp")
+set_target_properties(mandelbulb PROPERTIES  LINK_FLAGS "-fopenmp")
 set_target_properties(julia PROPERTIES  LINK_FLAGS "-fopenmp")
 
