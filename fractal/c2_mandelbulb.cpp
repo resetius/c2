@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <bitset>
 #include <vector>
 #include <complex>
 
@@ -24,20 +25,22 @@ float ipow(float a, int p)
 
 int do_all(int l, int w, int h, int order)
 {
-	vector < bool > mask(l * w * h);
+	vector < bool > mask((long)l * (long)w * (long)h);
+	float s1 = -2;
+	float s2 =  2;
 
-	float xx = (float)l / 4.0;
-	float yy = (float)w / 4.0;
-	float zz = (float)h / 4.0;
+	float xx = (float)l / (s2 - s1);
+	float yy = (float)w / (s2 - s1);
+	float zz = (float)h / (s2 - s1);
 
 #pragma omp parallel for
 	for (int i = 0; i < l; ++i) {
-		float c1 = i / xx - 2.0;
+		float c1 = i / xx + s1;
 		for (int j = 0; j < w; ++j) {
-			float c2 = j / yy - 2.0;
+			float c2 = j / yy + s1;
 			for (int k = 0; k < h; ++k) {
-				float c3 = k / zz - 2.0; 
-				int offset = i * w * h + j * h + k;
+				float c3 = k / zz + s1; 
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
 
 				float z1 = 0, z2 = 0, z3 = 0;
 				for (int iter = 0; iter < 256; ++iter)
@@ -88,8 +91,9 @@ int do_all(int l, int w, int h, int order)
 
 int main(int argc, char ** argv)
 {
-	int l, w, h;
+	int l, w, h, order;
 	l = w = h = atoi(argv[1]);
-	do_all(l, w, h, 8);
+	order = atoi(argv[2]);
+	do_all(l, w, h, order);
 }
 
