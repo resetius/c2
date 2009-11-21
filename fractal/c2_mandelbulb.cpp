@@ -11,6 +11,18 @@ using namespace std;
 typedef complex < float >   cmpl;
 typedef vector < char > volume_t;
 
+struct Point
+{
+	short x;
+	short y;
+	short z;
+
+	Point(short i, short j, short k): x(i), y(j), z(k) {}
+	Point(): x(0), y(0), z(0) {}
+};
+
+typedef vector < Point > boundary_t;
+
 #ifndef WIN32
 #include <gd.h>
 void draw(volume_t & mask) {
@@ -18,7 +30,7 @@ void draw(volume_t & mask) {
 	for (int i = 0; i < l; ++i) {
 		for (int j = 0; j < w; ++j) {
 			for (int k = 0; k < h; ++k) {
-				int offset = i * w * h + j * h + k;
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
 				gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
 				if (mask[offset]) {
 					int color = ((double)k / h) * 256.;
@@ -33,6 +45,24 @@ void draw(volume_t & mask) {
 	fclose(f);
 	gdImageDestroy(im);
 }
+
+/*
+void draw_bnd(boundary_t & bnd) {
+	gdImagePtr im = gdImageCreateTrueColor(w, h);
+	for (boundary_t::iterator it = bnd.begin(); it < bnd.end(); ++it)
+		long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+		gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
+		int color = ((double)k / h) * 256.;
+		gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
+	}
+
+	FILE * f = fopen("mandelbulb.png", "wb");
+	gdImagePng(im, f);
+	fclose(f);
+	gdImageDestroy(im);
+}
+*/
+
 #endif
 
 float ipow(float a, int p)
@@ -45,18 +75,6 @@ float ipow(float a, int p)
 	}
 	return r;
 }
-
-struct Point
-{
-	short x;
-	short y;
-	short z;
-
-	Point(short i, short j, short k): x(i), y(j), z(k) {}
-	Point(): x(0), y(0), z(0) {}
-};
-
-typedef vector < Point > boundary_t;
 
 void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
 {
@@ -124,14 +142,74 @@ void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
 	}
 }
 
-void build_boundary(boundary_t & bnd, volume_t & vol)
+bool build_boundary_(boundary_t & answer, boundary_t & bnd, volume_t & vol, int l, int w, int h)
 {
+	boundary_t new_bnd;
+	new_bnd.reserve(bnd.size());
+	back_insert_iterator < boundary_t > insert = std::back_inserter(new_bnd);
+	back_insert_iterator < boundary_t > answ   = std::back_inserter(answer);
+	bool updated = false;
+
+	for (boundary_t::iterator it = bnd.begin(); it != bnd.end(); ++it)
+	{
+		int x = it->x;
+		int y = it->y;
+		int z = it->z;
+		long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
+		if (vol[offset] == 2) {
+			// already on the surface set
+			continue;
+		}
+
+		for (int i = -1; i <= 1; ++i) {
+			for (int j = -1; j <= 1; ++j) {
+				for (int k = -1; k <= 1; ++k) {
+					int x = i + it->x;
+					int y = j + it->y;
+					int z = k + it->z;
+					if (!(0 <= x && x < l)) {
+						continue;
+					}
+					if (!(0 <= y && y < w)) {
+						continue;
+					}
+					if (!(0 <= z && z < h)) {
+						continue;
+					}
+					long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
+
+					if (vol[offset] < 0) {
+						continue;
+					}
+
+					if (vol[offset] == 1) {
+						vol[offset] = 2;
+						*answ++     = Point(x, y, z);
+					} else {
+						vol[offset] = -1;
+						*insert++   = Point(x, y, z);
+						updated     = true;
+					}
+				}
+			}
+		}
+	}
+	new_bnd.swap(bnd);
+	return updated;
+}
+
+void build_boundary(boundary_t & answer, boundary_t & bnd, volume_t & vol, int l, int w, int h)
+{
+	while (build_boundary_(answer, bnd, vol, l, w, h))
+	{
+	}
 }
 
 void do_all(int l, int w, int h, int order)
 {
 	volume_t mask(l * w * h);
 	boundary_t bnd;
+	boundary_t answer;
 
 	float s1 = -2.0f;
 	float s2 =  2.0f;
@@ -173,8 +251,17 @@ void do_all(int l, int w, int h, int order)
 		}
 	}
 
+	fprintf(stderr, "init bnd\n");
 	init_boundary(bnd, mask, l, w, h);
-	build_boundary(bnd, mask);
+	fprintf(stderr, "build bnd\n");
+	build_boundary(answer, bnd, mask, l, w, h);
+
+	fprintf(stderr, "draw\n");
+#ifndef WIN32
+	draw(mask);
+#endif
+
+	fprintf(stderr, "ok\n");
 }
 
 int main(int argc, char ** argv)
