@@ -25,14 +25,14 @@ typedef vector < Point > boundary_t;
 
 #ifndef WIN32
 #include <gd.h>
-void draw(volume_t & mask) {
+void draw(volume_t & mask, int l, int w, int h) {
 	gdImagePtr im = gdImageCreateTrueColor(w, h);
+	gdImageFill(im, 0, 0, gdImageColorExact(im, 255, 255, 255));
 	for (int i = 0; i < l; ++i) {
 		for (int j = 0; j < w; ++j) {
 			for (int k = 0; k < h; ++k) {
 				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
-				gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
-				if (mask[offset]) {
+				if (mask[offset] > 0) {
 					int color = ((double)k / h) * 256.;
 					gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
 					break;
@@ -46,14 +46,21 @@ void draw(volume_t & mask) {
 	gdImageDestroy(im);
 }
 
-/*
-void draw_bnd(boundary_t & bnd) {
+
+void draw_bnd(boundary_t & bnd, int l, int w, int h) {
 	gdImagePtr im = gdImageCreateTrueColor(w, h);
-	for (boundary_t::iterator it = bnd.begin(); it < bnd.end(); ++it)
+	gdImageFill(im, 0, 0, gdImageColorExact(im, 255, 255, 255));
+	for (boundary_t::iterator it = bnd.begin(); it < bnd.end(); ++it) {
+		int i = it->x;
+		int j = it->y;
+		int k = it->z;
+
 		long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
-		gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
+		int blue  =  gdImageBlue(im, gdImageGetPixel(im, i, j));
 		int color = ((double)k / h) * 256.;
-		gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
+		if (color < blue) {
+			gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
+		}
 	}
 
 	FILE * f = fopen("mandelbulb.png", "wb");
@@ -61,7 +68,7 @@ void draw_bnd(boundary_t & bnd) {
 	fclose(f);
 	gdImageDestroy(im);
 }
-*/
+
 
 #endif
 
@@ -178,7 +185,7 @@ bool build_boundary_(boundary_t & answer, boundary_t & bnd, volume_t & vol, int 
 					}
 					long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
 
-					if (vol[offset] < 0) {
+					if (vol[offset] < 0 || vol[offset] == 2) {
 						continue;
 					}
 
@@ -256,9 +263,10 @@ void do_all(int l, int w, int h, int order)
 	fprintf(stderr, "build bnd\n");
 	build_boundary(answer, bnd, mask, l, w, h);
 
-	fprintf(stderr, "draw\n");
 #ifndef WIN32
-	draw(mask);
+	fprintf(stderr, "draw\n");
+	//draw(mask, l, w, h);
+	draw_bnd(answer, l, w, h);
 #endif
 
 	fprintf(stderr, "ok\n");

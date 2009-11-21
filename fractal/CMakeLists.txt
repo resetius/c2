@@ -11,7 +11,7 @@ set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cp
 if(WIN32)
 set(GD_LIB "")
 else(WIN32)
-set(GDLIB "gd")
+set(GD_LIB "gd")
 endif(WIN32)
 
 add_flex_files(source c2_lsystem_scanner.l)
