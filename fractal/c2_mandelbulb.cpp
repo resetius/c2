@@ -6,11 +6,34 @@
 #include <vector>
 #include <complex>
 
-#include <gd.h>
-
 using namespace std;
 
-typedef complex < float > cmpl;
+typedef complex < float >   cmpl;
+typedef vector < char > volume_t;
+
+#ifndef WIN32
+#include <gd.h>
+void draw(volume_t & mask) {
+	gdImagePtr im = gdImageCreateTrueColor(w, h);
+	for (int i = 0; i < l; ++i) {
+		for (int j = 0; j < w; ++j) {
+			for (int k = 0; k < h; ++k) {
+				int offset = i * w * h + j * h + k;
+				gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
+				if (mask[offset]) {
+					int color = ((double)k / h) * 256.;
+					gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
+					break;
+				}
+			}
+		}
+	}
+	FILE * f = fopen("mandelbulb.png", "wb");
+	gdImagePng(im, f);
+	fclose(f);
+	gdImageDestroy(im);
+}
+#endif
 
 float ipow(float a, int p)
 {
@@ -23,11 +46,95 @@ float ipow(float a, int p)
 	return r;
 }
 
-int do_all(int l, int w, int h, int order)
+struct Point
 {
-	vector < bool > mask((long)l * (long)w * (long)h);
-	float s1 = -2;
-	float s2 =  2;
+	short x;
+	short y;
+	short z;
+
+	Point(short i, short j, short k): x(i), y(j), z(k) {}
+	Point(): x(0), y(0), z(0) {}
+};
+
+typedef vector < Point > boundary_t;
+
+void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
+{
+	bnd.reserve(6 * w * h);
+	back_insert_iterator < boundary_t > it = std::back_inserter(bnd);
+
+	for (int i = 0; i < 1; ++i) {
+		for (int j = 1; j < w - 1; ++j) {
+			for (int k = 1; k < h - 1; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+
+	for (int i = l - 1; i < l; ++i) {
+		for (int j = 1; j < w - 1; ++j) {
+			for (int k = 1; k < h - 1; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+
+	for (int i = 1; i < l - 1; ++i) {
+		for (int j = 0; j < 1; ++j) {
+			for (int k = 1; k < h - 1; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+
+	for (int i = 1; i < l - 1; ++i) {
+		for (int j = w - 1; j < w; ++j) {
+			for (int k = 1; k < h - 1; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+
+	for (int i = 1; i < l - 1; ++i) {
+		for (int j = 1; j < w - 1; ++j) {
+			for (int k = 0; k < 1; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+
+	for (int i = 1; i < l - 1; ++i) {
+		for (int j = 1; j < w - 1; ++j) {
+			for (int k = h - 1; k < h; ++k) {
+				long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+				vol[offset] = -1;
+				*it++ = Point(i, j, k);
+			}
+		}
+	}
+}
+
+void build_boundary(boundary_t & bnd, volume_t & vol)
+{
+}
+
+void do_all(int l, int w, int h, int order)
+{
+	volume_t mask(l * w * h);
+	boundary_t bnd;
+
+	float s1 = -2.0f;
+	float s2 =  2.0f;
 
 	float xx = (float)l / (s2 - s1);
 	float yy = (float)w / (s2 - s1);
@@ -60,40 +167,30 @@ int do_all(int l, int w, int h, int order)
 				}
 
 				if (sqrtf(z1*z1+z2*z2+z3*z3) < 2) {
-//					printf("%d ", k);
-					mask[offset] = true;
-				} 
-			}
-//			printf("\n");
-		}
-	}
-
-	gdImagePtr im = gdImageCreateTrueColor(w, h);
-	for (int i = 0; i < l; ++i) {
-		for (int j = 0; j < w; ++j) {
-			for (int k = 0; k < h; ++k) {
-				int offset = i * w * h + j * h + k;
-				gdImageSetPixel(im, i, j, gdImageColorExact(im, 255, 255, 255));
-				if (mask[offset]) {
-					int color = ((double)k / h) * 256.;
-	//				printf("%d ", k);
-					gdImageSetPixel(im, i, j, gdImageColorExact(im, 0, 0, color));
-					break;
+					mask[offset] = 1;
 				}
 			}
 		}
 	}
-	FILE * f = fopen("mandelbulb.png", "wb");
-	gdImagePng(im, f);
-	fclose(f);
-	gdImageDestroy(im);
+
+	init_boundary(bnd, mask, l, w, h);
+	build_boundary(bnd, mask);
 }
 
 int main(int argc, char ** argv)
 {
 	int l, w, h, order;
-	l = w = h = atoi(argv[1]);
-	order = atoi(argv[2]);
+	if (argc > 1) {
+		l = w = h = atoi(argv[1]);
+	} else {
+		l = w = h = 64;
+	}
+
+	if (argc > 2) {
+		order = atoi(argv[2]);
+	} else {
+		order = 8;
+	}
 	do_all(l, w, h, order);
 }
 
