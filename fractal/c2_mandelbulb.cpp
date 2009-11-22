@@ -4,6 +4,7 @@
 
 #include <bitset>
 #include <vector>
+#include <map>
 #include <complex>
 
 using namespace std;
@@ -21,7 +22,19 @@ struct Point
 	Point(): x(0), y(0), z(0) {}
 };
 
+struct Triangle
+{
+	int p1;
+	int p2;
+	int p3;
+
+	Triangle(int i, int j, int k): p1(i), p2(j), p3(k) {}
+	Triangle(): p1(0), p2(0), p3(0) {}
+};
+
 typedef vector < Point > boundary_t;
+typedef map < int, int > offset2bnd_t;
+typedef vector < Triangle > triangles_t;
 
 #ifndef WIN32
 #include <gd.h>
@@ -149,7 +162,11 @@ void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
 	}
 }
 
-bool build_boundary_(boundary_t & answer, boundary_t & bnd, volume_t & vol, int l, int w, int h)
+bool build_boundary_(boundary_t & answer, 
+					 offset2bnd_t & offset2bnd,
+					 boundary_t & bnd, 
+					 volume_t & vol, 
+					 int l, int w, int h)
 {
 	boundary_t new_bnd;
 	new_bnd.reserve(bnd.size());
@@ -191,6 +208,7 @@ bool build_boundary_(boundary_t & answer, boundary_t & bnd, volume_t & vol, int 
 
 					if (vol[offset] == 1) {
 						vol[offset] = 2;
+						offset2bnd[offset] = (int)answer.size();
 						*answ++     = Point(x, y, z);
 					} else {
 						vol[offset] = -1;
@@ -205,11 +223,133 @@ bool build_boundary_(boundary_t & answer, boundary_t & bnd, volume_t & vol, int 
 	return updated;
 }
 
-void build_boundary(boundary_t & answer, boundary_t & bnd, volume_t & vol, int l, int w, int h)
+void build_boundary(boundary_t & answer, 
+					offset2bnd_t & offset2bnd,
+					boundary_t & bnd, 
+					volume_t & vol, 
+					int l, int w, int h)
 {
-	while (build_boundary_(answer, bnd, vol, l, w, h))
+	while (build_boundary_(answer, offset2bnd, bnd, vol, l, w, h))
 	{
 	}
+}
+
+void build_triangulation(triangles_t & tri,
+						 boundary_t & bnd,
+						 offset2bnd_t & offset2bnd,
+						 volume_t & vol, int l, int w, int h)
+{
+	int diff1[][3] = {
+		// 6
+		{ 1,  0,  0},
+		{-1,  0,  0},
+		{ 0,  1,  0},
+		{ 0, -1,  0},
+		{ 0,  0,  1},
+		{ 0,  0, -1},
+
+		// 12
+		{ 0,  1,  1},
+		{ 0,  1, -1},
+		{ 0, -1,  1},
+		{ 0, -1, -1},
+
+		{ 1,  0,  1},
+		{ 1,  0, -1},
+		{-1,  0,  1},
+		{-1,  0, -1},
+
+		{ 1,  1,  0},
+		{ 1, -1,  0},
+		{-1,  1,  0},
+		{-1, -1,  0},
+
+		// 8
+		{ 1,  1,  1},
+		{ 1,  1, -1},
+		{ 1, -1,  1},
+		{ 1, -1, -1},
+		{-1,  1,  1},
+		{-1,  1, -1},
+		{-1, -1,  1},
+		{-1, -1, -1},
+	};
+	int diff1_size = 6 + 12 + 8;
+
+	for (int p1 = 0; p1 < (int)bnd.size(); ++p1)
+	{
+		int p2 = -1;
+		int p3 = -1;
+		int q1, q2;
+		for (q1 = 0; q1 < diff1_size; ++q1) {
+			int x = bnd[p1].x + diff1[q1][0];
+			int y = bnd[p1].y + diff1[q1][1];
+			int z = bnd[p1].z + diff1[q1][2];
+			long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
+
+			if (vol[offset] == 2) 
+			{
+				p2 = offset2bnd[offset];
+				break;
+			} else {
+				// not a boundary
+			}
+		}
+
+		if (p2 < 0) {
+			continue;
+		}
+
+		for (q2 = 0; q2 < diff1_size; ++q2) {
+			int x_off = diff1[q1][0] + diff1[q2][0];
+			int y_off = diff1[q1][1] + diff1[q2][1];
+			int z_off = diff1[q1][2] + diff1[q2][2];
+
+			if (abs(x_off) > 1 || abs(y_off) > 1 || abs(z_off) > 1)
+			{
+				// за пределами нашего куба
+				continue;
+			}
+
+			if (x_off == 0 && y_off == 0 && z_off == 0) {
+				// центр
+				continue;
+			}
+
+			int x = bnd[p1].x + x_off;
+			int y = bnd[p1].y + y_off;
+			int z = bnd[p1].z + z_off;
+			long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
+
+			if (vol[offset] == 2) {
+				p3 = offset2bnd[offset];
+				break;
+			}
+		}
+
+		if (p3 < 0) {
+			continue;
+		}
+
+		tri.push_back(Triangle(p1, p2, p3));
+	}
+}
+
+void print_triangulation(triangles_t & tri,
+						 boundary_t & bnd)
+{
+	FILE * f = fopen("output.txt", "w");
+	fprintf(f, "# xxx\n");
+	for (boundary_t::iterator it = bnd.begin(); it < bnd.end(); ++it)
+	{
+		fprintf(f, "%d %d %d\n", it->x, it->y, it->z);
+	}
+	fprintf(f, "# xxx\n");
+	for (triangles_t::iterator it = tri.begin(); it < tri.end(); ++it)
+	{
+		fprintf(f, "%d %d %d\n", it->p1, it->p2, it->p3);
+	}
+	fclose(f);
 }
 
 void do_all(int l, int w, int h, int order)
@@ -217,6 +357,8 @@ void do_all(int l, int w, int h, int order)
 	volume_t mask(l * w * h);
 	boundary_t bnd;
 	boundary_t answer;
+	offset2bnd_t offset2bnd;
+	triangles_t tri;
 
 	float s1 = -2.0f;
 	float s2 =  2.0f;
@@ -261,7 +403,9 @@ void do_all(int l, int w, int h, int order)
 	fprintf(stderr, "init bnd\n");
 	init_boundary(bnd, mask, l, w, h);
 	fprintf(stderr, "build bnd\n");
-	build_boundary(answer, bnd, mask, l, w, h);
+	build_boundary(answer, offset2bnd, bnd, mask, l, w, h);
+	build_triangulation(tri, answer, offset2bnd, mask, l, w, h);
+	print_triangulation(tri, answer);
 
 #ifndef WIN32
 	fprintf(stderr, "draw\n");
