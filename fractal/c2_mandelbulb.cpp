@@ -33,8 +33,17 @@ struct Triangle
 };
 
 typedef vector < Point > boundary_t;
+typedef vector < Point > points_t;
 typedef map < int, int > offset2bnd_t;
 typedef vector < Triangle > triangles_t;
+typedef map < int, triangles_t > point2triangles_t;
+
+struct Mesh
+{
+	points_t points;
+	triangles_t triangles;
+	point2triangles_t point2triangles;
+};
 
 #ifndef WIN32
 #include <gd.h>
@@ -94,6 +103,12 @@ float ipow(float a, int p)
 		r *= a;
 	}
 	return r;
+}
+
+void init_mesh(Mesh & mesh, int l, int w, int h)
+{
+	// триангул€ци€ куба
+	mesh.points.reserve(6 * w * h);
 }
 
 void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
@@ -174,6 +189,17 @@ bool build_boundary_(boundary_t & answer,
 	back_insert_iterator < boundary_t > answ   = std::back_inserter(answer);
 	bool updated = false;
 
+	int diff1[][3] = {
+		// 6
+		{ 1,  0,  0},
+		{-1,  0,  0},
+		{ 0,  1,  0},
+		{ 0, -1,  0},
+		{ 0,  0,  1},
+		{ 0,  0, -1},
+	};
+	int diff1_size = 6;
+
 	for (boundary_t::iterator it = bnd.begin(); it != bnd.end(); ++it)
 	{
 		int x = it->x;
@@ -185,37 +211,34 @@ bool build_boundary_(boundary_t & answer,
 			continue;
 		}
 
-		for (int i = -1; i <= 1; ++i) {
-			for (int j = -1; j <= 1; ++j) {
-				for (int k = -1; k <= 1; ++k) {
-					int x = i + it->x;
-					int y = j + it->y;
-					int z = k + it->z;
-					if (!(0 <= x && x < l)) {
-						continue;
-					}
-					if (!(0 <= y && y < w)) {
-						continue;
-					}
-					if (!(0 <= z && z < h)) {
-						continue;
-					}
-					long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
+		for (int q1 = 0; q1 < diff1_size; ++q1) {
+			int x = it->x + diff1[q1][0];
+			int y = it->y + diff1[q1][1];
+			int z = it->z + diff1[q1][2];
 
-					if (vol[offset] < 0 || vol[offset] == 2) {
-						continue;
-					}
+			if (!(0 <= x && x < l)) {
+				continue;
+			}
+			if (!(0 <= y && y < w)) {
+				continue;
+			}
+			if (!(0 <= z && z < h)) {
+				continue;
+			}
+			long offset = (long)x * (long)w * (long)h + (long)y * (long)h + (long)z;
 
-					if (vol[offset] == 1) {
-						vol[offset] = 2;
-						offset2bnd[offset] = (int)answer.size();
-						*answ++     = Point(x, y, z);
-					} else {
-						vol[offset] = -1;
-						*insert++   = Point(x, y, z);
-						updated     = true;
-					}
-				}
+			if (vol[offset] < 0 || vol[offset] == 2) {
+				continue;
+			}
+
+			if (vol[offset] == 1) {
+				vol[offset] = 2;
+				offset2bnd[offset] = (int)answer.size();
+				*answ++     = Point(x, y, z);
+			} else {
+				vol[offset] = -1;
+				*insert++   = Point(x, y, z);
+				updated     = true;
 			}
 		}
 	}
