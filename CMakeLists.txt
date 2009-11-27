@@ -18,6 +18,6 @@ add_definitions(-fopenmp)
 set(LIBRARY_OUTPUT_PATH "./lib")
 set(EXECUTABLE_OUTPUT_PATH "./bin")
 
-add_subdirectory(filters)
+#add_subdirectory(filters)
 add_subdirectory(fractal)
 

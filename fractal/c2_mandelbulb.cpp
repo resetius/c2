@@ -107,8 +107,24 @@ float ipow(float a, int p)
 
 void init_mesh(Mesh & mesh, int l, int w, int h)
 {
-	// триангуляция куба
+	// С‚СЂРёР°РЅРіСѓР»СЏС†РёСЏ РєСѓР±Р°
 	mesh.points.reserve(6 * w * h);
+
+	points_t &     ps = mesh.points;
+	triangles_t & trs = mesh.triangles;
+
+	for (int i = 0; i < 1; ++i) {
+		for (int j = 1; j < w - 1; ++j) {
+			for (int k = 1; k < h - 1; ++k) {
+				int p1  = ps.size();  ps.push_back(Point(i, j, k));
+				int p2  = ps.size();  ps.push_back(Point(i, j + 1, k));
+				int p3  = ps.size();  ps.push_back(Point(i, j, k + 1));
+				int p4  = ps.size();  ps.push_back(Point(i, j + 1, k + 1));
+				int tr1 = trs.size(); trs.push_back(Triangle(p1, p2, p3));
+				int tr2 = trs.size(); trs.push_back(Triangle(p2, p3, p4));
+			}
+		}
+	}
 }
 
 void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
@@ -330,12 +346,12 @@ void build_triangulation(triangles_t & tri,
 
 			if (abs(x_off) > 1 || abs(y_off) > 1 || abs(z_off) > 1)
 			{
-				// за пределами нашего куба
+				// Р·Р° РїСЂРµРґРµР»Р°РјРё РЅР°С€РµРіРѕ РєСѓР±Р°
 				continue;
 			}
 
 			if (x_off == 0 && y_off == 0 && z_off == 0) {
-				// центр
+				// С†РµРЅС‚СЂ
 				continue;
 			}
 
