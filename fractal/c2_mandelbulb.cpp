@@ -226,6 +226,140 @@ void init_mesh(Mesh & mesh, int l, int w, int h)
 	}
 }
 
+inline int dist(const Point & p1, const Point & p2)
+{
+	return std::max(
+		std::abs(p1.x - p2.x), 
+		std::max(std::abs(p1.y - p2.y), std::abs(p1.z - p2.z)));
+}
+
+bool iterate_mesh_(Mesh & mesh, volume_t & vol, int l, int w, int h)
+{
+	int diff1[][3] = {
+		// 6
+		{ 1,  0,  0},
+		{-1,  0,  0},
+		{ 0,  1,  0},
+		{ 0, -1,  0},
+		{ 0,  0,  1},
+		{ 0,  0, -1},
+
+		// 12
+		{ 0,  1,  1},
+		{ 0,  1, -1},
+		{ 0, -1,  1},
+		{ 0, -1, -1},
+
+		{ 1,  0,  1},
+		{ 1,  0, -1},
+		{-1,  0,  1},
+		{-1,  0, -1},
+
+		{ 1,  1,  0},
+		{ 1, -1,  0},
+		{-1,  1,  0},
+		{-1, -1,  0},
+
+		// 8
+		{ 1,  1,  1},
+		{ 1,  1, -1},
+		{ 1, -1,  1},
+		{ 1, -1, -1},
+		{-1,  1,  1},
+		{-1,  1, -1},
+		{-1, -1,  1},
+		{-1, -1, -1},
+	};
+	int diff1_size = 6 + 12 + 8;
+
+	float s1 = -2.0f;
+	float s2 =  2.0f;
+
+	float xx = (float)l / (s2 - s1);
+	float yy = (float)w / (s2 - s1);
+	float zz = (float)h / (s2 - s1);
+
+	triangles_t & trs = mesh.trs;
+	points_t & ps     = mesh.ps;
+
+	points_t new_ps;
+	bool changed = false;
+	for (int q = 0; q < ps.size(); ++q) {
+		Point & p = ps[q];
+
+		float x = p.x / xx + s1;
+		float y = p.y / yy + s1;
+		float z = p.z / zz + s1;
+
+		if (x * x + y * y + z * z <= 1) {
+			new_ps.push_back(p);
+			continue;
+		}
+
+		bool flag = false;
+		for (int q1 = 0; q1 < diff1_size; ++q1) 
+		{
+			int i = p.x + diff1[q1][0];
+			int j = p.y + diff1[q1][1];
+			int k = p.z + diff1[q1][2];
+			long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+			if (!(0 <= i && i < l)) continue;
+			if (!(0 <= j && j < w)) continue;
+			if (!(0 <= k && k < h)) continue;
+
+			if (i == p.x && j == p.y && k == p.z) continue;
+
+			if (vol[offset]) continue;
+
+			Point new_p(i, j, k);
+
+			vector < int > & tr_in_p = mesh.p2trs[q];
+			int max_dist = 0;
+			for (int trk = 0; trk < (int)tr_in_p.size(); ++trk)
+			{
+				Triangle & tr = trs[tr_in_p[trk]];
+				max_dist = std::max(max_dist, dist(ps[tr.p1], new_p));
+				max_dist = std::max(max_dist, dist(ps[tr.p2], new_p));
+				max_dist = std::max(max_dist, dist(ps[tr.p3], new_p));
+			}
+
+			if (max_dist == 1) 
+			{
+				vol[offset] = 1;
+				new_ps.push_back(new_p);
+				changed = true;
+				flag    = true;
+				break;
+			}
+		}
+
+		if (!flag) {
+			new_ps.push_back(p);
+		}
+	}
+
+	mesh.ps.swap(new_ps);
+	return changed;
+}
+
+void iterate_mesh(Mesh & mesh, int l, int w, int h)
+{
+	// каждая точка сетки двигается так, 
+	// что "длина" прилегающего ребра остается равным единице
+	// если это не возможно, то разбиваем ребро на два
+	// длина = max(x1 - x0, y1 - y0, z1 - z0)
+
+	volume_t vol(l * w * h);
+
+	for (int i = 0; i < mesh.ps.size(); ++i) {
+		Point & p = mesh.ps[i];
+		long offset = (long)p.x * (long)w * (long)h + (long)p.y * (long)h + (long)p.z;
+		vol[offset] = 1;
+	}
+
+	while (iterate_mesh_(mesh, vol, l, w, h));
+}
+
 void print_mesh(Mesh & mesh)
 {
 	FILE * f = fopen("output.txt", "w");
@@ -585,6 +719,7 @@ int main(int argc, char ** argv)
 
 	Mesh mesh;
 	init_mesh(mesh, l, w, h);
+	iterate_mesh(mesh, l, w, h);
 	print_mesh(mesh);
 
 	//do_all(l, w, h, order);
