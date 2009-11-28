@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <complex>
+#include <unordered_map>
 
 using namespace std;
 
@@ -20,6 +21,11 @@ struct Point
 
 	Point(short i, short j, short k): x(i), y(j), z(k) {}
 	Point(): x(0), y(0), z(0) {}
+
+	bool operator == (const Point & p) const
+	{
+		return x == p.x && y == p.y && z == p.z;
+	}
 };
 
 struct Triangle
@@ -32,17 +38,25 @@ struct Triangle
 	Triangle(): p1(0), p2(0), p3(0) {}
 };
 
+struct point_hash : public std::unary_function<Point, std::size_t> {
+	std::size_t operator()(Point const& p) const
+	{
+		return p.x + p.y + p.z;
+	}
+};
+
 typedef vector < Point > boundary_t;
 typedef vector < Point > points_t;
 typedef map < int, int > offset2bnd_t;
 typedef vector < Triangle > triangles_t;
-typedef map < int, triangles_t > point2triangles_t;
+typedef map < int, vector < int > > p2trs_t;
+typedef tr1::unordered_map < Point, int, point_hash > points_cache_t;
 
 struct Mesh
 {
-	points_t points;
-	triangles_t triangles;
-	point2triangles_t point2triangles;
+	points_t ps;
+	triangles_t trs;
+	p2trs_t p2trs;
 };
 
 #ifndef WIN32
@@ -105,26 +119,125 @@ float ipow(float a, int p)
 	return r;
 }
 
-void init_mesh(Mesh & mesh, int l, int w, int h)
+static int get_point(points_cache_t & cache, int i, int j, int k)
 {
-	// триангуляция куба
-	mesh.points.reserve(6 * w * h);
+	Point p(i, j, k);
+	points_cache_t::iterator it = cache.find(p);
+	if (it == cache.end()) 
+	{
+		int r = (int)cache.size();
+		cache.insert(make_pair(p, r));
+		return r;
+	}
+	return it->second;
+}
 
-	points_t &     ps = mesh.points;
-	triangles_t & trs = mesh.triangles;
+static void gen_side(Mesh & mesh, 
+					 points_cache_t & cache,
+					 int i1, int i2, 
+					 int j1, int j2,
+					 int k1, int k2,
+					 int p1_i, int p1_j, int p1_k,
+					 int p2_i, int p2_j, int p2_k,
+					 int p3_i, int p3_j, int p3_k,
+					 int p4_i, int p4_j, int p4_k)
+{
+	points_t &     ps = mesh.ps;
+	triangles_t & trs = mesh.trs;
+	p2trs_t & p2trs   = mesh.p2trs;
 
-	for (int i = 0; i < 1; ++i) {
-		for (int j = 1; j < w - 1; ++j) {
-			for (int k = 1; k < h - 1; ++k) {
-				int p1  = ps.size();  ps.push_back(Point(i, j, k));
-				int p2  = ps.size();  ps.push_back(Point(i, j + 1, k));
-				int p3  = ps.size();  ps.push_back(Point(i, j, k + 1));
-				int p4  = ps.size();  ps.push_back(Point(i, j + 1, k + 1));
+	for (int i = i1; i < i2; ++i) {
+		for (int j = j1; j < j2; ++j) {
+			for (int k = k1; k < k2; ++k) {
+				int p1  = get_point(cache, i + p1_i, j + p1_j, k + p1_k);
+				int p2  = get_point(cache, i + p2_i, j + p2_j, k + p2_k);
+				int p3  = get_point(cache, i + p3_i, j + p3_j, k + p3_k);
+				int p4  = get_point(cache, i + p4_i, j + p4_j, k + p4_k);
 				int tr1 = trs.size(); trs.push_back(Triangle(p1, p2, p3));
 				int tr2 = trs.size(); trs.push_back(Triangle(p2, p3, p4));
+				p2trs[p1].push_back(tr1);
+				p2trs[p2].push_back(tr1);
+				p2trs[p3].push_back(tr1);
+
+				p2trs[p2].push_back(tr2);
+				p2trs[p3].push_back(tr2);
+				p2trs[p4].push_back(tr2);
 			}
 		}
 	}
+}
+
+void init_mesh(Mesh & mesh, int l, int w, int h)
+{
+	// триангуляция куба
+	mesh.ps.reserve(6 * w * h);
+	points_cache_t cache;
+
+	points_t &     ps = mesh.ps;
+	triangles_t & trs = mesh.trs;
+	p2trs_t & p2trs   = mesh.p2trs;
+
+	gen_side(mesh, cache, 
+		0, 1, 0, w - 1, 0, h - 1, 
+		0, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
+		0, 1, 1);
+
+	gen_side(mesh, cache, 
+		l - 1, l, 0, w - 1, 0, h - 1, 
+		0, 0, 0, 
+		0, 1, 0,
+		0, 0, 1,
+		0, 1, 1);
+
+	gen_side(mesh, cache, 
+		0, l - 1, 0, 1, 0, h - 1, 
+		0, 0, 0, 
+		1, 0, 0,
+		0, 0, 1,
+		1, 0, 1);
+
+	gen_side(mesh, cache, 
+		0, l - 1, w - 1, w, 0, h - 1, 
+		0, 0, 0, 
+		1, 0, 0,
+		0, 0, 1,
+		1, 0, 1);
+
+	gen_side(mesh, cache, 
+		0, l - 1, 0, w - 1, 0, 1, 
+		0, 0, 0, 
+		1, 0, 0,
+		0, 1, 0,
+		1, 1, 0);
+
+	gen_side(mesh, cache, 
+		0, l - 1, 0, w - 1, h - 1, h, 
+		0, 0, 0, 
+		1, 0, 0,
+		0, 1, 0,
+		1, 1, 0);
+
+	ps.resize(cache.size());
+	for (points_cache_t::iterator it = cache.begin(); it != cache.end(); ++it)
+	{
+		ps[it->second] = it->first;
+	}
+}
+
+void print_mesh(Mesh & mesh)
+{
+	FILE * f = fopen("output.txt", "w");
+	fprintf(f, "#\n");
+	for (int i = 0; i < (int)mesh.ps.size(); ++i) {
+		fprintf(f, "%d %d %d\n", mesh.ps[i].x, mesh.ps[i].y, mesh.ps[i].z);
+	}
+	fprintf(f, "#\n");
+	for (int i = 0; i < (int)mesh.trs.size(); ++i) {
+		fprintf(f, "%d %d %d\n", mesh.trs[i].p1 + 1, mesh.trs[i].p2 + 1, mesh.trs[i].p3 + 1);
+	}
+	fclose(f);
 }
 
 void init_boundary(boundary_t & bnd, volume_t & vol, int l, int w, int h)
@@ -469,6 +582,11 @@ int main(int argc, char ** argv)
 	} else {
 		order = 8;
 	}
-	do_all(l, w, h, order);
+
+	Mesh mesh;
+	init_mesh(mesh, l, w, h);
+	print_mesh(mesh);
+
+	//do_all(l, w, h, order);
 }
 
