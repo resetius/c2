@@ -228,50 +228,242 @@ void init_mesh(Mesh & mesh, int l, int w, int h)
 
 inline int dist(const Point & p1, const Point & p2)
 {
-	return std::max(
-		std::abs(p1.x - p2.x), 
-		std::max(std::abs(p1.y - p2.y), std::abs(p1.z - p2.z)));
+	int x = std::abs(p1.x - p2.x);
+	int y = std::abs(p1.y - p2.y);
+	int z = std::abs(p1.z - p2.z);
+	int m = std::max(x, std::max(y, z));
+
+	return m;
+}
+
+bool check_sphere(float x, float y, float z)
+{
+	return x * x + y * y + z * z <= 1;
+}
+
+bool check_mandelbulb(float c1, float c2, float c3)
+{
+	int order = 8;
+	float z1 = 0, z2 = 0, z3 = 0;
+	for (int iter = 0; iter < 256; ++iter)
+	{
+		float r     = sqrtf(z1*z1+z2*z2+z3*z3);
+		float theta = atan2f(sqrtf(z1*z1+z2*z2), z3);
+		float phi   = atan2f(z2, z1);
+		float ro    = ipow(r, order);
+
+		z1 = ro * sinf(theta*order) * cosf(phi*order) + c1;
+		z2 = ro * sinf(theta*order) * sinf(phi*order) + c2;
+		z3 = ro * cosf(theta*order) + c3;
+
+		if (sqrtf(z1*z1+z2*z2+z3*z3) > 2) {
+			break;
+		}
+	}
+
+	return sqrtf(z1*z1+z2*z2+z3*z3) < 2;
+}
+
+static int diff1[][3] = {
+	// 6
+	{ 1,  0,  0},
+	{-1,  0,  0},
+	{ 0,  1,  0},
+	{ 0, -1,  0},
+	{ 0,  0,  1},
+	{ 0,  0, -1},
+
+	// 12
+	{ 0,  1,  1},
+	{ 0,  1, -1},
+	{ 0, -1,  1},
+	{ 0, -1, -1},
+
+	{ 1,  0,  1},
+	{ 1,  0, -1},
+	{-1,  0,  1},
+	{-1,  0, -1},
+
+	{ 1,  1,  0},
+	{ 1, -1,  0},
+	{-1,  1,  0},
+	{-1, -1,  0},
+
+	// 8
+	{ 1,  1,  1},
+	{ 1,  1, -1},
+	{ 1, -1,  1},
+	{ 1, -1, -1},
+	{-1,  1,  1},
+	{-1,  1, -1},
+	{-1, -1,  1},
+	{-1, -1, -1},
+};
+static int diff1_size = 6 + 12 + 8;
+
+/* 
+  0 changed
+  1 do nothing
+  2 remove point
+ */
+bool len1_move(int q, Mesh & mesh, volume_t & vol, int l, int w, int h)
+{
+	triangles_t & trs = mesh.trs;
+	points_t & ps     = mesh.ps;
+	Point & p = ps[q];
+	bool r    = 2;
+
+	unsigned min_max = -1;
+	Point min_max_v;
+	long min_offset;
+
+	for (int q1 = 0; q1 < diff1_size; ++q1) 
+	{
+		int i = p.x + diff1[q1][0];
+		int j = p.y + diff1[q1][1];
+		int k = p.z + diff1[q1][2];
+		long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+		if (!(0 <= i && i < l)) continue;
+		if (!(0 <= j && j < w)) continue;
+		if (!(0 <= k && k < h)) continue;
+
+		if (i == p.x && j == p.y && k == p.z) continue;
+
+		if (vol[offset]) continue;
+		r = 1;
+
+		Point new_p(i, j, k);
+
+		vector < int > & tr_in_p = mesh.p2trs[q];
+		int max_dist = 0;
+		for (int trk = 0; trk < (int)tr_in_p.size(); ++trk)
+		{
+			Triangle & tr = trs[tr_in_p[trk]];
+			max_dist = std::max(max_dist, dist(ps[tr.p1], new_p));
+			max_dist = std::max(max_dist, dist(ps[tr.p2], new_p));
+			max_dist = std::max(max_dist, dist(ps[tr.p3], new_p));
+		}
+
+		if (max_dist == 1) 
+		{
+			vol[offset] = 1;
+			p       = new_p;
+			return true;
+		}
+/*
+		if (min_max > max_dist)
+		{
+			min_max    = max_dist;
+			min_max_v  = new_p;
+			min_offset = offset;
+		}
+*/
+	}
+
+/*
+	if (min_max != (unsigned)-1) 
+	{
+		vol[min_offset] = 1;
+		p = min_max_v;
+		return true;
+	}
+*/
+	return false;
+}
+
+bool len2_move(int q, 
+			   vector < char > & tr_flags,
+			   Mesh & mesh, volume_t & vol, 
+			   int l, int w, int h)
+{
+	triangles_t & trs = mesh.trs;
+	points_t & ps     = mesh.ps;
+	Point & p = ps[q];
+
+	for (int q1 = 0; q1 < diff1_size; ++q1) 
+	{
+		int i = p.x + diff1[q1][0];
+		int j = p.y + diff1[q1][1];
+		int k = p.z + diff1[q1][2];
+		long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
+		if (!(0 <= i && i < l)) continue;
+		if (!(0 <= j && j < w)) continue;
+		if (!(0 <= k && k < h)) continue;
+
+		if (i == p.x && j == p.y && k == p.z) continue;
+
+		if (vol[offset]) continue;
+
+		Point new_p(i, j, k);
+
+		vector < int > & tr_in_p = mesh.p2trs[q];
+		vector < int > pp; pp.reserve(3);
+		int trn;
+
+		int max_dist = 0;
+
+		for (int trk = 0; trk < (int)tr_in_p.size(); ++trk)
+		{
+			trn = tr_in_p[trk];
+			Triangle & tr = trs[trn];
+
+			pp.clear();
+
+			if (dist(ps[tr.p1], new_p) == 1) pp.push_back(tr.p1);
+			if (dist(ps[tr.p2], new_p) == 1) pp.push_back(tr.p2);
+			if (dist(ps[tr.p3], new_p) == 1) pp.push_back(tr.p3);
+
+			if (pp.size() == 3) {
+				break;
+			}
+		}
+
+		if (pp.size() == 3) 
+		{
+			// вместо одного треугольника делаем три
+			tr_flags[trn] = 1;
+			int p0 = ps.size(); ps.push_back(new_p);
+			
+			int tr1 = trs.size(); trs.push_back(Triangle(p0, pp[0], pp[1]));
+			int tr2 = trs.size(); trs.push_back(Triangle(p0, pp[1], pp[2]));
+			int tr3 = trs.size(); trs.push_back(Triangle(p0, pp[2], pp[0]));
+
+			// обновляем треугольники в точке
+			mesh.p2trs[p0].push_back(tr1);
+			mesh.p2trs[p0].push_back(tr2);
+			mesh.p2trs[p0].push_back(tr3);
+
+			mesh.p2trs[pp[0]].push_back(tr1);
+			mesh.p2trs[pp[0]].push_back(tr3);
+
+			mesh.p2trs[pp[1]].push_back(tr1);
+			mesh.p2trs[pp[1]].push_back(tr2);
+
+			mesh.p2trs[pp[2]].push_back(tr2);
+			mesh.p2trs[pp[2]].push_back(tr3);
+
+			for (int i = 0; i < 3; ++i) {
+				vector < int > & tr_in_p = mesh.p2trs[pp[0]];
+				vector < int > new_tr_in_p;
+
+				for (int j = 0; j < (int)tr_in_p.size(); ++j) {
+					if (tr_in_p[j] != trn) {
+						new_tr_in_p.push_back(tr_in_p[j]);
+					}
+				}
+
+				tr_in_p.swap(new_tr_in_p);
+			}
+
+			vol[offset] = 1;
+			return true;
+		}
+	}
+	return false;
 }
 
 bool iterate_mesh_(Mesh & mesh, volume_t & vol, int l, int w, int h)
 {
-	int diff1[][3] = {
-		// 6
-		{ 1,  0,  0},
-		{-1,  0,  0},
-		{ 0,  1,  0},
-		{ 0, -1,  0},
-		{ 0,  0,  1},
-		{ 0,  0, -1},
-
-		// 12
-		{ 0,  1,  1},
-		{ 0,  1, -1},
-		{ 0, -1,  1},
-		{ 0, -1, -1},
-
-		{ 1,  0,  1},
-		{ 1,  0, -1},
-		{-1,  0,  1},
-		{-1,  0, -1},
-
-		{ 1,  1,  0},
-		{ 1, -1,  0},
-		{-1,  1,  0},
-		{-1, -1,  0},
-
-		// 8
-		{ 1,  1,  1},
-		{ 1,  1, -1},
-		{ 1, -1,  1},
-		{ 1, -1, -1},
-		{-1,  1,  1},
-		{-1,  1, -1},
-		{-1, -1,  1},
-		{-1, -1, -1},
-	};
-	int diff1_size = 6 + 12 + 8;
-
 	float s1 = -2.0f;
 	float s2 =  2.0f;
 
@@ -282,63 +474,89 @@ bool iterate_mesh_(Mesh & mesh, volume_t & vol, int l, int w, int h)
 	triangles_t & trs = mesh.trs;
 	points_t & ps     = mesh.ps;
 
-	points_t new_ps;
 	bool changed = false;
-	for (int q = 0; q < ps.size(); ++q) {
+	int ps_size  = (int)ps.size();
+	int trs_size = (int)trs.size();
+
+	// каждая точка может породить 2 точки, поэтому с запасом
+	vector < char > ps_flags(2 * ps_size);
+	// каждый треугольник может породить 3 треугольника, поэтому с запасом
+	vector < char > tr_flags(3 * trs_size);
+
+	for (int q = 0; q < ps_size; ++q) 
+	{
 		Point & p = ps[q];
 
 		float x = p.x / xx + s1;
 		float y = p.y / yy + s1;
 		float z = p.z / zz + s1;
 
-		if (x * x + y * y + z * z <= 1) {
-			new_ps.push_back(p);
+//		if (check_sphere(x, y, z)) 
+		if (check_mandelbulb(x, y, z)) 
+		{
 			continue;
 		}
 
-		bool flag = false;
-		for (int q1 = 0; q1 < diff1_size; ++q1) 
+		bool flag = len1_move(q, mesh, vol, l, w, h);
+//		if (!flag) {
+//			flag = len2_move(q, tr_flags, mesh, vol, l, w, h);
+//		}
+		changed |= flag;
+/*
+		if (!flag) 
 		{
-			int i = p.x + diff1[q1][0];
-			int j = p.y + diff1[q1][1];
-			int k = p.z + diff1[q1][2];
-			long offset = (long)i * (long)w * (long)h + (long)j * (long)h + (long)k;
-			if (!(0 <= i && i < l)) continue;
-			if (!(0 <= j && j < w)) continue;
-			if (!(0 <= k && k < h)) continue;
-
-			if (i == p.x && j == p.y && k == p.z) continue;
-
-			if (vol[offset]) continue;
-
-			Point new_p(i, j, k);
-
+			// remove point
+			ps_flags[q] = 1;
 			vector < int > & tr_in_p = mesh.p2trs[q];
-			int max_dist = 0;
+
+			// remove triangles
 			for (int trk = 0; trk < (int)tr_in_p.size(); ++trk)
 			{
-				Triangle & tr = trs[tr_in_p[trk]];
-				max_dist = std::max(max_dist, dist(ps[tr.p1], new_p));
-				max_dist = std::max(max_dist, dist(ps[tr.p2], new_p));
-				max_dist = std::max(max_dist, dist(ps[tr.p3], new_p));
-			}
-
-			if (max_dist == 1) 
-			{
-				vol[offset] = 1;
-				new_ps.push_back(new_p);
-				changed = true;
-				flag    = true;
-				break;
+				tr_flags[tr_in_p[trk]] = 1;
 			}
 		}
+*/
+	}
 
-		if (!flag) {
-			new_ps.push_back(p);
+	// rebuild mesh
+	points_t new_ps;
+	triangles_t new_trs;
+	p2trs_t new_ps2trs;
+
+	ps_size = ps.size();
+	trs_size = trs.size();
+
+	vector < int > oldp2new(ps_size);
+
+	new_ps.reserve(ps_size);
+	new_trs.reserve(trs_size);
+
+	for (int i = 0, j = 0; i < ps_size; ++i)
+	{
+		if (ps_flags[i] == 0) {
+			new_ps.push_back(ps[i]);
+			oldp2new[i] = j++;
+		}
+	}
+
+	for (int i = 0; i < trs_size; ++i)
+	{
+		if (tr_flags[i] == 0) {
+			int p1 = oldp2new[trs[i].p1];
+			int p2 = oldp2new[trs[i].p2];
+			int p3 = oldp2new[trs[i].p3];
+
+			int tr = new_trs.size(); new_trs.push_back(Triangle(p1, p2, p3));
+			new_ps2trs[p1].push_back(tr);
+			new_ps2trs[p2].push_back(tr);
+			new_ps2trs[p3].push_back(tr);
 		}
 	}
 
 	mesh.ps.swap(new_ps);
+	mesh.trs.swap(new_trs);
+	mesh.p2trs.swap(new_ps2trs);
+
 	return changed;
 }
 
@@ -357,7 +575,9 @@ void iterate_mesh(Mesh & mesh, int l, int w, int h)
 		vol[offset] = 1;
 	}
 
-	while (iterate_mesh_(mesh, vol, l, w, h));
+	int iter = 0;
+	//while (iterate_mesh_(mesh, vol, l, w, h)) { iter ++; }
+	iterate_mesh_(mesh, vol, l, w, h);
 }
 
 void print_mesh(Mesh & mesh)
