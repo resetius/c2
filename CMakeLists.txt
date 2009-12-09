@@ -8,9 +8,9 @@ endif(COMMAND cmake_policy)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-include(FindJPEG)
-include(Flex)
-include(Bison)
+find_package(JPEG)
+find_package(BISON)
+find_package(FLEX)
 include(fftw3)
 
 add_definitions(-fopenmp)

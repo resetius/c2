@@ -14,9 +14,16 @@ else(WIN32)
 set(GD_LIB "gd")
 endif(WIN32)
 
-add_flex_files(source c2_lsystem_scanner.l)
-add_flex_files(source c2_turtle_scanner.l)
-add_bison_files(source c2_lsystem_parser.ypp)
+flex_target(c2_lsystem_scanner c2_lsystem_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_scanner.c)
+flex_target(c2_turtle_scanner c2_turtle_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_turtle_scanner.c)
+bison_target(c2_lsystem_parser c2_lsystem_parser.ypp ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_parser.cpp)
+
+add_flex_bison_dependency(c2_lsystem_scanner c2_lsystem_parser)
+set(source ${source} 
+	${BISON_c2_lsystem_parser_OUTPUTS}
+	${FLEX_c2_lsystem_scanner_OUTPUTS}
+	${FLEX_c2_turtle_scanner_OUTPUTS}
+	)
 
 include_directories(../)
 
