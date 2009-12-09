@@ -6,7 +6,11 @@
 #include <vector>
 #include <map>
 #include <complex>
+#ifdef WIN32
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 
 using namespace std;
 
@@ -228,9 +232,9 @@ void init_mesh(Mesh & mesh, int l, int w, int h)
 
 inline int dist(const Point & p1, const Point & p2)
 {
-	int x = std::abs(p1.x - p2.x);
-	int y = std::abs(p1.y - p2.y);
-	int z = std::abs(p1.z - p2.z);
+	int x = abs(p1.x - p2.x);
+	int y = abs(p1.y - p2.y);
+	int z = abs(p1.z - p2.z);
 	int m = std::max(x, std::max(y, z));
 
 	return m;
