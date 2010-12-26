@@ -10,9 +10,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 find_package(JPEG)
-include(fftw3)
+find_package(OpenMP)
 
-add_definitions(-fopenmp)
+if (OPENMP_FOUND)
+add_definitions(${OpenMP_C_FLAGS})
+endif ()
+
+include(fftw3)
 
 set(LIBRARY_OUTPUT_PATH "./lib")
 set(EXECUTABLE_OUTPUT_PATH "./bin")

@@ -145,7 +145,7 @@ int main(int argc, char * argv[])
 	int level = 0;
 	int type  = 0; //txt
 
-	for (uint i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-f") && i < argc - 1) {
 			f = fopen(argv[i + 1], "r");
 		} else if (!strcmp(argv[i], "-l") && i < argc - 1) {

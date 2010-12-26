@@ -88,7 +88,7 @@ string lsystem_iter(string & src, Group & gr)
 string lsystem(Group & gr, int level) {
 	string W = gr.axiom;
 
-	for (uint i = 0; i < level; ++i) {
+	for (int i = 0; i < level; ++i) {
 		W = lsystem_iter(W, gr);
 //		cerr << i << ":" << W << "\n";
 	}
