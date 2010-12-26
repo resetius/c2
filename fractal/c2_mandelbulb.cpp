@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <complex>
+#include <iterator>
+
 #ifdef WIN32
 #include <unordered_map>
 #else

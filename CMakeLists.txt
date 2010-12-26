@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 find_package(JPEG)
 include(fftw3)

@@ -10,6 +10,12 @@ find_package(FLEX REQUIRED)
 #	add_definitions("-DHAVE_FFTW")
 #endif (FFTW3_FOUND)
 
+if (NOT WIN32)
+set(MATH "m")
+else ()
+add_definitions(-DYY_NO_UNISTD_H -D_USE_MATH_DEFINES)
+endif ()
+
 set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cpp)
 if(WIN32)
 set(GD_LIB "")
@@ -29,6 +35,8 @@ set(source ${source}
 	)
 
 include_directories(../)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(fractal ${source})
 add_executable(koch c2_koch.cpp)
@@ -53,7 +61,7 @@ add_executable(fbm_2d c2_fbm.cpp)
 target_link_libraries(fbm_2d ${GD_LIB} ${FFTW_LIB})
 
 add_executable(fbm_hcalc c2_fbm_hcalc)
-target_link_libraries(fbm_hcalc m)
+target_link_libraries(fbm_hcalc ${MATH})
 
 set_target_properties(mandelbrot PROPERTIES  LINK_FLAGS "-fopenmp")
 set_target_properties(mandelbulb PROPERTIES  LINK_FLAGS "-fopenmp")
