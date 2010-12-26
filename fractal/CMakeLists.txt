@@ -3,6 +3,9 @@ project(fractal)
 set(LIBRARY_OUTPUT_PATH "../lib")
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
+
 #if (FFTW3_FOUND)
 #	add_definitions("-DHAVE_FFTW")
 #endif (FFTW3_FOUND)
