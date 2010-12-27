@@ -44,6 +44,7 @@
 
 using namespace std;
 typedef complex < double > cmpl;
+typedef unsigned int uint;
 
 static void init_color_map(int *colors, gdImagePtr & im)
 {
