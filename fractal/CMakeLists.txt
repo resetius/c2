@@ -52,13 +52,13 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(fractal ${source})
 add_executable(koch c2_koch.cpp)
-target_link_libraries(koch fractal fl)
+target_link_libraries(koch fractal )
 
 add_executable(lsystem c2_lsystem.cpp)
-target_link_libraries(lsystem fractal fl ${GD_LIB})
+target_link_libraries(lsystem fractal  ${GD_LIB})
 
 add_executable(ifs c2_ifs.cpp)
-target_link_libraries(ifs fractal fl ${GD_LIB})
+target_link_libraries(ifs fractal  ${GD_LIB})
 
 add_executable(mandelbrot c2_mandelbrot.cpp)
 target_link_libraries(mandelbrot ${GD_LIB})

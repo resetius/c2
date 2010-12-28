@@ -145,3 +145,8 @@ WHITESPACE [ \t]
 <INITIAL> действует в первоначальной группе.
  */
 
+int yywrap()
+{
+	return 1;
+}
+
