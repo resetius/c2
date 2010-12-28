@@ -43,6 +43,7 @@
 
 using namespace std;
 typedef complex < double > cmpl;
+typedef unsigned int uint;
 
 //fractal Brownian motion
 
@@ -177,12 +178,12 @@ void fbd(int N, double H)
 	cmpl i (0.0, 1.0);
 
 	X1[0] = normal();
-	for (uint j = 1; j <= N / 2 - 1; ++j) {
+	for (int j = 1; j <= N / 2 - 1; ++j) {
 		X1[j] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)j, H + 0.5);
 	}
 	X1[N / 2] = normal() * exp(i * 2.0 * M_PI * uniform()) / pow((double)(N / 2), H + 0.5);
-	X1[N / 2].imag() = 0;
-	for (uint j = N / 2 + 1; j <= N - 1; ++j) {
+	X1[N / 2].imag(0);
+	for (int j = N / 2 + 1; j <= N - 1; ++j) {
 		X1[j] = conj(X1[N - j]);
 	}
 
@@ -199,7 +200,7 @@ void fbd(int N, double H)
 	cerr << "\n";
 #endif
 
-	for (uint j = 0; j < N; ++j) {
+	for (int j = 0; j < N; ++j) {
 		cout << X[j].real() << "\n";
 	}
 
@@ -226,7 +227,7 @@ int main (int argc, char * argv[])
 	double H = 0.5;
 
 	init();
-	for (uint i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-N") && i < argc - 1) {
 			N = atoi(argv[i + 1]);
 		} else if (!strcmp(argv[i], "-H") && i < argc - 1) {

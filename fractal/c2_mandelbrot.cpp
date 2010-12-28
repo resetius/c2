@@ -44,7 +44,7 @@ typedef complex < double > cmpl;
 
 static void init_color_map(int *colors, gdImagePtr & im)
 {
-	for (uint i = 0; i < 256; ++i) {
+	for (int i = 0; i < 256; ++i) {
 		colors[i] = gdImageColorAllocate(im,
 										 colormap_vga2[i][0],
 										 colormap_vga2[i][1],
@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
 	int size = 512;
 	int type = 0; //txt
 
-	for (uint i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-s") && i < argc - 1) {
 			size = atoi(argv[i + 1]);
 		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {

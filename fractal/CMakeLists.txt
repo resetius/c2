@@ -6,6 +6,23 @@ set(EXECUTABLE_OUTPUT_PATH "../bin")
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
+find_library(GD_LIB gd NAMES gd bgd bgd_a)
+
+if (GD_LIB-NOTFOUND)
+message(FATAL_ERROR "gd library not found")
+else ()
+message(STATUS "gd library found: ${GD_LIB}")
+endif ()
+
+find_path(GD_INCLUDE_DIR "gd.h" HINTS /usr/include ENV INCLUDE)
+if (GD_INCLUDE_DIR-NOTFOUND)
+message(FATAL_ERROR "gd includes not found")
+else ()
+message(STATUS "gd includes found: ${GD_INCLUDE_DIR}")
+endif ()
+
+include_directories(${GD_INCLUDE_DIR})
+
 #if (FFTW3_FOUND)
 #	add_definitions("-DHAVE_FFTW")
 #endif (FFTW3_FOUND)
@@ -17,11 +34,6 @@ add_definitions(-DYY_NO_UNISTD_H -D_USE_MATH_DEFINES)
 endif ()
 
 set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cpp)
-if(WIN32)
-set(GD_LIB "")
-else(WIN32)
-set(GD_LIB "gd")
-endif(WIN32)
 
 flex_target(c2_lsystem_scanner c2_lsystem_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_scanner.c)
 flex_target(c2_turtle_scanner c2_turtle_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_turtle_scanner.c)
