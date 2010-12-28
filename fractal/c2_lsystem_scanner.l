@@ -47,7 +47,7 @@ static char * strdup_upper(const char * p)
 
 %}
 %option 8bit 
-%option outfile="c2_lsystem_scanner.c" header-file="c2_lsystem_scanner.h" case-insensitive
+%option header-file="c2_lsystem_scanner.h" case-insensitive
 %s gen
 %s grp
 %s comment

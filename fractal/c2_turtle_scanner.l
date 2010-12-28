@@ -36,7 +36,7 @@
 struct State st = {0, 0, 0};
 %}
 %option 8bit
-%option outfile="c2_turtle_scanner.c" header-file="c2_turtle_scanner.h" prefix="turtle" case-insensitive
+%option header-file="c2_turtle_scanner.h" prefix="turtle" case-insensitive
 NUM [0-9]*\.?[0-9]+
 INT [0-9]+
 VAR [a-zA-Z]
