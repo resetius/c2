@@ -33,6 +33,8 @@
 #include <math.h>
 #include "c2_turtle.h"
 
+extern "C" int isatty(int);
+
 struct State st = {0, 0, 0};
 %}
 %option 8bit

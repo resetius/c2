@@ -6,7 +6,7 @@ set(EXECUTABLE_OUTPUT_PATH "../bin")
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
-find_library(GD_LIB gd NAMES gd bgd bgd_a)
+find_library(GD_LIB gd NAMES gd bgd)
 
 if (GD_LIB-NOTFOUND)
 message(FATAL_ERROR "gd library not found")

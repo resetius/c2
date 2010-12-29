@@ -35,6 +35,7 @@
 #include <ctype.h>
 #include "c2_lsystem_parser.hpp"
 
+extern "C" int isatty(int);
 static int comment_caller;
 
 static char * strdup_upper(const char * p)

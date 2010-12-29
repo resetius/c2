@@ -9,7 +9,6 @@ endif(COMMAND cmake_policy)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-find_package(JPEG)
 find_package(OpenMP)
 
 if (OPENMP_FOUND)
