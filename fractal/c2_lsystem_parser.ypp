@@ -34,14 +34,12 @@
 #include <math.h>
 #include <stdexcept>
 #include <sstream>
-extern "C" {
 #include "c2_lsystem_scanner.h"
-}
 
 #include "c2_lsystem.h"
 
 extern int yyerror(Parser * ptr, const char *s);
-extern "C" int yyget_lineno  (void);
+extern int yyget_lineno  (void);
 
 %}
 %union {

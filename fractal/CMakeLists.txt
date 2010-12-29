@@ -35,8 +35,8 @@ endif ()
 
 set(source c2_lsystem_iter.cpp c2_lines2mgl.cpp c2_lines2txt.cpp c2_lines2png.cpp)
 
-flex_target(c2_lsystem_scanner c2_lsystem_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_scanner.c)
-flex_target(c2_turtle_scanner c2_turtle_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_turtle_scanner.c)
+flex_target(c2_lsystem_scanner c2_lsystem_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_scanner.cpp)
+flex_target(c2_turtle_scanner c2_turtle_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/c2_turtle_scanner.cpp)
 bison_target(c2_lsystem_parser c2_lsystem_parser.ypp ${CMAKE_CURRENT_BINARY_DIR}/c2_lsystem_parser.cpp)
 
 add_flex_bison_dependency(c2_lsystem_scanner c2_lsystem_parser)

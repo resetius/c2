@@ -32,6 +32,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 #include "c2_lsystem_parser.hpp"
 
 static int comment_caller;
@@ -39,7 +40,7 @@ static int comment_caller;
 static char * strdup_upper(const char * p)
 {
     int l = strlen(p);
-    char * r = malloc(l + 1);
+    char * r = (char*)malloc(l + 1);
     char *r1 = r; 
     while ((*r++ = toupper(*p++)));
     return r1;

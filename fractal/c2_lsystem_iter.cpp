@@ -29,10 +29,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-extern "C" {
 #include "c2_turtle_scanner.h"
 #include "c2_turtle.h"
-}
 #include "c2_lsystem.h"
 
 #include <math.h>
