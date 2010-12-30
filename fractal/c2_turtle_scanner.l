@@ -33,7 +33,7 @@
 #include <math.h>
 #include "c2_turtle.h"
 
-extern "C" int isatty(int);
+extern "C" int isatty(int) throw ();
 
 struct State st = {0, 0, 0};
 %}
