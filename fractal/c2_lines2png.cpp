@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <gd.h>
 #include "c2_2graph.h"
-#include "common/c2_colormap_vga1.h"
+#include "c2_colormap_vga1.h"
 
 using namespace std;
 

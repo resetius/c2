@@ -40,7 +40,7 @@
 #include <set>
 #include <map>
 
-#include "common/c2_colormap_vga1.h"
+#include "c2_colormap_vga1.h"
 
 using namespace std;
 typedef complex < double > cmpl;
