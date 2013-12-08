@@ -33,6 +33,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include "c2_lsystem.h"
 #include "c2_lsystem_parser.hpp"
 
 extern "C" int isatty(int) throw ();

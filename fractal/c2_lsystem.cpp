@@ -32,10 +32,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <list>
+#include "c2_lsystem.h"
 #include "c2_lsystem_scanner.h"
 #include "c2_lsystem_parser.hpp"
 #include "c2_2graph.h"
-#include "c2_lsystem.h"
 
 using namespace std;
 
