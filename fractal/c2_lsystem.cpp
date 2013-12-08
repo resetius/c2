@@ -124,7 +124,7 @@ void usage(const char * n)
 {
 	printf("usage:\n");
 //	printf("%s [-f filename] [-t type] [-l order] \n", n);
-	printf("%s [-f filename] [-l order] \n", n);
+	printf("%s [-f filename] [-l order] [-w width] [-h height] \n", n);
 	printf("-f -- read lsystem from file (stdin - default)\n");
 #if 0
 	printf("-t -- points save type: \n");
@@ -143,11 +143,18 @@ int main(int argc, char * argv[])
 	int level = 0;
 	int type  = 0; //txt
 
+	int w = 1024;
+	int h = 1024;
+
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-f") && i < argc - 1) {
 			f = fopen(argv[i + 1], "r");
 		} else if (!strcmp(argv[i], "-l") && i < argc - 1) {
 			level = atoi(argv[i + 1]);
+		} else if (!strcmp(argv[i], "-w") && i < argc - 1) {
+			w = atoi(argv[i+1]);
+		} else if (!strcmp(argv[i], "-h") && i < argc - 1) {
+			h = atoi(argv[i+1]);
 #if 0
 		} else if (!strcmp(argv[i], "-t") && i < argc - 1) {
 			if (!strcmp(argv[i + 1], "mgl")) {
@@ -201,7 +208,7 @@ int main(int argc, char * argv[])
 			case 2:
 #endif
 			{
-				print_lines2png(*it, lines, min_x, max_x, min_y, max_y);
+				print_lines2png(*it, lines, min_x, max_x, min_y, max_y, w, h);
 #if 0
 				break;
 #endif

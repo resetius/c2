@@ -47,7 +47,7 @@ static void init_color_map(int *colors, gdImagePtr & im)
 }
 
 string print_lines2png(Group & g, list < line > & ln,
-                       double min_x, double max_x, double min_y, double max_y)
+                       double min_x, double max_x, double min_y, double max_y, int w = 1024, int h = 1024)
 {
 	string fname = "output.png";
 	int colors[256];
@@ -57,8 +57,6 @@ string print_lines2png(Group & g, list < line > & ln,
 	if (!f) return "";
 
 	gdImagePtr im;
-	int w = 1024;
-	int h = 1024;
 	im    = gdImageCreate(w, h);
 	int trans = gdImageColorAllocate(im, 0, 0, 0);
 
