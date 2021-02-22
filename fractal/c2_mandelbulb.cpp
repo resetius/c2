@@ -8,11 +8,7 @@
 #include <complex>
 #include <iterator>
 
-#ifdef WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 
 using namespace std;
 
@@ -56,7 +52,7 @@ typedef vector < Point > points_t;
 typedef map < int, int > offset2bnd_t;
 typedef vector < Triangle > triangles_t;
 typedef map < int, vector < int > > p2trs_t;
-typedef tr1::unordered_map < Point, int, point_hash > points_cache_t;
+typedef unordered_map < Point, int, point_hash > points_cache_t;
 
 struct Mesh
 {
